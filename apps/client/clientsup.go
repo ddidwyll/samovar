@@ -27,8 +27,8 @@ func (sup *ClientSup) Init(args ...any) (act.SupervisorSpec, error) {
 			Factory: factory_ClientActor,
 		},
 		{
-			Name:    "clientserver",
-			Factory: factory_ClientServer,
+			Name:    "clientservice",
+			Factory: factory_ClientService,
 		},
 	}
 

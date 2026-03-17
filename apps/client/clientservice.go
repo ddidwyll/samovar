@@ -8,16 +8,16 @@ import (
 	"ergo.services/ergo/meta"
 )
 
-func factory_ClientServer() gen.ProcessBehavior {
-	return &ClientServer{}
+func factory_ClientService() gen.ProcessBehavior {
+	return &ClientService{}
 }
 
-type ClientServer struct {
+type ClientService struct {
 	act.Pool
 }
 
 // Init invoked on a start this process.
-func (w *ClientServer) Init(args ...any) (act.PoolOptions, error) {
+func (w *ClientService) Init(args ...any) (act.PoolOptions, error) {
 	var webOptions meta.WebServerOptions
 	var poolOptions act.PoolOptions
 
@@ -61,6 +61,6 @@ func (w *ClientServer) Init(args ...any) (act.PoolOptions, error) {
 	w.Log().Info("you may check it with command below:")
 	w.Log().Info("   $ curl -k %s://%s:%d", https, webOptions.Host, webOptions.Port)
 
-	poolOptions.WorkerFactory = factory_ClientServerWebWorker
+	poolOptions.WorkerFactory = factory_ClientServiceWebWorker
 	return poolOptions, nil
 }
