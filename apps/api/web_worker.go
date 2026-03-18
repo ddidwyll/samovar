@@ -15,15 +15,10 @@ func createWebWorker() gen.ProcessBehavior {
 	return &WebWorker{}
 }
 
-type WebWorker struct {
-	act.WebWorker
-	connections map[gen.Alias]bool
-	counter     uint
-}
+type WebWorker struct {act.WebWorker}
 
 // Init invoked on a start this process.
 func (w *WebWorker) Init(args ...any) error {
-	w.connections = make(map[gen.Alias]bool)
 	w.SendAfter(w.PID(), "tick", 2*time.Second)
 	w.Log().Info("started web worker process with args %v", args)
 	return nil
@@ -46,45 +41,100 @@ func (w *WebWorker) HandleGet(from gen.PID, writer http.ResponseWriter, request 
 	return nil
 }
 
-func (w *WebWorker) HandleMessage(from gen.PID, message any) error {
+func (ww *WebWorker) sseStateAddConn(alias gen.Alias) {
+  if err := ww.Send(sseStateProcessName, sseStateReqAddConn{alias}); err != nil {
+    ww.Log().Error("%s", err)
+    panic(err)
+  }
+}
+
+func (ww *WebWorker) sseStateDelConn(alias gen.Alias) {
+  if err := ww.Send(sseStateProcessName, sseStateReqDelConn{alias}); err != nil {
+    ww.Log().Error("%s", err)
+    panic(err)
+  }
+}
+
+func (ww *WebWorker) sseStateCountIncr() {
+  if err := ww.Send(sseStateProcessName, sseStateReqCountIncr{}); err != nil {
+    ww.Log().Error("%s", err)
+    panic(err)
+  }
+}
+
+func (ww *WebWorker) sseStateGet(key string) any {
+  result, err := ww.Call(sseStateProcessName, sseStateReqGet{key})
+
+  if err == nil {
+    return result
+  } else {
+    ww.Log().Error("%s", err)
+    panic(err) 
+  }
+}
+
+func (ww *WebWorker) sseStateGetConns() map[gen.Alias]bool {
+  if m, ok := ww.sseStateGet("connections").(map[gen.Alias]bool); ok {
+    return m
+  } else {
+    panic("Unexpected sseState state value")
+  }
+}
+
+func (ww *WebWorker) sseStateGetCounter() uint {
+  if c, ok := ww.sseStateGet("counter").(uint); ok {
+    return c
+  } else {
+    panic("Unexpected sseState state value")
+  }
+}
+
+func (ww *WebWorker) sseStateGetConnLen() int {
+  return len(ww.sseStateGetConns())
+}
+
+func (ww *WebWorker) HandleMessage(from gen.PID, message any) error {
 	switch m := message.(type) {
 	case sse.MessageConnect:
-		w.Log().Info("New SSE connection: %s (remote: %s)", m.ID, m.RemoteAddr)
-		w.connections[m.ID] = true
+		ww.Log().Info("New SSE connection: %s (remote: %s)", m.ID, m.RemoteAddr)
+		ww.sseStateAddConn(m.ID)
 
+		connLen := ww.sseStateGetConnLen()
 		welcome := sse.Message{
 			Event: "welcome",
-			Data:  []byte(fmt.Sprintf("Connected! You are client #%d", len(w.connections))),
+			Data:  []byte(fmt.Sprintf("Connected! You are client #%d", connLen)),
 			MsgID: "0",
 		}
-		w.SendAlias(m.ID, welcome)
+		ww.SendAlias(m.ID, welcome)
 
 	case sse.MessageDisconnect:
-		w.Log().Info("SSE disconnected %s", m.ID)
-		delete(w.connections, m.ID)
+		ww.Log().Info("SSE disconnected %s", m.ID)
+		ww.sseStateDelConn(m.ID)
 
 	case sse.MessageLastEventID:
-		w.Log().Info("Client reconnected with Last-Event-ID: %s", m.LastEventID)
+		ww.Log().Info("Client reconnected with Last-Event-ID: %s", m.LastEventID)
 
 	case string:
 		if m == "tick" {
-			w.counter++
+			ww.sseStateCountIncr()
 			now := time.Now().Format("15.04.05")
+			conns := ww.sseStateGetConns()
+			counter := ww.sseStateGetCounter()
 
-			for connID := range w.connections {
+			for connID := range conns {
 				msg := sse.Message{
 					Event: "time",
-					Data:  []byte(fmt.Sprintf(`{"counter": %d, "time": "%s", "clients": %d}`, w.counter, now, len(w.connections))),
-					MsgID: fmt.Sprintf("%d", w.counter),
+					Data:  []byte(fmt.Sprintf(`{"counter": %d, "time": "%s", "clients": %d}`, counter, now, len(conns))),
+					MsgID: fmt.Sprintf("%d", counter),
 				}
-				if err := w.SendAlias(connID, msg); err != nil {
-					w.Log().Error("Failed to send to %s: %s", connID, err)
+				if err := ww.SendAlias(connID, msg); err != nil {
+					ww.Log().Error("Failed to send to %s: %s", connID, err)
 				}
 			}
 
-			w.SendAfter(w.PID(), "tick", 2*time.Second)
+			ww.SendAfter(ww.PID(), "tick", 2*time.Second)
 		} else {
-			w.Log().Warning("Unexpected WebWorker message: %s", m)
+			ww.Log().Warning("Unexpected WebWorker message: %s", m)
 		}
 	}
 

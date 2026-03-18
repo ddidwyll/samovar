@@ -27,6 +27,10 @@ func (sup *Sup) Init(args ...any) (act.SupervisorSpec, error) {
 			Factory: createActor,
 		},
 		{
+			Name:    "sseState",
+			Factory: factory_sseState,
+		},
+		{
 			Name:    "web",
 			Factory: createWeb,
 		},
