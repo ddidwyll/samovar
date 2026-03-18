@@ -73,8 +73,8 @@ func (ww *WebWorker) sseStateGet(key string) any {
   }
 }
 
-func (ww *WebWorker) sseStateGetConns() map[gen.Alias]bool {
-  if m, ok := ww.sseStateGet("connections").(map[gen.Alias]bool); ok {
+func (ww *WebWorker) sseStateGetConns() sseStateConns {
+  if m, ok := ww.sseStateGet("connections").(sseStateConns); ok {
     return m
   } else {
     panic("Unexpected sseState state value")
