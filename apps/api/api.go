@@ -1,32 +1,32 @@
-package device
+package api
 
 import (
 	"ergo.services/ergo/gen"
 )
 
-func CreateDevice() gen.ApplicationBehavior {
-	return &Device{}
+func CreateApi() gen.ApplicationBehavior {
+	return &Api{}
 }
 
-type Device struct{}
+type Api struct{}
 
 // Load invoked on loading application using method ApplicationLoad of gen.Node interface.
-func (app *Device) Load(node gen.Node, args ...any) (gen.ApplicationSpec, error) {
+func (app *Api) Load(node gen.Node, args ...any) (gen.ApplicationSpec, error) {
 	return gen.ApplicationSpec{
-		Name:        "device",
+		Name:        "api",
 		Description: "description of this application",
 		Mode:        gen.ApplicationModeTransient,
 		Group: []gen.ApplicationMemberSpec{
 			{
-				Name:    "devicesup",
-				Factory: factory_DeviceSup,
+				Name:    "sup",
+				Factory: factory_Sup,
 			},
 		},
 	}, nil
 }
 
 // Start invoked once the application started
-func (app *Device) Start(mode gen.ApplicationMode) {}
+func (app *Api) Start(mode gen.ApplicationMode) {}
 
 // Terminate invoked once the application stopped
-func (app *Device) Terminate(reason error) {}
+func (app *Api) Terminate(reason error) {}

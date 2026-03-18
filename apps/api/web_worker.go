@@ -1,4 +1,4 @@
-package client
+package api
 
 import (
 	"bytes"
@@ -8,16 +8,16 @@ import (
 	"net/http"
 )
 
-func factory_WebServiceWebWorker() gen.ProcessBehavior {
-	return &WebServiceWebWorker{}
+func factory_WebWebWorker() gen.ProcessBehavior {
+	return &WebWebWorker{}
 }
 
-type WebServiceWebWorker struct {
+type WebWebWorker struct {
 	act.WebWorker
 }
 
 // Init invoked on a start this process.
-func (w *WebServiceWebWorker) Init(args ...any) error {
+func (w *WebWebWorker) Init(args ...any) error {
 	w.Log().Info("started web worker process with args %v", args)
 	return nil
 }
@@ -25,7 +25,7 @@ func (w *WebServiceWebWorker) Init(args ...any) error {
 // Handle GET requests. For the other HTTP methods (POST, PATCH, etc)
 // you need to add the accoring callback-method implementation. See act.WebWorkerBehavior.
 
-func (w *WebServiceWebWorker) HandleGet(from gen.PID, writer http.ResponseWriter, request *http.Request) error {
+func (w *WebWebWorker) HandleGet(from gen.PID, writer http.ResponseWriter, request *http.Request) error {
 	var buf bytes.Buffer
 
 	w.Log().Info("got HTTP request %q", request.URL.Path)

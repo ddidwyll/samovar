@@ -9,19 +9,10 @@
 ### Supervision Tree
 
 Applications
- - `Device{}` samowar/apps/device/device.go
-   - `DeviceSup{}` samowar/apps/device/devicesup.go
-     - `DeviceActor{}` samowar/apps/device/deviceactor.go
- - `Mqtt{}` samowar/apps/mqtt/mqtt.go
-   - `MqttSup{}` samowar/apps/mqtt/mqttsup.go
-     - `MqttActor{}` samowar/apps/mqtt/mqttactor.go
- - `Script{}` samowar/apps/script/script.go
-   - `ScriptSup{}` samowar/apps/script/scriptsup.go
-     - `ScriptActor{}` samowar/apps/script/scriptactor.go
- - `Client{}` samowar/apps/client/client.go
-   - `ClientSup{}` samowar/apps/client/clientsup.go
-     - `ClientActor{}` samowar/apps/client/clientactor.go
-     - `WebService{}` samowar/apps/client/clientservice.go
+ - `Api{}` samowar/apps/api/api.go
+   - `Sup{}` samowar/apps/api/sup.go
+     - `Actor{}` samowar/apps/api/actor.go
+     - `Web{}` samowar/apps/api/web.go
 
 
 #### Used command
@@ -32,4 +23,4 @@ This project has been generated with the `ergo` tool. To install this tool, use 
 
 Below the command that was used to generate this project:
 
-```$ /home/one/go/bin/ergo -init Samowar{} -with-app Device -with-sup Device:DeviceSup -with-actor DeviceSup:DeviceActor -with-app Mqtt -with-sup Mqtt:MqttSup -with-actor MqttSup:MqttActor -with-app Script -with-sup Script:ScriptSup -with-actor ScriptSup:ScriptActor -with-app Client -with-sup Client:ClientSup -with-actor ClientSup:ClientActor -with-logger colored -with-web "ClientSup:WebService{host:localhost,port:4000}" -with-observer ```
+```$ /home/one/go/bin/ergo -init Samowar{} -with-app Api -with-sup Api:Sup -with-actor Sup:Actor -with-logger colored -with-web "Sup:Web{host:localhost,port:4000}" -with-observer ```

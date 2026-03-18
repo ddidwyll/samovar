@@ -1,20 +1,20 @@
-package script
+package api
 
 import (
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
 )
 
-func factory_ScriptActor() gen.ProcessBehavior {
-	return &ScriptActor{}
+func factory_Actor() gen.ProcessBehavior {
+	return &Actor{}
 }
 
-type ScriptActor struct {
+type Actor struct {
 	act.Actor
 }
 
 // Init invoked on a start this process.
-func (a *ScriptActor) Init(args ...any) error {
+func (a *Actor) Init(args ...any) error {
 	a.Log().Info("started process with name %s and args %v", a.Name(), args)
 	return nil
 }
@@ -27,7 +27,7 @@ func (a *ScriptActor) Init(args ...any) error {
 // Non-nil value of the returning error will cause termination of this process.
 // To stop this process normally, return gen.TerminateReasonNormal
 // or any other for abnormal termination.
-func (a *ScriptActor) HandleMessage(from gen.PID, message any) error {
+func (a *Actor) HandleMessage(from gen.PID, message any) error {
 	a.Log().Info("got message from %s", from)
 	return nil
 }
@@ -35,55 +35,55 @@ func (a *ScriptActor) HandleMessage(from gen.PID, message any) error {
 // HandleCall invoked if Actor got a synchronous request made with gen.Process.Call(...).
 // Return nil as a result to handle this request asynchronously and
 // to provide the result later using the gen.Process.SendResponse(...) method.
-func (a *ScriptActor) HandleCall(from gen.PID, ref gen.Ref, request any) (any, error) {
+func (a *Actor) HandleCall(from gen.PID, ref gen.Ref, request any) (any, error) {
 	a.Log().Info("got request from %s with reference %s", from, ref)
 	return gen.Atom("pong"), nil
 }
 
 // Terminate invoked on a termination process
-func (a *ScriptActor) Terminate(reason error) {
+func (a *Actor) Terminate(reason error) {
 	a.Log().Info("terminated with reason: %s", reason)
 }
 
 // HandleMessageName invoked if split handling was enabled using SetSplitHandle(true)
 // and message has been sent by name
-func (a *ScriptActor) HandleMessageName(name gen.Atom, from gen.PID, message any) error {
+func (a *Actor) HandleMessageName(name gen.Atom, from gen.PID, message any) error {
 	return nil
 }
 
 // HandleMessageAlias invoked if split handling was enabled using SetSplitHandle(true)
 // and message has been sent by alias
-func (a *ScriptActor) HandleMessageAlias(alias gen.Alias, from gen.PID, message any) error {
+func (a *Actor) HandleMessageAlias(alias gen.Alias, from gen.PID, message any) error {
 	return nil
 }
 
 // HandleCallName invoked if split handling was enabled using SetSplitHandle(true)
 // and request was made by name
-func (a *ScriptActor) HandleCallName(name gen.Atom, from gen.PID, ref gen.Ref, request any) (any, error) {
+func (a *Actor) HandleCallName(name gen.Atom, from gen.PID, ref gen.Ref, request any) (any, error) {
 	return gen.Atom("pong"), nil
 }
 
 // HandleCallAlias invoked if split handling was enabled using SetSplitHandle(true)
 // and request was made by alias
-func (a *ScriptActor) HandleCallAlias(alias gen.Alias, from gen.PID, ref gen.Ref, request any) (any, error) {
+func (a *Actor) HandleCallAlias(alias gen.Alias, from gen.PID, ref gen.Ref, request any) (any, error) {
 	return gen.Atom("pong"), nil
 }
 
 // HandleLog invoked on a log message if this process was added as a logger.
 // See https://docs.ergo.services/basics/logging for more information
-func (a *ScriptActor) HandleLog(message gen.MessageLog) error {
+func (a *Actor) HandleLog(message gen.MessageLog) error {
 	return nil
 }
 
 // HandleEvent invoked on an event message if this process got subscribed on
 // this event using gen.Process.LinkEvent or gen.Process.MonitorEvent
 // See https://docs.ergo.services/basics/events for more information
-func (a *ScriptActor) HandleEvent(message gen.MessageEvent) error {
+func (a *Actor) HandleEvent(message gen.MessageEvent) error {
 	return nil
 }
 
 // HandleInspect invoked on the request made with gen.Process.Inspect(...)
-func (a *ScriptActor) HandleInspect(from gen.PID, item ...string) map[string]string {
+func (a *Actor) HandleInspect(from gen.PID, item ...string) map[string]string {
 	a.Log().Info("got inspect request from %s", from)
 	return nil
 }

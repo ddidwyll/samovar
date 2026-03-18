@@ -5,13 +5,7 @@ import (
 
 	"time"
 
-	"samowar/apps/device"
-
-	"samowar/apps/mqtt"
-
-	"samowar/apps/script"
-
-	"samowar/apps/client"
+	"samowar/apps/api"
 
 	"ergo.services/application/observer"
 
@@ -40,10 +34,7 @@ func main() {
 	// create applications that must be started
 	apps := []gen.ApplicationBehavior{
 		observer.CreateApp(observer.Options{}),
-		device.CreateDevice(),
-		mqtt.CreateMqtt(),
-		script.CreateScript(),
-		client.CreateClient(),
+		api.CreateApi(),
 	}
 	options.Applications = apps
 
