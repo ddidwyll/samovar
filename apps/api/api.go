@@ -14,12 +14,12 @@ type Api struct{}
 func (app *Api) Load(node gen.Node, args ...any) (gen.ApplicationSpec, error) {
 	return gen.ApplicationSpec{
 		Name:        "api",
-		Description: "description of this application",
+		Description: "API",
 		Mode:        gen.ApplicationModeTransient,
 		Group: []gen.ApplicationMemberSpec{
 			{
 				Name:    "sup",
-				Factory: factory_Sup,
+				Factory: createSup,
 			},
 		},
 	}, nil

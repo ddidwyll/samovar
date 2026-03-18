@@ -5,7 +5,7 @@ import (
 	"ergo.services/ergo/gen"
 )
 
-func factory_Actor() gen.ProcessBehavior {
+func createActor() gen.ProcessBehavior {
 	return &Actor{}
 }
 

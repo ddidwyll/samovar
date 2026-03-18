@@ -5,7 +5,7 @@ import (
 	"ergo.services/ergo/gen"
 )
 
-func factory_Sup() gen.ProcessBehavior {
+func createSup() gen.ProcessBehavior {
 	return &Sup{}
 }
 
@@ -24,11 +24,11 @@ func (sup *Sup) Init(args ...any) (act.SupervisorSpec, error) {
 	spec.Children = []act.SupervisorChildSpec{
 		{
 			Name:    "actor",
-			Factory: factory_Actor,
+			Factory: createActor,
 		},
 		{
 			Name:    "web",
-			Factory: factory_Web,
+			Factory: createWeb,
 		},
 	}
 

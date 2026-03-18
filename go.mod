@@ -9,6 +9,8 @@ require (
 )
 
 require (
+	ergo.services/meta v0.0.0-20260318074146-f97ed1e6680e // indirect
+	ergo.services/meta/sse v0.2.0 // indirect
 	ergo.services/meta/websocket v0.1.0 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
