@@ -21,7 +21,7 @@ Applications
  - `Client{}` samowar/apps/client/client.go
    - `ClientSup{}` samowar/apps/client/clientsup.go
      - `ClientActor{}` samowar/apps/client/clientactor.go
-     - `ClientService{}` samowar/apps/client/clientservice.go
+     - `WebService{}` samowar/apps/client/clientservice.go
 
 
 #### Used command
@@ -32,4 +32,4 @@ This project has been generated with the `ergo` tool. To install this tool, use 
 
 Below the command that was used to generate this project:
 
-```$ /home/one/go/bin/ergo -init Samowar{} -with-app Device -with-sup Device:DeviceSup -with-actor DeviceSup:DeviceActor -with-app Mqtt -with-sup Mqtt:MqttSup -with-actor MqttSup:MqttActor -with-app Script -with-sup Script:ScriptSup -with-actor ScriptSup:ScriptActor -with-app Client -with-sup Client:ClientSup -with-actor ClientSup:ClientActor -with-logger colored -with-web "ClientSup:ClientService{host:localhost,port:4000}" -with-observer ```
+```$ /home/one/go/bin/ergo -init Samowar{} -with-app Device -with-sup Device:DeviceSup -with-actor DeviceSup:DeviceActor -with-app Mqtt -with-sup Mqtt:MqttSup -with-actor MqttSup:MqttActor -with-app Script -with-sup Script:ScriptSup -with-actor ScriptSup:ScriptActor -with-app Client -with-sup Client:ClientSup -with-actor ClientSup:ClientActor -with-logger colored -with-web "ClientSup:WebService{host:localhost,port:4000}" -with-observer ```

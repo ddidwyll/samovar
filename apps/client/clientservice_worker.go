@@ -8,16 +8,16 @@ import (
 	"net/http"
 )
 
-func factory_ClientServiceWebWorker() gen.ProcessBehavior {
-	return &ClientServiceWebWorker{}
+func factory_WebServiceWebWorker() gen.ProcessBehavior {
+	return &WebServiceWebWorker{}
 }
 
-type ClientServiceWebWorker struct {
+type WebServiceWebWorker struct {
 	act.WebWorker
 }
 
 // Init invoked on a start this process.
-func (w *ClientServiceWebWorker) Init(args ...any) error {
+func (w *WebServiceWebWorker) Init(args ...any) error {
 	w.Log().Info("started web worker process with args %v", args)
 	return nil
 }
@@ -25,7 +25,7 @@ func (w *ClientServiceWebWorker) Init(args ...any) error {
 // Handle GET requests. For the other HTTP methods (POST, PATCH, etc)
 // you need to add the accoring callback-method implementation. See act.WebWorkerBehavior.
 
-func (w *ClientServiceWebWorker) HandleGet(from gen.PID, writer http.ResponseWriter, request *http.Request) error {
+func (w *WebServiceWebWorker) HandleGet(from gen.PID, writer http.ResponseWriter, request *http.Request) error {
 	var buf bytes.Buffer
 
 	w.Log().Info("got HTTP request %q", request.URL.Path)
