@@ -9,7 +9,7 @@ type Sup struct {
 	act.Supervisor
 }
 
-func factory_Sup() gen.ProcessBehavior {
+func newSup() gen.ProcessBehavior {
 	return &Sup{}
 }
 
@@ -24,7 +24,7 @@ func (sup *Sup) Init(args ...any) (act.SupervisorSpec, error) {
 	spec.Children = []act.SupervisorChildSpec{
 		{
 			Name:    "sseState",
-			Factory: factory_sseState,
+			Factory: newsseState,
 		},
 		{
 			Name:    "web",

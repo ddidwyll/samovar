@@ -16,7 +16,7 @@ func (app *Mqtt) Load(node gen.Node, _ ...any) (gen.ApplicationSpec, error) {
 		Group: []gen.ApplicationMemberSpec{
 			{
 				Name:    "sup",
-				Factory: factory_Sup,
+				Factory: newSup,
 			},
 		},
 	}
@@ -25,4 +25,4 @@ func (app *Mqtt) Load(node gen.Node, _ ...any) (gen.ApplicationSpec, error) {
 }
 
 func (app *Mqtt) Start(_ gen.ApplicationMode) {}
-func (app *Mqtt) Terminate(_reason error) {}
+func (app *Mqtt) Terminate(_reason error)     {}

@@ -16,7 +16,7 @@ type sseState struct {
 	counter     uint
 }
 
-func factory_sseState() gen.ProcessBehavior {
+func newsseState() gen.ProcessBehavior {
 	return &sseState{
 		connections: make(sseStateConns),
 	}

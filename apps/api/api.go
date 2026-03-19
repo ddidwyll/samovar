@@ -17,7 +17,7 @@ func (app *Api) Load(node gen.Node, args ...any) (gen.ApplicationSpec, error) {
 		Group: []gen.ApplicationMemberSpec{
 			{
 				Name:    "sup",
-				Factory: factory_Sup,
+				Factory: newSup,
 			},
 		},
 	}, nil
