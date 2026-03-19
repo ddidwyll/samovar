@@ -1,19 +1,9 @@
-## Project: "Samowar"
+## Project: "Samovar"
 
 ### Generated with
  - Types for the network messaging: false
  - Enabled Observer (http://localhost:9911): true
  - Loggers: colored
- 
-
-### Supervision Tree
-
-Applications
- - `Api{}` samowar/apps/api/api.go
-   - `Sup{}` samowar/apps/api/sup.go
-     - `Actor{}` samowar/apps/api/actor.go
-     - `Web{}` samowar/apps/api/web.go
-
 
 #### Used command
 
@@ -23,4 +13,4 @@ This project has been generated with the `ergo` tool. To install this tool, use 
 
 Below the command that was used to generate this project:
 
-```$ /home/one/go/bin/ergo -init Samowar{} -with-app Api -with-sup Api:Sup -with-actor Sup:Actor -with-logger colored -with-web "Sup:Web{host:localhost,port:4000}" -with-observer ```
+```$ /home/one/go/bin/ergo -init Samovar{} -with-app Api -with-sup Api:Sup -with-actor Sup:Actor -with-logger colored -with-web "Sup:Web{host:localhost,port:4000}" -with-observer ```

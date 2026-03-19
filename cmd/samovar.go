@@ -5,7 +5,7 @@ import (
 
 	"time"
 
-	"samowar/apps/api"
+	"samovar/apps/api"
 
 	"ergo.services/application/observer"
 
@@ -22,7 +22,7 @@ var (
 )
 
 func init() {
-	flag.StringVar(&OptionNodeName, "name", "Samowar@localhost", "node name")
+	flag.StringVar(&OptionNodeName, "name", "Samovar@localhost", "node name")
 	flag.StringVar(&OptionNodeCookie, "cookie", lib.RandomString(16), "a secret cookie for the network messaging")
 }
 

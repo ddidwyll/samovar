@@ -1,4 +1,4 @@
-module samowar
+module samovar
 
 go 1.25.7
 

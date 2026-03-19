@@ -10,16 +10,16 @@ const sseStateProcessName = gen.Atom("sseState")
 
 type sseStateConns map[gen.Alias]bool
 
-func factory_sseState() gen.ProcessBehavior {
-	return &sseState{
-		connections: make(sseStateConns),
-	}
-}
-
 type sseState struct {
 	act.Actor
 	connections sseStateConns
 	counter     uint
+}
+
+func factory_sseState() gen.ProcessBehavior {
+	return &sseState{
+		connections: make(sseStateConns),
+	}
 }
 
 type sseStateReqAddConn struct{ alias gen.Alias }
