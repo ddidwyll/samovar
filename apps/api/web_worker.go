@@ -15,7 +15,7 @@ func createWebWorker() gen.ProcessBehavior {
 	return &WebWorker{}
 }
 
-type WebWorker struct {act.WebWorker}
+type WebWorker struct{ act.WebWorker }
 
 // Init invoked on a start this process.
 func (w *WebWorker) Init(args ...any) error {
@@ -42,55 +42,55 @@ func (w *WebWorker) HandleGet(from gen.PID, writer http.ResponseWriter, request 
 }
 
 func (ww *WebWorker) sseStateAddConn(alias gen.Alias) {
-  if err := ww.Send(sseStateProcessName, sseStateReqAddConn{alias}); err != nil {
-    ww.Log().Error("%s", err)
-    panic(err)
-  }
+	if err := ww.Send(sseStateProcessName, sseStateReqAddConn{alias}); err != nil {
+		ww.Log().Error("%s", err)
+		panic(err)
+	}
 }
 
 func (ww *WebWorker) sseStateDelConn(alias gen.Alias) {
-  if err := ww.Send(sseStateProcessName, sseStateReqDelConn{alias}); err != nil {
-    ww.Log().Error("%s", err)
-    panic(err)
-  }
+	if err := ww.Send(sseStateProcessName, sseStateReqDelConn{alias}); err != nil {
+		ww.Log().Error("%s", err)
+		panic(err)
+	}
 }
 
 func (ww *WebWorker) sseStateCountIncr() {
-  if err := ww.Send(sseStateProcessName, sseStateReqCountIncr{}); err != nil {
-    ww.Log().Error("%s", err)
-    panic(err)
-  }
+	if err := ww.Send(sseStateProcessName, sseStateReqCountIncr{}); err != nil {
+		ww.Log().Error("%s", err)
+		panic(err)
+	}
 }
 
 func (ww *WebWorker) sseStateGet(key string) any {
-  result, err := ww.Call(sseStateProcessName, sseStateReqGet{key})
+	result, err := ww.Call(sseStateProcessName, sseStateReqGet{key})
 
-  if err == nil {
-    return result
-  } else {
-    ww.Log().Error("%s", err)
-    panic(err) 
-  }
+	if err == nil {
+		return result
+	} else {
+		ww.Log().Error("%s", err)
+		panic(err)
+	}
 }
 
 func (ww *WebWorker) sseStateGetConns() sseStateConns {
-  if m, ok := ww.sseStateGet("connections").(sseStateConns); ok {
-    return m
-  } else {
-    panic("Unexpected sseState state value")
-  }
+	if m, ok := ww.sseStateGet("connections").(sseStateConns); ok {
+		return m
+	} else {
+		panic("Unexpected sseState state value")
+	}
 }
 
 func (ww *WebWorker) sseStateGetCounter() uint {
-  if c, ok := ww.sseStateGet("counter").(uint); ok {
-    return c
-  } else {
-    panic("Unexpected sseState state value")
-  }
+	if c, ok := ww.sseStateGet("counter").(uint); ok {
+		return c
+	} else {
+		panic("Unexpected sseState state value")
+	}
 }
 
 func (ww *WebWorker) sseStateGetConnLen() int {
-  return len(ww.sseStateGetConns())
+	return len(ww.sseStateGetConns())
 }
 
 func (ww *WebWorker) HandleMessage(from gen.PID, message any) error {

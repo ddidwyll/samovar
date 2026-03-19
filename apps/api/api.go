@@ -1,14 +1,12 @@
 package api
 
-import (
-	"ergo.services/ergo/gen"
-)
-
-func CreateApi() gen.ApplicationBehavior {
-	return &Api{}
-}
+import "ergo.services/ergo/gen"
 
 type Api struct{}
+
+func CreateApiApp() gen.ApplicationBehavior {
+	return &Api{}
+}
 
 // Load invoked on loading application using method ApplicationLoad of gen.Node interface.
 func (app *Api) Load(node gen.Node, args ...any) (gen.ApplicationSpec, error) {
@@ -19,7 +17,7 @@ func (app *Api) Load(node gen.Node, args ...any) (gen.ApplicationSpec, error) {
 		Group: []gen.ApplicationMemberSpec{
 			{
 				Name:    "sup",
-				Factory: createSup,
+				Factory: factory_Sup,
 			},
 		},
 	}, nil

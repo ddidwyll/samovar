@@ -5,12 +5,12 @@ import (
 	"ergo.services/ergo/gen"
 )
 
-func createSup() gen.ProcessBehavior {
-	return &Sup{}
-}
-
 type Sup struct {
 	act.Supervisor
+}
+
+func factory_Sup() gen.ProcessBehavior {
+	return &Sup{}
 }
 
 // Init invoked on a spawn Supervisor process. This is a mandatory callback for the implementation
@@ -23,16 +23,16 @@ func (sup *Sup) Init(args ...any) (act.SupervisorSpec, error) {
 	// add children
 	spec.Children = []act.SupervisorChildSpec{
 		{
-			Name:    "actor",
-			Factory: createActor,
-		},
-		{
 			Name:    "sseState",
 			Factory: factory_sseState,
 		},
 		{
 			Name:    "web",
 			Factory: createWeb,
+		},
+		{
+			Name:    "actor",
+			Factory: createActor,
 		},
 	}
 
