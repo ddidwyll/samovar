@@ -25,4 +25,4 @@ func (app *Mqtt) Load(node gen.Node, _ ...any) (gen.ApplicationSpec, error) {
 }
 
 func (app *Mqtt) Start(_ gen.ApplicationMode) {}
-func (app *Mqtt) Terminate(_reason error)     {}
+func (app *Mqtt) Terminate(_ error)           {}
