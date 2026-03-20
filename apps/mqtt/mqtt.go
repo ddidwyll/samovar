@@ -8,16 +8,20 @@ func CreateMqttApp() gen.ApplicationBehavior {
 	return &Mqtt{}
 }
 
-func (app *Mqtt) Load(node gen.Node, _ ...any) (gen.ApplicationSpec, error) {
-	spec := gen.ApplicationSpec{
-		Name:        "mqtt",
-		Description: "MQTT",
-		Mode:        gen.ApplicationModeTransient,
-		Group: []gen.ApplicationMemberSpec{
-			{
-				Name:    "sup",
-				Factory: newSup,
-			},
+func (app *Mqtt) Load(node gen.Node, _ ...any) (spec gen.ApplicationSpec, err error) {
+	cfg, err := loadConfig()
+	if err != nil {
+		return spec, err
+	}
+
+	spec.Name = "mqtt"
+	spec.Description = "MQTT"
+	spec.Mode = gen.ApplicationModeTransient
+	spec.Group = []gen.ApplicationMemberSpec{
+		{
+			Name:    "sup",
+			Factory: newSup,
+			Args:    []any{cfg},
 		},
 	}
 

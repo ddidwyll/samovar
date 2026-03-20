@@ -13,7 +13,7 @@ func newSup() gen.ProcessBehavior {
 	return &Sup{}
 }
 
-func (sup *Sup) Init(_ ...any) (act.SupervisorSpec, error) {
+func (sup *Sup) Init(args ...any) (act.SupervisorSpec, error) {
 	var spec act.SupervisorSpec
 
 	spec.Type = act.SupervisorTypeOneForOne
@@ -25,6 +25,7 @@ func (sup *Sup) Init(_ ...any) (act.SupervisorSpec, error) {
 		{
 			Name:    "server",
 			Factory: newServer,
+			Args:    args,
 		},
 	}
 

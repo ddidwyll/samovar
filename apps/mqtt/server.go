@@ -3,21 +3,29 @@ package mqtt
 import (
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
+	"errors"
 )
 
 type Server struct {
 	act.Actor
+	config *config
 }
 
 func newServer() gen.ProcessBehavior {
 	return &Server{}
 }
 
-func (s *Server) Init(_ ...any) error {
-	listener := newListener()
+func (s *Server) Init(args ...any) error {
+	cfg, ok := args[0].(*config)
+
+	if !ok {
+		return errors.New("invalid mqtt client config")
+	}
+
+	s.config = cfg
+	listener := newListener(cfg)
 
 	if _, err := s.SpawnMeta(listener, gen.MetaOptions{}); err != nil {
-		s.Log().Error("mqtt.Server error: %s", err)
 		return err
 	}
 

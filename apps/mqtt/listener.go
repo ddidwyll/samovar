@@ -2,37 +2,38 @@ package mqtt
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net"
 	"time"
-	"errors"
-	// "ergo.services/ergo/act"
+
 	"ergo.services/ergo/gen"
 	natiu "github.com/soypat/natiu-mqtt"
 )
 
 type Listener struct {
 	gen.MetaProcess
+	config *config
 	client *natiu.Client
-	vconn *natiu.VariablesConnect
-	vsub *natiu.VariablesSubscribe
+	vconn  *natiu.VariablesConnect
+	vsub   *natiu.VariablesSubscribe
 }
 
-func newListener() gen.MetaBehavior {
+func newListener(cfg *config) gen.MetaBehavior {
 	var vconn natiu.VariablesConnect
 	var vsub natiu.VariablesSubscribe
 
-	return &Listener{vconn: &vconn, vsub: &vsub}
+	return &Listener{vconn: &vconn, vsub: &vsub, config: cfg}
 }
 
 func (l *Listener) Init(process gen.MetaProcess) error {
 	l.MetaProcess = process
-	l.Log().Info("mqtt.Listener started (%s)", l.ID())
+	l.Log().Info("mqtt.Listener started (%v)", l.config)
 	return nil
 }
 
 func (l *Listener) Start() error {
-  l.createClient()
+	l.createClient()
 
 	if err := l.connect(); err != nil {
 		l.Log().Error("mqtt Listener connect error: %s", err)
@@ -46,11 +47,11 @@ func (l *Listener) Start() error {
 
 	for {
 		err := withTimeout(func(ctx context.Context) error {
-      return l.client.Ping(ctx)
+			return l.client.Ping(ctx)
 		})
-  	if err == nil && !l.client.IsConnected() {
-  	  err = errors.New("mqtt client not connected")
-  	}
+		if err == nil && !l.client.IsConnected() {
+			err = errors.New("mqtt client not connected")
+		}
 		if err != nil {
 			l.Log().Error("mqtt.Listener error: %s", err)
 			return err
@@ -60,19 +61,17 @@ func (l *Listener) Start() error {
 }
 
 func (l *Listener) createClient() {
-	var config natiu.ClientConfig
-
-	config.OnPub = func(_ natiu.Header, vpub natiu.VariablesPublish, r io.Reader) error {
+	onPub := func(_ natiu.Header, vpub natiu.VariablesPublish, r io.Reader) error {
 		if message, err := io.ReadAll(r); err == nil {
-  		l.Log().Info("mqtt topic: %s", vpub.TopicName)
-  		l.Send(l.ID(), message)
-  		return nil
+			l.Log().Info("mqtt topic: %s", vpub.TopicName)
+			l.Send(l.ID(), message)
+			return nil
 		} else {
-  		return err
+			return err
 		}
 	}
 
-	l.client = natiu.NewClient(config)
+	l.client = natiu.NewClient(natiu.ClientConfig{OnPub: onPub})
 }
 
 func (l *Listener) connect() error {
@@ -87,7 +86,7 @@ func (l *Listener) connect() error {
 	l.vconn.SetDefaultMQTT([]byte("samovar_client"))
 
 	return withTimeout(func(ctx context.Context) error {
-  	return l.client.Connect(ctx, conn, l.vconn)
+		return l.client.Connect(ctx, conn, l.vconn)
 	})
 }
 
@@ -98,7 +97,7 @@ func (l *Listener) subscribe() error {
 	l.vsub.PacketIdentifier = 1
 
 	return withTimeout(func(ctx context.Context) error {
-  	return l.client.Subscribe(ctx, *l.vsub)
+		return l.client.Subscribe(ctx, *l.vsub)
 	})
 }
 
@@ -127,4 +126,3 @@ func withTimeout(f func(context.Context) error) error {
 	cancel()
 	return err
 }
-
