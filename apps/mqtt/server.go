@@ -27,6 +27,6 @@ func (s *Server) Init(_ ...any) error {
 }
 
 func (s *Server) HandleMessage(_ gen.PID, message any) error {
-	s.Log().Info("mqtt.Server receive message: %#v", message)
+	s.Log().Info("mqtt.Server receive message: %s", message)
 	return nil
 }
