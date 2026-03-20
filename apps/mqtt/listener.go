@@ -75,7 +75,8 @@ func (l *Listener) createClient() {
 }
 
 func (l *Listener) connect() error {
-	const url = "127.0.0.1:1883"
+	url := l.config.url()
+	clientID := l.config.clientID()
 
 	conn, err := net.Dial("tcp", url)
 
@@ -83,7 +84,7 @@ func (l *Listener) connect() error {
 		return err
 	}
 
-	l.vconn.SetDefaultMQTT([]byte("samovar_client"))
+	l.vconn.SetDefaultMQTT(clientID)
 
 	return withTimeout(func(ctx context.Context) error {
 		return l.client.Connect(ctx, conn, l.vconn)
@@ -91,7 +92,8 @@ func (l *Listener) connect() error {
 }
 
 func (l *Listener) subscribe() error {
-	subscribeRequest := natiu.SubscribeRequest{[]byte("samovar"), natiu.QoS2}
+  topic := l.config.topic()
+	subscribeRequest := natiu.SubscribeRequest{topic, natiu.QoS2}
 	subscribeRequests := []natiu.SubscribeRequest{subscribeRequest}
 	l.vsub.TopicFilters = subscribeRequests
 	l.vsub.PacketIdentifier = 1

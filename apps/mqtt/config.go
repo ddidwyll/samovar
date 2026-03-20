@@ -1,6 +1,11 @@
 package mqtt
 
-import "samovar/lib/cfg"
+import (
+	"samovar/lib/cfg"
+
+  "fmt"
+	"errors"
+)
 
 type config struct {
 	cfg.Config
@@ -10,10 +15,40 @@ type config struct {
 	Topic    string `json:"topic"`
 }
 
-const configName = "mqtt"
-
 func loadConfig() (*config, error) {
 	c := &config{}
 	c.SetConfigName("mqtt")
-	return c, cfg.Load(c)
+	cfg.Load(c)
+	return c, c.validate()
+}
+
+func (c *config) validate() error {
+	var key string
+
+	switch {
+	case c.Host == "":
+		key = "host"
+	case c.Port == 0:
+		key = "port"
+	case c.ClientID == "":
+		key = "client_id"
+	case c.Topic == "":
+		key = "topic"
+	default:
+		return nil
+	}
+
+	return errors.New(key + " is required")
+}
+
+func (c *config) url() string {
+  return fmt.Sprintf("%s:%d", c.Host, c.Port)
+}
+
+func (c *config) clientID() []byte {
+  return []byte(c.ClientID)
+}
+
+func (c *config) topic() []byte {
+  return []byte(c.Topic)
 }

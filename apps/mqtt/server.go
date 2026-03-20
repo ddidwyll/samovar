@@ -6,14 +6,9 @@ import (
 	"errors"
 )
 
-type Server struct {
-	act.Actor
-	config *config
-}
+type Server struct{ act.Actor }
 
-func newServer() gen.ProcessBehavior {
-	return &Server{}
-}
+func newServer() gen.ProcessBehavior { return &Server{} }
 
 func (s *Server) Init(args ...any) error {
 	cfg, ok := args[0].(*config)
@@ -22,7 +17,6 @@ func (s *Server) Init(args ...any) error {
 		return errors.New("invalid mqtt client config")
 	}
 
-	s.config = cfg
 	listener := newListener(cfg)
 
 	if _, err := s.SpawnMeta(listener, gen.MetaOptions{}); err != nil {
