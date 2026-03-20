@@ -3,8 +3,8 @@ package mqtt
 import (
 	"samovar/lib/cfg"
 
-  "fmt"
 	"errors"
+	"fmt"
 )
 
 type config struct {
@@ -38,17 +38,18 @@ func (c *config) validate() error {
 		return nil
 	}
 
-	return errors.New(key + " is required")
+	err := fmt.Sprintf("Config error: %s is required", key)
+	return errors.New(err)
 }
 
 func (c *config) url() string {
-  return fmt.Sprintf("%s:%d", c.Host, c.Port)
+	return fmt.Sprintf("%s:%d", c.Host, c.Port)
 }
 
 func (c *config) clientID() []byte {
-  return []byte(c.ClientID)
+	return []byte(c.ClientID)
 }
 
 func (c *config) topic() []byte {
-  return []byte(c.Topic)
+	return []byte(c.Topic)
 }

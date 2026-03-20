@@ -92,10 +92,9 @@ func (l *Listener) connect() error {
 }
 
 func (l *Listener) subscribe() error {
-  topic := l.config.topic()
-	subscribeRequest := natiu.SubscribeRequest{topic, natiu.QoS2}
-	subscribeRequests := []natiu.SubscribeRequest{subscribeRequest}
-	l.vsub.TopicFilters = subscribeRequests
+	topic := l.config.topic()
+	topicFilter := natiu.SubscribeRequest{topic, natiu.QoS2}
+	l.vsub.TopicFilters = []natiu.SubscribeRequest{topicFilter}
 	l.vsub.PacketIdentifier = 1
 
 	return withTimeout(func(ctx context.Context) error {
@@ -123,7 +122,7 @@ func (l *Listener) Terminate(reason error) {
 }
 
 func withTimeout(f func(context.Context) error) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	err := f(ctx)
 	cancel()
 	return err
