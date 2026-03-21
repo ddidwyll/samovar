@@ -15,7 +15,7 @@ type actor struct {
 
 // Init invoked on a start this process.
 func (a *actor) Init(args ...any) error {
-	a.Log().Info("started process with name %s and args %v", a.Name(), args)
+	a.Log().Debug("started process with name %s and args %v", a.Name(), args)
 	return nil
 }
 
@@ -28,7 +28,7 @@ func (a *actor) Init(args ...any) error {
 // To stop this process normally, return gen.TerminateReasonNormal
 // or any other for abnormal termination.
 func (a *actor) HandleMessage(from gen.PID, message any) error {
-	a.Log().Info("got message from %s", from)
+	a.Log().Debug("got message from %s", from)
 	return nil
 }
 
@@ -36,13 +36,13 @@ func (a *actor) HandleMessage(from gen.PID, message any) error {
 // Return nil as a result to handle this request asynchronously and
 // to provide the result later using the gen.Process.SendResponse(...) method.
 func (a *actor) HandleCall(from gen.PID, ref gen.Ref, request any) (any, error) {
-	a.Log().Info("got request from %s with reference %s", from, ref)
+	a.Log().Debug("got request from %s with reference %s", from, ref)
 	return gen.Atom("pong"), nil
 }
 
 // Terminate invoked on a termination process
 func (a *actor) Terminate(reason error) {
-	a.Log().Info("terminated with reason: %s", reason)
+	a.Log().Debug("terminated with reason: %s", reason)
 }
 
 // HandleMessageName invoked if split handling was enabled using SetSplitHandle(true)
@@ -84,6 +84,6 @@ func (a *actor) HandleEvent(message gen.MessageEvent) error {
 
 // HandleInspect invoked on the request made with gen.Process.Inspect(...)
 func (a *actor) HandleInspect(from gen.PID, item ...string) map[string]string {
-	a.Log().Info("got inspect request from %s", from)
+	a.Log().Debug("got inspect request from %s", from)
 	return nil
 }

@@ -20,7 +20,7 @@ type webWorker struct{ act.WebWorker }
 // Init invoked on a start this process.
 func (ww *webWorker) Init(args ...any) error {
 	ww.SendAfter(ww.PID(), "tick", 2*time.Second)
-	ww.Log().Info("started web worker process with args %v", args)
+	ww.Log().Debug("started web worker process with args %v", args)
 	return nil
 }
 
@@ -30,7 +30,7 @@ func (ww *webWorker) Init(args ...any) error {
 func (ww *webWorker) HandleGet(from gen.PID, writer http.ResponseWriter, request *http.Request) error {
 	var buf bytes.Buffer
 
-	ww.Log().Info("got HTTP request %q", request.URL.Path)
+	ww.Log().Debug("got HTTP request %q", request.URL.Path)
 	writer.Header().Set("Content-Type", "application/json")
 	// response JSON message with information about this process
 	info, _ := ww.Info()
@@ -96,7 +96,7 @@ func (ww *webWorker) sseStateGetConnLen() int {
 func (ww *webWorker) HandleMessage(from gen.PID, message any) error {
 	switch m := message.(type) {
 	case sse.MessageConnect:
-		ww.Log().Info("New SSE connection: %s (remote: %s)", m.ID, m.RemoteAddr)
+		ww.Log().Debug("New SSE connection: %s (remote: %s)", m.ID, m.RemoteAddr)
 		ww.sseStateAddConn(m.ID)
 
 		connLen := ww.sseStateGetConnLen()
@@ -108,11 +108,11 @@ func (ww *webWorker) HandleMessage(from gen.PID, message any) error {
 		ww.SendAlias(m.ID, welcome)
 
 	case sse.MessageDisconnect:
-		ww.Log().Info("SSE disconnected %s", m.ID)
+		ww.Log().Debug("SSE disconnected %s", m.ID)
 		ww.sseStateDelConn(m.ID)
 
 	case sse.MessageLastEventID:
-		ww.Log().Info("Client reconnected with Last-Event-ID: %s", m.LastEventID)
+		ww.Log().Debug("Client reconnected with Last-Event-ID: %s", m.LastEventID)
 
 	case string:
 		if m == "tick" {

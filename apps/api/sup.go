@@ -50,7 +50,7 @@ func (s *sup) HandleChildTerminate(name gen.Atom, pid gen.PID, reason error) err
 // To stop this process normally, return gen.TerminateReasonNormal or
 // gen.TerminateReasonShutdown. Any other - for abnormal termination.
 func (s *sup) HandleMessage(from gen.PID, message any) error {
-	s.Log().Info("supervisor got message from %s", from)
+	s.Log().Debug("supervisor got message from %s", from)
 	return nil
 }
 
@@ -58,17 +58,17 @@ func (s *sup) HandleMessage(from gen.PID, message any) error {
 // Return nil as a result to handle this request asynchronously and
 // to provide the result later using the gen.Process.SendResponse(...) method.
 func (s *sup) HandleCall(from gen.PID, ref gen.Ref, request any) (any, error) {
-	s.Log().Info("supervisor got request from %s with reference %s", from, ref)
+	s.Log().Debug("supervisor got request from %s with reference %s", from, ref)
 	return gen.Atom("pong"), nil
 }
 
 // Terminate invoked on a termination supervisor process
 func (s *sup) Terminate(reason error) {
-	s.Log().Info("supervisor terminated with reason: %s", reason)
+	s.Log().Debug("supervisor terminated with reason: %s", reason)
 }
 
 // HandleInspect invoked on the request made with gen.Process.Inspect(...)
 func (s *sup) HandleInspect(from gen.PID, item ...string) map[string]string {
-	s.Log().Info("supervisor got inspect request from %s", from)
+	s.Log().Debug("supervisor got inspect request from %s", from)
 	return nil
 }

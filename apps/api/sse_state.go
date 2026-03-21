@@ -28,7 +28,7 @@ type sseStateReqCountIncr struct{}
 type sseStateReqGet struct{ key string }
 
 func (ss *sseState) Init(_ ...any) (err error) {
-	ss.Log().Info("sseState started (%s)", ss.Name())
+	ss.Log().Debug("sseState started (%s)", ss.Name())
 	return
 }
 

@@ -58,7 +58,7 @@ func (w *Web) Init(args ...any) (act.PoolOptions, error) {
 	mux.HandleFunc("/", indexHandler)
 	mux.Handle("/api", apiHandler)
 	mux.Handle("/events", sseHandler)
-	w.Log().Info("started WebHandler to serve '/api' (meta-process: %s)", apiHandlerId)
+	w.Log().Debug("started WebHandler to serve '/api' (meta-process: %s)", apiHandlerId)
 
 	webOptions.Port = 4000
 	webOptions.Host = "localhost"
@@ -81,9 +81,7 @@ func (w *Web) Init(args ...any) (act.PoolOptions, error) {
 	if webOptions.CertManager != nil {
 		https = "https"
 	}
-	w.Log().Info("started Web server %s: use %s://%s:%d/", webserverid, https, webOptions.Host, webOptions.Port)
-	w.Log().Info("you may check it with command below:")
-	w.Log().Info("   $ curl -k %s://%s:%d", https, webOptions.Host, webOptions.Port)
+	w.Log().Debug("started Web server %s: use %s://%s:%d/", webserverid, https, webOptions.Host, webOptions.Port)
 
 	poolOptions.WorkerFactory = createWebWorker
 	return poolOptions, nil

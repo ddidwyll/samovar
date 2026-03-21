@@ -29,7 +29,7 @@ func newListener(cfg *config) gen.MetaBehavior {
 func (l *listener) Init(process gen.MetaProcess) error {
 	l.MetaProcess = process
 	l.createClient()
-	l.Log().Info("mqtt.listener started (%v)", l.config)
+	l.Log().Debug("mqtt.listener started (%v)", l.config)
 	return nil
 }
 
@@ -101,22 +101,22 @@ func (l *listener) subscribe() error {
 }
 
 func (l *listener) HandleCall(_ gen.PID, _ gen.Ref, request any) (any, error) {
-	l.Log().Info("mqtt.listener receive call request: %v", request)
+	l.Log().Debug("mqtt.listener receive call request: %v", request)
 	return nil, nil
 }
 
 func (l *listener) HandleMessage(_ gen.PID, msg any) error {
-	l.Log().Info("mqtt.listener receive message: %s", msg)
+	l.Log().Debug("mqtt.listener receive message: %s", msg)
 	return nil
 }
 
 func (l *listener) HandleInspect(_ gen.PID, items ...string) map[string]string {
-	l.Log().Info("mqtt.listener receive inspect request: %v", items)
+	l.Log().Debug("mqtt.listener receive inspect request: %v", items)
 	return nil
 }
 
 func (l *listener) Terminate(reason error) {
-	l.Log().Error("mqtt.listener terminated (%s)", reason)
+	l.Log().Debug("mqtt.listener terminated (%s)", reason)
 }
 
 func withTimeout(f func(context.Context) error) error {

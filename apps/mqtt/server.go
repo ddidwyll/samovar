@@ -23,12 +23,12 @@ func (s *server) Init(args ...any) error {
 		return err
 	}
 
-	s.Log().Info("mqtt.server started (%s)", s.Name())
+	s.Log().Debug("mqtt.server started (%s)", s.Name())
 
 	return nil
 }
 
 func (s *server) HandleMessage(_ gen.PID, msg any) error {
-	s.Log().Info("mqtt.server receive message: %#v", msg)
+	s.Log().Debug("mqtt.server receive message: %#v", msg)
 	return nil
 }
