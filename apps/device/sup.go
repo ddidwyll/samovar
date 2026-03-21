@@ -5,11 +5,11 @@ import (
 	"ergo.services/ergo/gen"
 )
 
-type Sup struct{ act.Supervisor }
+type sup struct{ act.Supervisor }
 
-func newSup() gen.ProcessBehavior { return &Sup{} }
+func newSup() gen.ProcessBehavior { return &sup{} }
 
-func (sup *Sup) Init(_ ...any) (spec act.SupervisorSpec, err error) {
+func (s *sup) Init(_ ...any) (spec act.SupervisorSpec, err error) {
 	spec.Type = act.SupervisorTypeOneForOne
 	spec.Restart.Strategy = act.SupervisorStrategyTransient
 	spec.Restart.Intensity = 2

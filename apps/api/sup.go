@@ -5,22 +5,16 @@ import (
 	"ergo.services/ergo/gen"
 )
 
-type Sup struct {
-	act.Supervisor
-}
+type sup struct{ act.Supervisor }
 
-func newSup() gen.ProcessBehavior {
-	return &Sup{}
-}
+func newSup() gen.ProcessBehavior { return &sup{} }
 
-// Init invoked on a spawn Supervisor process. This is a mandatory callback for the implementation
-func (sup *Sup) Init(args ...any) (act.SupervisorSpec, error) {
-	var spec act.SupervisorSpec
-
-	// set supervisor type
+func (s *sup) Init(args ...any) (spec act.SupervisorSpec, err error) {
 	spec.Type = act.SupervisorTypeOneForOne
+	spec.Restart.Strategy = act.SupervisorStrategyTransient
+	spec.Restart.Intensity = 2
+	spec.Restart.Period = 5
 
-	// add children
 	spec.Children = []act.SupervisorChildSpec{
 		{
 			Name:    "api_sse_state",
@@ -36,27 +30,18 @@ func (sup *Sup) Init(args ...any) (act.SupervisorSpec, error) {
 		},
 	}
 
-	// set strategy
-	spec.Restart.Strategy = act.SupervisorStrategyTransient
-	spec.Restart.Intensity = 2 // How big bursts of restarts you want to tolerate.
-	spec.Restart.Period = 5    // In seconds.
-
-	return spec, nil
+	return spec, err
 }
-
-//
-// Methods below are optional, so you can remove those that aren't be used
-//
 
 // HandleChildStart invoked on a successful child process starting if option EnableHandleChild
 // was enabled in act.SupervisorSpec
-func (sup *Sup) HandleChildStart(name gen.Atom, pid gen.PID) error {
+func (s *sup) HandleChildStart(name gen.Atom, pid gen.PID) error {
 	return nil
 }
 
 // HandleChildTerminate invoked on a child process termination if option EnableHandleChild
 // was enabled in act.SupervisorSpec
-func (sup *Sup) HandleChildTerminate(name gen.Atom, pid gen.PID, reason error) error {
+func (s *sup) HandleChildTerminate(name gen.Atom, pid gen.PID, reason error) error {
 	return nil
 }
 
@@ -64,26 +49,26 @@ func (sup *Sup) HandleChildTerminate(name gen.Atom, pid gen.PID, reason error) e
 // Non-nil value of the returning error will cause termination of this process.
 // To stop this process normally, return gen.TerminateReasonNormal or
 // gen.TerminateReasonShutdown. Any other - for abnormal termination.
-func (sup *Sup) HandleMessage(from gen.PID, message any) error {
-	sup.Log().Info("supervisor got message from %s", from)
+func (s *sup) HandleMessage(from gen.PID, message any) error {
+	s.Log().Info("supervisor got message from %s", from)
 	return nil
 }
 
 // HandleCall invoked if Supervisor got a synchronous request made with gen.Process.Call(...).
 // Return nil as a result to handle this request asynchronously and
 // to provide the result later using the gen.Process.SendResponse(...) method.
-func (sup *Sup) HandleCall(from gen.PID, ref gen.Ref, request any) (any, error) {
-	sup.Log().Info("supervisor got request from %s with reference %s", from, ref)
+func (s *sup) HandleCall(from gen.PID, ref gen.Ref, request any) (any, error) {
+	s.Log().Info("supervisor got request from %s with reference %s", from, ref)
 	return gen.Atom("pong"), nil
 }
 
 // Terminate invoked on a termination supervisor process
-func (sup *Sup) Terminate(reason error) {
-	sup.Log().Info("supervisor terminated with reason: %s", reason)
+func (s *sup) Terminate(reason error) {
+	s.Log().Info("supervisor terminated with reason: %s", reason)
 }
 
 // HandleInspect invoked on the request made with gen.Process.Inspect(...)
-func (sup *Sup) HandleInspect(from gen.PID, item ...string) map[string]string {
-	sup.Log().Info("supervisor got inspect request from %s", from)
+func (s *sup) HandleInspect(from gen.PID, item ...string) map[string]string {
+	s.Log().Info("supervisor got inspect request from %s", from)
 	return nil
 }

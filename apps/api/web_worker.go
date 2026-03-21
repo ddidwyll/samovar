@@ -15,25 +15,25 @@ func createWebWorker() gen.ProcessBehavior {
 	return &WebWorker{}
 }
 
-type WebWorker struct{ act.WebWorker }
+type webWorker struct{ act.WebWorker }
 
 // Init invoked on a start this process.
-func (w *WebWorker) Init(args ...any) error {
-	w.SendAfter(w.PID(), "tick", 2*time.Second)
-	w.Log().Info("started web worker process with args %v", args)
+func (ww *webWorker) Init(args ...any) error {
+	ww.SendAfter(ww.PID(), "tick", 2*time.Second)
+	ww.Log().Info("started web worker process with args %v", args)
 	return nil
 }
 
 // Handle GET requests. For the other HTTP methods (POST, PATCH, etc)
 // you need to add the accoring callback-method implementation. See act.WebWorkerBehavior.
 
-func (w *WebWorker) HandleGet(from gen.PID, writer http.ResponseWriter, request *http.Request) error {
+func (ww *webWorker) HandleGet(from gen.PID, writer http.ResponseWriter, request *http.Request) error {
 	var buf bytes.Buffer
 
-	w.Log().Info("got HTTP request %q", request.URL.Path)
+	ww.Log().Info("got HTTP request %q", request.URL.Path)
 	writer.Header().Set("Content-Type", "application/json")
 	// response JSON message with information about this process
-	info, _ := w.Info()
+	info, _ := ww.Info()
 	enc := json.NewEncoder(&buf)
 	enc.SetEscapeHTML(false)
 	enc.Encode(info)
@@ -41,28 +41,28 @@ func (w *WebWorker) HandleGet(from gen.PID, writer http.ResponseWriter, request 
 	return nil
 }
 
-func (ww *WebWorker) sseStateAddConn(alias gen.Alias) {
+func (ww *webWorker) sseStateAddConn(alias gen.Alias) {
 	if err := ww.Send(sseStateProcessName, sseStateReqAddConn{alias}); err != nil {
 		ww.Log().Error("%s", err)
 		panic(err)
 	}
 }
 
-func (ww *WebWorker) sseStateDelConn(alias gen.Alias) {
+func (ww *webWorker) sseStateDelConn(alias gen.Alias) {
 	if err := ww.Send(sseStateProcessName, sseStateReqDelConn{alias}); err != nil {
 		ww.Log().Error("%s", err)
 		panic(err)
 	}
 }
 
-func (ww *WebWorker) sseStateCountIncr() {
+func (ww *webWorker) sseStateCountIncr() {
 	if err := ww.Send(sseStateProcessName, sseStateReqCountIncr{}); err != nil {
 		ww.Log().Error("%s", err)
 		panic(err)
 	}
 }
 
-func (ww *WebWorker) sseStateGet(key string) any {
+func (ww *webWorker) sseStateGet(key string) any {
 	result, err := ww.Call(sseStateProcessName, sseStateReqGet{key})
 
 	if err == nil {
@@ -73,7 +73,7 @@ func (ww *WebWorker) sseStateGet(key string) any {
 	}
 }
 
-func (ww *WebWorker) sseStateGetConns() sseStateConns {
+func (ww *webWorker) sseStateGetConns() sseStateConns {
 	if m, ok := ww.sseStateGet("connections").(sseStateConns); ok {
 		return m
 	} else {
@@ -81,7 +81,7 @@ func (ww *WebWorker) sseStateGetConns() sseStateConns {
 	}
 }
 
-func (ww *WebWorker) sseStateGetCounter() uint {
+func (ww *webWorker) sseStateGetCounter() uint {
 	if c, ok := ww.sseStateGet("counter").(uint); ok {
 		return c
 	} else {
@@ -89,11 +89,11 @@ func (ww *WebWorker) sseStateGetCounter() uint {
 	}
 }
 
-func (ww *WebWorker) sseStateGetConnLen() int {
+func (ww *webWorker) sseStateGetConnLen() int {
 	return len(ww.sseStateGetConns())
 }
 
-func (ww *WebWorker) HandleMessage(from gen.PID, message any) error {
+func (ww *webWorker) HandleMessage(from gen.PID, message any) error {
 	switch m := message.(type) {
 	case sse.MessageConnect:
 		ww.Log().Info("New SSE connection: %s (remote: %s)", m.ID, m.RemoteAddr)

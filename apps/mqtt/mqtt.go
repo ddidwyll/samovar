@@ -2,13 +2,13 @@ package mqtt
 
 import "ergo.services/ergo/gen"
 
-type Mqtt struct{}
+type mqtt struct{}
 
 func CreateMqttApp() gen.ApplicationBehavior {
-	return &Mqtt{}
+	return &mqtt{}
 }
 
-func (app *Mqtt) Load(_ gen.Node, _ ...any) (spec gen.ApplicationSpec, err error) {
+func (app *mqtt) Load(_ gen.Node, _ ...any) (spec gen.ApplicationSpec, err error) {
 	cfg, err := loadConfig()
 
 	spec.Name = "mqtt_app"
@@ -25,5 +25,5 @@ func (app *Mqtt) Load(_ gen.Node, _ ...any) (spec gen.ApplicationSpec, err error
 	return spec, err
 }
 
-func (app *Mqtt) Start(_ gen.ApplicationMode) {}
-func (app *Mqtt) Terminate(_ error)           {}
+func (app *mqtt) Start(_ gen.ApplicationMode) {}
+func (app *mqtt) Terminate(_ error)           {}

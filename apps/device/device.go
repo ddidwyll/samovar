@@ -2,13 +2,13 @@ package device
 
 import "ergo.services/ergo/gen"
 
-type Device struct{}
+type device struct{}
 
 func CreateDeviceApp() gen.ApplicationBehavior {
-	return &Device{}
+	return &device{}
 }
 
-func (app *Device) Load(_ gen.Node, _ ...any) (spec gen.ApplicationSpec, err error) {
+func (app *device) Load(_ gen.Node, _ ...any) (spec gen.ApplicationSpec, err error) {
 	spec.Name = "device_app"
 	spec.Description = "DEVICE"
 	spec.Mode = gen.ApplicationModeTransient
@@ -22,5 +22,5 @@ func (app *Device) Load(_ gen.Node, _ ...any) (spec gen.ApplicationSpec, err err
 	return spec, err
 }
 
-func (app *Device) Start(_ gen.ApplicationMode) {}
-func (app *Device) Terminate(_ error)           {}
+func (app *device) Start(_ gen.ApplicationMode) {}
+func (app *device) Terminate(_ error)           {}

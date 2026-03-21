@@ -6,11 +6,11 @@ import (
 	"errors"
 )
 
-type Server struct{ act.Actor }
+type server struct{ act.Actor }
 
-func newServer() gen.ProcessBehavior { return &Server{} }
+func newServer() gen.ProcessBehavior { return &server{} }
 
-func (s *Server) Init(args ...any) error {
+func (s *server) Init(args ...any) error {
 	cfg, ok := args[0].(*config)
 
 	if !ok {
@@ -23,12 +23,12 @@ func (s *Server) Init(args ...any) error {
 		return err
 	}
 
-	s.Log().Info("mqtt.Server started (%s)", s.Name())
+	s.Log().Info("mqtt.server started (%s)", s.Name())
 
 	return nil
 }
 
-func (s *Server) HandleMessage(_ gen.PID, message any) error {
-	s.Log().Info("mqtt.Server receive message: %#v", message)
+func (s *server) HandleMessage(_ gen.PID, msg any) error {
+	s.Log().Info("mqtt.server receive message: %#v", msg)
 	return nil
 }

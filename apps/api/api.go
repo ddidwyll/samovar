@@ -2,11 +2,11 @@ package api
 
 import "ergo.services/ergo/gen"
 
-type Api struct{}
+type api struct{}
 
-func CreateApiApp() gen.ApplicationBehavior { return &Api{} }
+func CreateApiApp() gen.ApplicationBehavior { return &api{} }
 
-func (app *Api) Load(node gen.Node, args ...any) (spec gen.ApplicationSpec, err error) {
+func (app *api) Load(node gen.Node, args ...any) (spec gen.ApplicationSpec, err error) {
 	spec.Name = "api_app"
 	spec.Description = "API"
 	spec.Mode = gen.ApplicationModeTransient
@@ -20,5 +20,5 @@ func (app *Api) Load(node gen.Node, args ...any) (spec gen.ApplicationSpec, err 
 	return spec, err
 }
 
-func (app *Api) Start(_ gen.ApplicationMode) {}
-func (app *Api) Terminate(_ error)           {}
+func (app *api) Start(_ gen.ApplicationMode) {}
+func (app *api) Terminate(_ error)           {}
