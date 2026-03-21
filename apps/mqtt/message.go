@@ -2,18 +2,18 @@ package mqtt
 
 import (
 	"time"
+	"path"
 )
 
-type message struct {
-	topic     string
-	text      string
-	timestamp int64
+type Message struct {
+	Topic     string
+	Text      string
+	Timestamp int64
 }
 
-func newMessage(topic, text []byte) message {
-	return message{
-		topic:     string(topic),
-		text:      string(text),
-		timestamp: time.Now().UnixMicro(),
-	}
+func newMessage(topicPath, text []byte) Message {
+  _, topic := path.Split(string(topicPath))
+  timestamp := time.Now().UnixMicro()
+
+	return Message{topic, string(text), timestamp}
 }

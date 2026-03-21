@@ -30,5 +30,6 @@ func (s *server) Init(args ...any) error {
 
 func (s *server) HandleMessage(_ gen.PID, msg any) error {
 	s.Log().Debug("mqtt.server receive message: %#v", msg)
+	s.Send("mqtt_producer", msg)
 	return nil
 }

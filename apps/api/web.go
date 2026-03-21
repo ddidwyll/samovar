@@ -11,19 +11,15 @@ import (
 )
 
 func createWeb() gen.ProcessBehavior {
-	return &Web{}
+	return &web{}
 }
 
-type Web struct {
+type web struct {
 	act.Pool
-	connections map[gen.Alias]bool
-	counter     int
 }
 
 // Init invoked on a start this process.
-func (w *Web) Init(args ...any) (act.PoolOptions, error) {
-	w.connections = make(map[gen.Alias]bool)
-
+func (w *web) Init(args ...any) (act.PoolOptions, error) {
 	var webOptions meta.WebServerOptions
 	var poolOptions act.PoolOptions
 
@@ -67,7 +63,7 @@ func (w *Web) Init(args ...any) (act.PoolOptions, error) {
 
 	webserver, err := meta.CreateWebServer(webOptions)
 	if err != nil {
-		w.Log().Error("unable to create Web server meta-process: %s", err)
+		w.Log().Error("unable to create web server meta-process: %s", err)
 		return poolOptions, err
 	}
 	webserverid, err := w.SpawnMeta(webserver, gen.MetaOptions{})
@@ -81,7 +77,7 @@ func (w *Web) Init(args ...any) (act.PoolOptions, error) {
 	if webOptions.CertManager != nil {
 		https = "https"
 	}
-	w.Log().Debug("started Web server %s: use %s://%s:%d/", webserverid, https, webOptions.Host, webOptions.Port)
+	w.Log().Debug("started web server %s: use %s://%s:%d/", webserverid, https, webOptions.Host, webOptions.Port)
 
 	poolOptions.WorkerFactory = createWebWorker
 	return poolOptions, nil
