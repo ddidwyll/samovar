@@ -23,7 +23,7 @@ func newMqttProducer() gen.ProcessBehavior {
 }
 
 func (p *mqttProducer) Init(_ ...any) error {
-	opts := gen.EventOptions{true, 100}
+	opts := gen.EventOptions{false, 0}
 
 	for _, e := range MqttEvents {
 		if ref, err := p.RegisterEvent(e, opts); err == nil {
@@ -33,10 +33,11 @@ func (p *mqttProducer) Init(_ ...any) error {
 		}
 	}
 
+	p.Log().Debug("bus.mqttProducer started (%s)", p.Name())
 	return nil
 }
 
-func (p *mqttProducer) HandleMessage(from gen.PID, msg any) error {
+func (p *mqttProducer) HandleMessage(_ gen.PID, msg any) error {
 	switch m := msg.(type) {
 	case mqtt.Message:
 		event := gen.Atom("mqtt_new_message")
