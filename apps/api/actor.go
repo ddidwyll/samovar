@@ -5,13 +5,9 @@ import (
 	"ergo.services/ergo/gen"
 )
 
-func createActor() gen.ProcessBehavior {
-	return &actor{}
-}
+func createActor() gen.ProcessBehavior { return &actor{} }
 
-type actor struct {
-	act.actor
-}
+type actor struct { act.Actor }
 
 // Init invoked on a start this process.
 func (a *actor) Init(args ...any) error {

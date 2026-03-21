@@ -6,7 +6,7 @@ import (
 	"errors"
 )
 
-const sseStateProcessName = gen.Atom("sseState")
+const sseStateProcessName = gen.Atom("api_sse_state")
 
 type sseStateConns map[gen.Alias]bool
 
@@ -28,7 +28,7 @@ type sseStateReqCountIncr struct{}
 type sseStateReqGet struct{ key string }
 
 func (ss *sseState) Init(_ ...any) (err error) {
-	ss.Log().Debug("sseState started (%s)", ss.Name())
+	ss.Log().Debug("api.sse_state started (%s)", ss.Name())
 	return
 }
 
@@ -36,7 +36,7 @@ func (ss *sseState) HandleCall(_ gen.PID, _ gen.Ref, request any) (any, error) {
 	req, ok := request.(sseStateReqGet)
 
 	if !ok {
-		return nil, errors.New("sseState: unexpected call request")
+		return nil, errors.New("api.sse_state: unexpected call request")
 	}
 
 	switch req.key {
@@ -45,7 +45,7 @@ func (ss *sseState) HandleCall(_ gen.PID, _ gen.Ref, request any) (any, error) {
 	case "connections":
 		return ss.connections, nil
 	default:
-		return nil, errors.New("sseState: unexpected state key")
+		return nil, errors.New("api.sse_state: unexpected state key")
 	}
 }
 
@@ -58,7 +58,7 @@ func (ss *sseState) HandleMessage(_ gen.PID, message any) error {
 	case sseStateReqCountIncr:
 		ss.counter++
 	default:
-		return errors.New("sseState: unexpected message")
+		return errors.New("api.sse_state: unexpected message")
 	}
 
 	return nil

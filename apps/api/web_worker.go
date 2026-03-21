@@ -12,7 +12,7 @@ import (
 )
 
 func createWebWorker() gen.ProcessBehavior {
-	return &WebWorker{}
+	return &webWorker{}
 }
 
 type webWorker struct{ act.WebWorker }
@@ -134,7 +134,7 @@ func (ww *webWorker) HandleMessage(from gen.PID, message any) error {
 
 			ww.SendAfter(ww.PID(), "tick", 2*time.Second)
 		} else {
-			ww.Log().Warning("Unexpected WebWorker message: %s", m)
+			ww.Log().Warning("Unexpected webWorker message: %s", m)
 		}
 	}
 

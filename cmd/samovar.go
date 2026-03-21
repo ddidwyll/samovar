@@ -5,7 +5,7 @@ import (
 
 	"time"
 
-	// "samovar/apps/api"
+	"samovar/apps/api"
 	"samovar/apps/device"
 	"samovar/apps/mqtt"
 
@@ -35,7 +35,7 @@ func main() {
 
 	options.Applications = []gen.ApplicationBehavior{
 		observer.CreateApp(observer.Options{}),
-		// api.CreateApiApp(),
+		api.CreateApiApp(),
 		mqtt.CreateMqttApp(),
 		device.CreateDeviceApp(),
 	}
