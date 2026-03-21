@@ -4,27 +4,21 @@ import "ergo.services/ergo/gen"
 
 type Api struct{}
 
-func CreateApiApp() gen.ApplicationBehavior {
-	return &Api{}
-}
+func CreateApiApp() gen.ApplicationBehavior { return &Api{} }
 
-// Load invoked on loading application using method ApplicationLoad of gen.Node interface.
-func (app *Api) Load(node gen.Node, args ...any) (gen.ApplicationSpec, error) {
-	return gen.ApplicationSpec{
-		Name:        "api",
-		Description: "API",
-		Mode:        gen.ApplicationModeTransient,
-		Group: []gen.ApplicationMemberSpec{
-			{
-				Name:    "sup",
-				Factory: newSup,
-			},
+func (app *Api) Load(node gen.Node, args ...any) (spec gen.ApplicationSpec, err error) {
+	spec.Name = "api_app"
+	spec.Description = "API"
+	spec.Mode = gen.ApplicationModeTransient
+	spec.Group = []gen.ApplicationMemberSpec{
+		{
+			Name:    "api_sup",
+			Factory: newSup,
 		},
-	}, nil
+	}
+
+	return spec, err
 }
 
-// Start invoked once the application started
-func (app *Api) Start(mode gen.ApplicationMode) {}
-
-// Terminate invoked once the application stopped
-func (app *Api) Terminate(reason error) {}
+func (app *Api) Start(_ gen.ApplicationMode) {}
+func (app *Api) Terminate(_ error)           {}

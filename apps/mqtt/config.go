@@ -23,23 +23,22 @@ func loadConfig() (*config, error) {
 }
 
 func (c *config) validate() error {
-	var key string
+	var err string
 
 	switch {
 	case c.Host == "":
-		key = "host"
+		err = "host is required"
 	case c.Port == 0:
-		key = "port"
+		err = "port is required"
 	case c.ClientID == "":
-		key = "client_id"
+		err = "client_id is required"
 	case c.Topic == "":
-		key = "topic"
+		err = "topic is required"
 	default:
 		return nil
 	}
 
-	err := fmt.Sprintf("Config error: %s is required", key)
-	return errors.New(err)
+	return errors.New(fmt.Sprintf("Config error: %s", err))
 }
 
 func (c *config) url() string {

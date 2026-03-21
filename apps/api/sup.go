@@ -23,15 +23,15 @@ func (sup *Sup) Init(args ...any) (act.SupervisorSpec, error) {
 	// add children
 	spec.Children = []act.SupervisorChildSpec{
 		{
-			Name:    "sseState",
+			Name:    "api_sse_state",
 			Factory: newsseState,
 		},
 		{
-			Name:    "web",
+			Name:    "api_web",
 			Factory: createWeb,
 		},
 		{
-			Name:    "actor",
+			Name:    "api_actor",
 			Factory: createActor,
 		},
 	}

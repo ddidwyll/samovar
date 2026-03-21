@@ -28,13 +28,12 @@ func newListener(cfg *config) gen.MetaBehavior {
 
 func (l *Listener) Init(process gen.MetaProcess) error {
 	l.MetaProcess = process
+	l.createClient()
 	l.Log().Info("mqtt.Listener started (%v)", l.config)
 	return nil
 }
 
 func (l *Listener) Start() error {
-	l.createClient()
-
 	if err := l.connect(); err != nil {
 		l.Log().Error("mqtt Listener connect error: %s", err)
 		return err
@@ -62,9 +61,9 @@ func (l *Listener) Start() error {
 
 func (l *Listener) createClient() {
 	onPub := func(_ natiu.Header, vpub natiu.VariablesPublish, r io.Reader) error {
-		if message, err := io.ReadAll(r); err == nil {
-			l.Log().Info("mqtt topic: %s", vpub.TopicName)
-			l.Send(l.ID(), message)
+		if text, err := io.ReadAll(r); err == nil {
+			msg := newMessage(vpub.TopicName, text)
+			l.Send(l.Parent(), msg)
 			return nil
 		} else {
 			return err

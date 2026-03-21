@@ -6,6 +6,7 @@ import (
 	"time"
 
 	// "samovar/apps/api"
+	"samovar/apps/device"
 	"samovar/apps/mqtt"
 
 	"ergo.services/application/observer"
@@ -32,13 +33,12 @@ func main() {
 
 	flag.Parse()
 
-	// create applications that must be started
-	apps := []gen.ApplicationBehavior{
+	options.Applications = []gen.ApplicationBehavior{
 		observer.CreateApp(observer.Options{}),
 		// api.CreateApiApp(),
 		mqtt.CreateMqttApp(),
+		device.CreateDeviceApp(),
 	}
-	options.Applications = apps
 
 	// disable default logger to get rid of multiple logging to the os.Stdout
 	options.Log.DefaultLogger.Disable = true

@@ -1,4 +1,4 @@
-package mqtt
+package device
 
 import (
 	"ergo.services/ergo/act"
@@ -9,7 +9,7 @@ type Sup struct{ act.Supervisor }
 
 func newSup() gen.ProcessBehavior { return &Sup{} }
 
-func (sup *Sup) Init(args ...any) (spec act.SupervisorSpec, err error) {
+func (sup *Sup) Init(_ ...any) (spec act.SupervisorSpec, err error) {
 	spec.Type = act.SupervisorTypeOneForOne
 	spec.Restart.Strategy = act.SupervisorStrategyTransient
 	spec.Restart.Intensity = 2
@@ -17,9 +17,8 @@ func (sup *Sup) Init(args ...any) (spec act.SupervisorSpec, err error) {
 
 	spec.Children = []act.SupervisorChildSpec{
 		{
-			Name:    "mqtt_server",
-			Factory: newServer,
-			Args:    args,
+			Name:    "device_raw_state",
+			Factory: newRawState,
 		},
 	}
 

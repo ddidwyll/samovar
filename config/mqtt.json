@@ -1,6 +1,6 @@
 {
-  "host": "127.0.0.1",
+  "host": "192.168.111.1",
   "port": 1883,
   "client_id": "samovar_client",
-  "topic": "samovar"
+  "topic": "/samovar/#"
 }
