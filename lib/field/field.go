@@ -9,10 +9,10 @@ import (
 type Type rune
 
 type Field struct {
-	Name string
-	t    Type
-	val  val.Val
-	timestamp int64
+	Name    string
+	t       Type
+	val     val.Val
+	lastUpd int64
 }
 
 func New(n string, t Type) *Field {

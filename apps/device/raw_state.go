@@ -1,8 +1,8 @@
 package device
 
 import (
-	"samovar/lib/state"
 	"samovar/common/models"
+	"samovar/lib/state"
 
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
@@ -32,11 +32,11 @@ func (rs *rawState) HandleMessage(_ gen.PID, msg any) error {
 	rs.Log().Debug("device.rawState receive message: %#v", msg)
 
 	switch v := msg.(type) {
-  	case models.ChangeRequest:
+	case models.ChangeRequest:
 	}
 	return nil
 }
 
 func (rs *rawState) updateState(key state.Key, val any) error {
-  
+
 }

@@ -1,7 +1,6 @@
 package change
 
-import (
-)
+import ()
 
 type Request struct {
 	Key       string
@@ -10,9 +9,9 @@ type Request struct {
 }
 
 type Report struct {
-  Changed bool
-  Key string
-  NewValue string
-  OldValue string
-  Timestamp int64
+	Changed   bool
+	Key       string
+	NewValue  string
+	OldValue  string
+	Timestamp int64
 }
