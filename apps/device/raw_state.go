@@ -1,7 +1,8 @@
 package device
 
 import (
-  "samovar/lib/state"
+	"samovar/lib/state"
+	"samovar/common/models"
 
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
@@ -9,7 +10,7 @@ import (
 
 type rawState struct {
 	act.Actor
-	state state.State
+	state *state.State
 }
 
 func newRawState() gen.ProcessBehavior {
@@ -17,17 +18,25 @@ func newRawState() gen.ProcessBehavior {
 }
 
 func (rs *rawState) Init(_ ...any) error {
-  rs.state = state.New(state.Fields{
-    state.FieldParams{"term_d", 'f', "TOP temp"},
-    state.FieldParams{"term_c", 'f', "MIDDLE temp"},
-    state.FieldParams{"term_k", 'f', "BOTTOM temp"},
-  })
+	rs.state = state.New(state.Fields{
+		state.FieldParams{"term_d", 'f', "TOP temp"},
+		state.FieldParams{"term_c", 'f', "MIDDLE temp"},
+		state.FieldParams{"term_k", 'f', "BOTTOM temp"},
+	})
 
 	rs.Log().Debug("device.rawState started (%s)", rs.Name())
 	return nil
 }
 
 func (rs *rawState) HandleMessage(_ gen.PID, msg any) error {
-	rs.Log().Info("device.rawState receive message: %#v", msg)
+	rs.Log().Debug("device.rawState receive message: %#v", msg)
+
+	switch v := msg.(type) {
+  	case models.ChangeRequest:
+	}
 	return nil
+}
+
+func (rs *rawState) updateState(key state.Key, val any) error {
+  
 }

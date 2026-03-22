@@ -1,7 +1,6 @@
 package bus
 
 import (
-	"samovar/apps/device"
 	"samovar/common/models"
 
 	"ergo.services/ergo/act"
@@ -38,8 +37,8 @@ func (c *deviceConsumer) Init(_ ...any) error {
 func (c *deviceConsumer) HandleEvent(event gen.MessageEvent) error {
 	switch m := event.Message.(type) {
 	case models.MqttMessage:
-		ch := models.ValueChange{m.Topic, m.Text, m.Timestamp}
-		c.Log().Debug("bus.deviceConsumer new ValueChange request: %+v", ch)
+		ch := models.ChangeRequest{m.Topic, m.Text, m.Timestamp}
+		c.Log().Debug("bus.deviceConsumer new ChangeRequest request: %+v", ch)
 		return c.Send("device_raw_state", ch)
 	default:
 		err := fmt.Sprintf("bus.mqttProducer receive unexpected event: %#v", event)

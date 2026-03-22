@@ -1,8 +1,8 @@
 package models
 
 import (
-	"time"
 	"path"
+	"time"
 )
 
 type MqttMessage struct {
@@ -12,8 +12,8 @@ type MqttMessage struct {
 }
 
 func NewMqttMessage(topicPath, text []byte) MqttMessage {
-  _, topic := path.Split(string(topicPath))
-  timestamp := time.Now().UnixMicro()
+	_, topic := path.Split(string(topicPath))
+	timestamp := time.Now().UnixMicro()
 
 	return MqttMessage{topic, string(text), timestamp}
 }

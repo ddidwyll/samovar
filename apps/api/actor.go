@@ -7,7 +7,7 @@ import (
 
 func createActor() gen.ProcessBehavior { return &actor{} }
 
-type actor struct { act.Actor }
+type actor struct{ act.Actor }
 
 // Init invoked on a start this process.
 func (a *actor) Init(args ...any) error {

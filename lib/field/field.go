@@ -12,6 +12,7 @@ type Field struct {
 	Name string
 	t    Type
 	val  val.Val
+	timestamp int64
 }
 
 func New(n string, t Type) *Field {
