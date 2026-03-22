@@ -1,6 +1,8 @@
 package bus
 
 import (
+  "samovar/apps/device"
+
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
 	"errors"
@@ -35,8 +37,9 @@ func (c *deviceConsumer) Init(_ ...any) error {
 func (c *deviceConsumer) HandleEvent(event gen.MessageEvent) error {
 	switch m := event.Message.(type) {
 	case MqttNewMessage:
-		c.Log().Info("bus.deviceConsumer reveive MqttNewMessage: %s", m.Topic)
-		return nil
+		ch := device.ValueChange{m.Topic, m.Text, m.Timestamp}
+		c.Log().Debug("bus.deviceConsumer new ValueChange request: %+v", ch)
+		return c.Send("device_raw_state", ch)
 	default:
 		err := fmt.Sprintf("bus.mqttProducer receive unexpected event: %#v", event)
 		return errors.New(err)

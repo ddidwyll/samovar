@@ -2,6 +2,4 @@ package bus
 
 import "samovar/apps/mqtt"
 
-type MqttNewMessage struct {
-	mqtt.Message
-}
+type MqttNewMessage mqtt.Message
