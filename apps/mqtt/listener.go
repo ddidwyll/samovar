@@ -7,6 +7,8 @@ import (
 	"net"
 	"time"
 
+	"samovar/common/models"
+
 	"ergo.services/ergo/gen"
 	natiu "github.com/soypat/natiu-mqtt"
 )
@@ -62,7 +64,7 @@ func (l *listener) Start() error {
 func (l *listener) createClient() {
 	onPub := func(_ natiu.Header, vpub natiu.VariablesPublish, r io.Reader) error {
 		if text, err := io.ReadAll(r); err == nil {
-			msg := newMessage(vpub.TopicName, text)
+			msg := models.NewMqttMessage(vpub.TopicName, text)
 			l.Send(l.Parent(), msg)
 			return nil
 		} else {

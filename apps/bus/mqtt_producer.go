@@ -1,7 +1,7 @@
 package bus
 
 import (
-	"samovar/apps/mqtt"
+	"samovar/common/models"
 
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
@@ -39,11 +39,11 @@ func (p *mqttProducer) Init(_ ...any) error {
 
 func (p *mqttProducer) HandleMessage(_ gen.PID, msg any) error {
 	switch m := msg.(type) {
-	case mqtt.Message:
+	case models.MqttMessage:
 		event := gen.Atom("mqtt_new_message")
 		ref := p.eventRefs[event]
-		p.Log().Debug("bus.mqttProducer receive MqttNewMessage: %v", m)
-		return p.SendEvent(event, ref, MqttNewMessage{m})
+		p.Log().Debug("bus.mqttProducer receive MqttMessage: %v", m)
+		return p.SendEvent(event, ref, m)
 	default:
 		err := fmt.Sprintf("bus.mqttProducer receive unexpected message: %#v", msg)
 		return errors.New(err)

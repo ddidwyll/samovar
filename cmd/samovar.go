@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-
 	"time"
 
 	"samovar/apps/api"
@@ -11,9 +10,7 @@ import (
 	"samovar/apps/mqtt"
 
 	"ergo.services/application/observer"
-
 	"ergo.services/logger/colored"
-
 	"ergo.services/ergo"
 	"ergo.services/ergo/gen"
 	"ergo.services/ergo/lib"

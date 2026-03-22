@@ -1,7 +1,8 @@
 package bus
 
 import (
-  "samovar/apps/device"
+	"samovar/apps/device"
+	"samovar/common/models"
 
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
@@ -36,8 +37,8 @@ func (c *deviceConsumer) Init(_ ...any) error {
 
 func (c *deviceConsumer) HandleEvent(event gen.MessageEvent) error {
 	switch m := event.Message.(type) {
-	case MqttNewMessage:
-		ch := device.ValueChange{m.Topic, m.Text, m.Timestamp}
+	case models.MqttMessage:
+		ch := models.ValueChange{m.Topic, m.Text, m.Timestamp}
 		c.Log().Debug("bus.deviceConsumer new ValueChange request: %+v", ch)
 		return c.Send("device_raw_state", ch)
 	default:
