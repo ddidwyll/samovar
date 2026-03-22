@@ -1,11 +1,14 @@
 package device
 
 import (
-	"samovar/common/models"
+	"samovar/lib/change"
 	"samovar/lib/state"
 
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
+
+	"errors"
+	"fmt"
 )
 
 type rawState struct {
@@ -32,11 +35,25 @@ func (rs *rawState) HandleMessage(_ gen.PID, msg any) error {
 	rs.Log().Debug("device.rawState receive message: %#v", msg)
 
 	switch v := msg.(type) {
-	case models.ChangeRequest:
+	case change.Request:
+		return rs.updateState(v)
+	default:
+		err := fmt.Sprintf("device.rawState unexpected message: %#v", msg)
+		return errors.New(err)
 	}
-	return nil
 }
 
-func (rs *rawState) updateState(key state.Key, val any) error {
+func (rs *rawState) updateState(req change.Request) error {
+	rs.Log().Debug("device.rawState change req: %#v", req)
+	report, err := rs.state.Change(req)
 
+	if err == nil && report.Changed {
+		rs.Log().Info("device.rawState changed: %s -> %s", report.OldValue.ToStr(), report.NewValue.ToStr())
+	}
+
+	// if err != nil {
+	//  	rs.Log().Error("device.rawState state error: %s", err)
+	// }
+
+	return nil
 }

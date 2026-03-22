@@ -1,94 +1,122 @@
 package field
 
 import (
+	"samovar/lib/change"
 	"samovar/lib/val"
 
 	"errors"
+	"time"
 )
 
 type Type rune
 
 type Field struct {
-	Name    string
-	t       Type
-	val     val.Val
-	lastUpd int64
+	Name string
+	t    Type
+	val  val.Val
+	ts   int64
 }
 
 func New(n string, t Type) *Field {
-	return &Field{n, t, val.Nil{}}
+	return &Field{n, t, val.Nil{}, 0}
 }
 
 func (f *Field) Get() val.Val { return f.val }
 
-func (f *Field) Set(v any) error {
+func (f *Field) Cast(a any) (v val.Val, err error) {
 	switch f.t {
 	case 'i':
-		return f.castInt(v)
+		v, err = f.castInt(a)
 	case 'f':
-		return f.castFlt(v)
+		v, err = f.castFlt(a)
 	case 's':
-		return f.castStr(v)
+		v, err = f.castStr(a)
 	default:
-		return errors.New("invalid field type")
+		v = val.Nil{}
+		err = errors.New("invalid field type")
 	}
+
+	return v, err
 }
 
-func (f *Field) Update(fun func(val.Val) any) error {
-	return f.Set(fun(f.val))
+func (f *Field) Set(a any) error {
+	v, err := f.Cast(a)
+
+	if err == nil {
+		f.val = v
+		f.ts = time.Now().UnixMicro()
+	}
+
+	return err
+}
+
+func (f *Field) Change(req change.Request) (rep change.Report, err error) {
+	newVal, err := f.Cast(req.Value)
+
+	if err != nil {
+		return rep, err
+	}
+
+	rep = req.BuildReport(f.ts, f.val, newVal)
+	f.val, f.ts = newVal, req.Timestamp
+
+	return rep, err
 }
 
 func (f *Field) IsNil() bool { return f.val.IsNil() }
 
 func (f *Field) Type() Type { return f.t }
 
-func (f *Field) castInt(v any) (err error) {
-	switch c := v.(type) {
+func (f *Field) castInt(a any) (v val.Val, err error) {
+	switch c := a.(type) {
 	case int:
-		f.val = val.IntAsInt(int64(c))
+		v = val.IntAsInt(int64(c))
 	case int64:
-		f.val = val.IntAsInt(c)
+		v = val.IntAsInt(c)
 	case float64:
-		f.val = val.FltAsInt(c)
+		v = val.FltAsInt(c)
 	case string:
-		f.val, err = val.StrAsInt(c)
+		v, err = val.StrAsInt(c)
 	default:
+		v = val.Nil{}
 		err = errors.New("failed to cast field")
 	}
 
-	return err
+	return v, err
 }
 
-func (f *Field) castFlt(v any) (err error) {
-	switch c := v.(type) {
+func (f *Field) castFlt(a any) (v val.Val, err error) {
+	switch c := a.(type) {
 	case int:
-		f.val = val.IntAsFlt(int64(c))
+		v = val.IntAsFlt(int64(c))
 	case int64:
-		f.val = val.IntAsFlt(c)
+		v = val.IntAsFlt(c)
 	case float64:
-		f.val = val.FltAsFlt(c)
+		v = val.FltAsFlt(c)
 	case string:
-		f.val, err = val.StrAsFlt(c)
+		v, err = val.StrAsFlt(c)
 	default:
+		v = val.Nil{}
 		err = errors.New("failed to cast field")
 	}
 
-	return err
+	return v, err
 }
 
-func (f *Field) castStr(v any) (err error) {
-	switch c := v.(type) {
+func (f *Field) castStr(a any) (v val.Val, err error) {
+	switch c := a.(type) {
 	case int:
-		f.val = val.IntAsStr(int64(c))
+		v = val.IntAsStr(int64(c))
 	case int64:
-		f.val = val.IntAsStr(c)
+		v = val.IntAsStr(c)
 	case float64:
-		f.val = val.FltAsStr(c)
+		v = val.FltAsStr(c)
 	case string:
-		f.val, err = val.StrAsStr(c)
+		v, err = val.StrAsStr(c)
 	default:
+		v = val.Nil{}
 		err = errors.New("failed to cast field")
 	}
 
-	return err
+	return v, err
 }

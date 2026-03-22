@@ -1,6 +1,7 @@
 package state
 
 import (
+	"samovar/lib/change"
 	"samovar/lib/field"
 	"samovar/lib/val"
 
@@ -8,12 +9,10 @@ import (
 	"fmt"
 )
 
-type Key string
-
-type State map[Key]*field.Field
+type State map[string]*field.Field
 
 type FieldParams struct {
-	Key  Key
+	Key  string
 	Type field.Type
 	Name string
 }
@@ -30,7 +29,7 @@ func New(fields Fields) *State {
 	return &newState
 }
 
-func (s *State) Fetch(k Key) (f *field.Field, err error) {
+func (s *State) Fetch(k string) (f *field.Field, err error) {
 	if field, has := (*s)[k]; has {
 		return field, err
 	} else {
@@ -39,7 +38,7 @@ func (s *State) Fetch(k Key) (f *field.Field, err error) {
 	}
 }
 
-func (s *State) Get(k Key) val.Val {
+func (s *State) Get(k string) val.Val {
 	if field, has := (*s)[k]; has {
 		return field.Get()
 	} else {
@@ -47,16 +46,25 @@ func (s *State) Get(k Key) val.Val {
 	}
 }
 
-func (s *State) Has(k Key) bool {
+func (s *State) Has(k string) bool {
 	_, has := (*s)[k]
 	return has
 }
 
-func (s *State) Set(k Key, v any) error {
+func (s *State) Set(k string, v any) error {
 	if field, has := (*s)[k]; has {
 		return field.Set(v)
 	} else {
 		err := fmt.Sprintf("field [%s] not found", k)
 		return errors.New(err)
+	}
+}
+
+func (s *State) Change(req change.Request) (rep change.Report, err error) {
+	if field, has := (*s)[req.Key]; has {
+		return field.Change(req)
+	} else {
+		err := fmt.Sprintf("field [%s] not found", req.Key)
+		return rep, errors.New(err)
 	}
 }
