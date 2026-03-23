@@ -3,6 +3,7 @@ package device
 import (
 	"samovar/lib/change"
 	"samovar/lib/state"
+	"samovar/lib/i"
 
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
@@ -78,7 +79,7 @@ func (rs *rawState) updateState(req change.Request) error {
 		if report.IsNew {
 			rs.Log().Info("device.rawState [%s\t]:\t%s", field, report.NewValue)
 		} else {
-			if req.Key != "press_a" && req.Key != "power" {
+			if !i.N(req.Key, "press_a", "power") {
 				rs.Log().Info(
 					"device.rawState [%s\t]:\t%s -> %s\t\t%s\t%s",
 					field,
