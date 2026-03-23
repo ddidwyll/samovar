@@ -1,6 +1,10 @@
 package change
 
-import "samovar/lib/val"
+import (
+	"samovar/lib/val"
+
+	"time"
+)
 
 type Request struct {
 	Key       string
@@ -28,4 +32,8 @@ func (r Request) BuildReport(oldTs int64, oldV, newV val.Val) Report {
 	isNew := oldTs == 0 && oldV.IsNil()
 	changed := newV.String() != oldV.String()
 	return Report{isNew, changed, r.Key, r.Reason, oldV, newV, oldTs, r.Timestamp}
+}
+
+func (r Report) FormatTS() string {
+	return time.UnixMicro(r.NewTimestamp).Format(time.TimeOnly)
 }

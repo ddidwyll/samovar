@@ -27,6 +27,8 @@ func (rs *rawState) Init(_ ...any) error {
 		state.FieldParams{"term_k", 'f', "t bottom", "°C"},
 		state.FieldParams{"power", 'i', "power", "W"},
 		state.FieldParams{"press_a", 'f', "atm press", "mm"},
+		state.FieldParams{"flag_otb", 's', "collect mode", ""},
+		state.FieldParams{"term_d_m", 'f', "t top max", "°C"},
 	})
 
 	rs.Log().Debug("device.rawState started (%s)", rs.Name())
@@ -50,13 +52,13 @@ func (rs *rawState) updateState(req change.Request) error {
 	report, err := rs.state.Change(req)
 
 	if err == nil && report.Changed {
-  	field, _ := rs.state.Fetch(req.Key)
+		field, _ := rs.state.Fetch(req.Key)
 
-  	if report.IsNew {
-  		rs.Log().Info("device.rawState: [%s\t]\t%s", field, report.NewValue)
-  	} else {
-  		rs.Log().Info("device.rawState: [%s\t]\t%s -> %s\t\t%s", field, report.OldValue, report.NewValue, report.Reason)
-  	}
+		if report.IsNew {
+			rs.Log().Info("device.rawState [%s\t]:\t%s", field, report.NewValue)
+		} else {
+			rs.Log().Info("device.rawState [%s\t]:\t%s -> %s\t\t%s\t%s", field, report.OldValue, report.NewValue, report.FormatTS(), report.Reason)
+		}
 	}
 
 	// if err != nil {

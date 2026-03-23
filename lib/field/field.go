@@ -5,8 +5,8 @@ import (
 	"samovar/lib/val"
 
 	"errors"
-	"time"
 	"fmt"
+	"time"
 )
 
 type Type rune
@@ -24,11 +24,11 @@ func New(name string, t Type) *Field {
 }
 
 func (f *Field) String() string {
-  if f.Unit == "" {
-    return f.Name
-  } else {
-    return fmt.Sprintf("%s (%s)", f.Name, f.Unit)
-  }
+	if f.Unit == "" {
+		return f.Name
+	} else {
+		return fmt.Sprintf("%s (%s)", f.Name, f.Unit)
+	}
 }
 
 func (f *Field) Get() val.Val { return f.val }
