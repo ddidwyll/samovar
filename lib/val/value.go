@@ -25,7 +25,7 @@ type Str struct {
 type Nil struct{}
 
 type Val interface {
-	ToStr() string
+	String() string
 	IsNil() bool
 	IsNum() bool
 }
@@ -41,10 +41,10 @@ func (v Flt) AsInt() int64 { return v.i }
 func (v Int) ToFlt() float64 { return float64(v.i) }
 func (v Flt) ToFlt() float64 { return float64(v.i / 100) }
 
-func (v Int) ToStr() string { return v.s }
-func (v Flt) ToStr() string { return v.s }
-func (v Str) ToStr() string { return v.s }
-func (v Nil) ToStr() string { return "" }
+func (v Int) String() string { return v.s }
+func (v Flt) String() string { return v.s }
+func (v Str) String() string { return v.s }
+func (v Nil) String() string { return "" }
 
 func (v Int) IsNil() bool { return v.s == "" }
 func (v Flt) IsNil() bool { return v.s == "" }

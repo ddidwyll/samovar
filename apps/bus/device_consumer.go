@@ -38,7 +38,7 @@ func (c *deviceConsumer) Init(_ ...any) error {
 func (c *deviceConsumer) HandleEvent(event gen.MessageEvent) error {
 	switch m := event.Message.(type) {
 	case models.MqttMessage:
-		ch := change.Request{m.Topic, m.Text, m.Timestamp}
+		ch := change.NewRequest(m.Topic, m.Text, "from mqtt", m.Timestamp)
 		c.Log().Debug("bus.deviceConsumer new ChangeRequest request: %+v", ch)
 		return c.Send("device_raw_state", ch)
 	default:

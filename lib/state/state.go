@@ -15,6 +15,7 @@ type FieldParams struct {
 	Key  string
 	Type field.Type
 	Name string
+	Unit string
 }
 
 type Fields []FieldParams
@@ -22,8 +23,24 @@ type Fields []FieldParams
 func New(fields Fields) *State {
 	newState := make(State)
 
-	for _, f := range fields {
-		newState[f.Key] = field.New(f.Name, f.Type)
+	for _, params := range fields {
+		field := field.New(params.Name, params.Type)
+		field.Unit = params.Unit
+		keys := [2]string{params.Key, params.Name}
+
+		for _, key := range keys {
+			if key == "" {
+				panic("empty state key")
+			}
+
+			_, exists := newState[key]
+
+			if exists && params.Key != params.Name {
+				panic("duplicate state key")
+			}
+
+			newState[key] = field
+		}
 	}
 
 	return &newState

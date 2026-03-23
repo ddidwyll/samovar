@@ -6,19 +6,29 @@ import (
 
 	"errors"
 	"time"
+	"fmt"
 )
 
 type Type rune
 
 type Field struct {
 	Name string
+	Unit string
 	t    Type
 	val  val.Val
 	ts   int64
 }
 
-func New(n string, t Type) *Field {
-	return &Field{n, t, val.Nil{}, 0}
+func New(name string, t Type) *Field {
+	return &Field{name, "", t, val.Nil{}, 0}
+}
+
+func (f *Field) String() string {
+  if f.Unit == "" {
+    return f.Name
+  } else {
+    return fmt.Sprintf("%s (%s)", f.Name, f.Unit)
+  }
 }
 
 func (f *Field) Get() val.Val { return f.val }

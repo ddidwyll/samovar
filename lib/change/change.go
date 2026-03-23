@@ -5,12 +5,19 @@ import "samovar/lib/val"
 type Request struct {
 	Key       string
 	Value     any
+	Reason    string
 	Timestamp int64
 }
 
+func NewRequest(key string, val any, reason string, ts int64) Request {
+	return Request{key, val, reason, ts}
+}
+
 type Report struct {
+	IsNew        bool
 	Changed      bool
 	Key          string
+	Reason       string
 	OldValue     val.Val
 	NewValue     val.Val
 	OldTimestamp int64
@@ -18,6 +25,7 @@ type Report struct {
 }
 
 func (r Request) BuildReport(oldTs int64, oldV, newV val.Val) Report {
-	changed := newV.ToStr() != oldV.ToStr()
-	return Report{changed, r.Key, oldV, newV, oldTs, r.Timestamp}
+	isNew := oldTs == 0 && oldV.IsNil()
+	changed := newV.String() != oldV.String()
+	return Report{isNew, changed, r.Key, r.Reason, oldV, newV, oldTs, r.Timestamp}
 }

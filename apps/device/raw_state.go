@@ -22,9 +22,11 @@ func newRawState() gen.ProcessBehavior {
 
 func (rs *rawState) Init(_ ...any) error {
 	rs.state = state.New(state.Fields{
-		state.FieldParams{"term_d", 'f', "TOP temp"},
-		state.FieldParams{"term_c", 'f', "MIDDLE temp"},
-		state.FieldParams{"term_k", 'f', "BOTTOM temp"},
+		state.FieldParams{"term_d", 'f', "t top", "°C"},
+		state.FieldParams{"term_c", 'f', "t middle", "°C"},
+		state.FieldParams{"term_k", 'f', "t bottom", "°C"},
+		state.FieldParams{"power", 'i', "power", "W"},
+		state.FieldParams{"press_a", 'f', "atm press", "mm"},
 	})
 
 	rs.Log().Debug("device.rawState started (%s)", rs.Name())
@@ -48,7 +50,13 @@ func (rs *rawState) updateState(req change.Request) error {
 	report, err := rs.state.Change(req)
 
 	if err == nil && report.Changed {
-		rs.Log().Info("device.rawState changed: %s -> %s", report.OldValue.ToStr(), report.NewValue.ToStr())
+  	field, _ := rs.state.Fetch(req.Key)
+
+  	if report.IsNew {
+  		rs.Log().Info("device.rawState: [%s\t]\t%s", field, report.NewValue)
+  	} else {
+  		rs.Log().Info("device.rawState: [%s\t]\t%s -> %s\t\t%s", field, report.OldValue, report.NewValue, report.Reason)
+  	}
 	}
 
 	// if err != nil {
