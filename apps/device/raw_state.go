@@ -74,19 +74,22 @@ func (rs *rawState) updateState(req change.Request) error {
 	report, err := rs.state.Change(req)
 
 	if err == nil && report.Changed {
-		field, _ := rs.state.Fetch(req.Key)
+		report = report.AddFrom("raw_state")
+		if err = rs.Send("device_producer", report); err != nil {
+			return err
+		}
 
 		if report.IsNew {
-			rs.Log().Info("device.rawState [%s\t]:\t%s", field, report.NewValue)
+			rs.Log().Info("device.rawState [%s\t]:\t%s", report.FormatField(), report.NewValue)
 		} else {
 			if !i.N(req.Key, "press_a", "power") {
 				rs.Log().Info(
 					"device.rawState [%s\t]:\t%s -> %s\t\t%s\t%s",
-					field,
+					report.FormatField(),
 					report.OldValue,
 					report.NewValue,
 					report.FormatTS(),
-					report.Reason,
+					report.LastFrom(),
 				)
 			}
 		}

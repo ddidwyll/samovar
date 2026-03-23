@@ -4,24 +4,25 @@ import (
 	"samovar/lib/val"
 
 	"time"
+	"fmt"
 )
 
 type Request struct {
 	Key       string
 	Value     any
-	Reason    string
+	From      []string
 	Timestamp int64
 }
 
-func NewRequest(key string, val any, reason string, ts int64) Request {
-	return Request{key, val, reason, ts}
+func NewRequest(key string, val any, from string, ts int64) Request {
+	return Request{key, val, []string{from}, ts}
 }
 
 type Report struct {
 	IsNew        bool
 	Changed      bool
 	Key          string
-	Reason       string
+	From         []string
 	OldValue     val.Val
 	NewValue     val.Val
 	OldTimestamp int64
@@ -33,9 +34,34 @@ type Report struct {
 func (r Request) BuildReport(oldTs int64, oldV, newV val.Val, name, unit string) Report {
 	isNew := oldTs == 0 && oldV.IsNil()
 	changed := newV.String() != oldV.String()
-	return Report{isNew, changed, r.Key, r.Reason, oldV, newV, oldTs, r.Timestamp, name, unit}
+	newFrom := make([]string, len(r.From), len(r.From))
+	copy(newFrom, r.From)
+	return Report{isNew, changed, r.Key, newFrom, oldV, newV, oldTs, r.Timestamp, name, unit}
 }
 
 func (r Report) FormatTS() string {
 	return time.UnixMicro(r.NewTimestamp).Format(time.TimeOnly)
+}
+
+func (r Report) FormatField() string {
+	if r.FieldUnit == "" {
+		return r.FieldName
+	} else {
+		return fmt.Sprintf("%s (%s)", r.FieldName, r.FieldUnit)
+	}
+}
+
+func (r Report) AddFrom(from string) Report {
+	r.From = append(r.From, from)
+	return r
+}
+
+func (r Report) LastFrom() string {
+	length := len(r.From)
+
+	if length == 0 {
+		return ""
+	} else {
+		return r.From[length-1]
+	}
 }
