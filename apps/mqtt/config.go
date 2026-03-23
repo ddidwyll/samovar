@@ -5,14 +5,16 @@ import (
 
 	"errors"
 	"fmt"
+	"time"
 )
 
 type config struct {
 	cfg.Config
-	Host     string `json:"host"`
-	Port     int    `json:"port"`
-	ClientID string `json:"client_id"`
-	Topic    string `json:"topic"`
+	Host     string        `json:"host"`
+	Port     int64         `json:"port"`
+	ClientID string        `json:"client_id"`
+	Topic    string        `json:"topic"`
+	Timeout  time.Duration `json:"timeout"`
 }
 
 func loadConfig() (*config, error) {
@@ -34,6 +36,8 @@ func (c *config) validate() error {
 		err = "client_id is required"
 	case c.Topic == "":
 		err = "topic is required"
+	case c.Timeout == 0:
+		err = "timeout is required"
 	default:
 		return nil
 	}

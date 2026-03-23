@@ -47,7 +47,7 @@ func (l *listener) Start() error {
 	}
 
 	for {
-		err := withTimeout(func(ctx context.Context) error {
+		err := l.withTimeout(func(ctx context.Context) error {
 			return l.client.Ping(ctx)
 		})
 		if err == nil && !l.client.IsConnected() {
@@ -86,7 +86,7 @@ func (l *listener) connect() error {
 	clientID := l.config.clientID()
 	l.vconn.SetDefaultMQTT(clientID)
 
-	return withTimeout(func(ctx context.Context) error {
+	return l.withTimeout(func(ctx context.Context) error {
 		return l.client.Connect(ctx, conn, l.vconn)
 	})
 }
@@ -97,7 +97,7 @@ func (l *listener) subscribe() error {
 	l.vsub.TopicFilters = []natiu.SubscribeRequest{topicFilter}
 	l.vsub.PacketIdentifier = 1
 
-	return withTimeout(func(ctx context.Context) error {
+	return l.withTimeout(func(ctx context.Context) error {
 		return l.client.Subscribe(ctx, *l.vsub)
 	})
 }
@@ -121,8 +121,9 @@ func (l *listener) Terminate(reason error) {
 	l.Log().Debug("mqtt.listener terminated (%s)", reason)
 }
 
-func withTimeout(f func(context.Context) error) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+func (l *listener) withTimeout(f func(context.Context) error) error {
+	timeout := l.config.Timeout * time.Second
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	err := f(ctx)
 	cancel()
 	return err

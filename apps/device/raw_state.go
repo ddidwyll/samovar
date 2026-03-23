@@ -23,12 +23,17 @@ func newRawState() gen.ProcessBehavior {
 func (rs *rawState) Init(_ ...any) error {
 	rs.state = state.New(state.Fields{
 		state.FieldParams{"term_d", 'f', "t top", "°C"},
-		state.FieldParams{"term_c", 'f', "t middle", "°C"},
-		state.FieldParams{"term_k", 'f', "t bottom", "°C"},
-		state.FieldParams{"power", 'i', "power", "W"},
-		state.FieldParams{"press_a", 'f', "atm press", "mm"},
+		state.FieldParams{"term_c", 'f', "t mid", "°C"},
+		state.FieldParams{"term_k", 'f', "t btm", "°C"},
+		state.FieldParams{"power", 'i', "power fact", "W"},
+		state.FieldParams{"power_m", 'i', "power plan", "W"},
+		state.FieldParams{"press_a", 'f', "press atm", "mm"},
 		state.FieldParams{"flag_otb", 's', "collect mode", ""},
 		state.FieldParams{"term_d_m", 'f', "t top max", "°C"},
+		state.FieldParams{"term_c_max", 'f', "t mid max", "°C"},
+		state.FieldParams{"term_c_min", 'f', "t mid min", "°C"},
+		state.FieldParams{"term_k_max", 'f', "t btm max", "°C"},
+		state.FieldParams{"term_nasos", 'f', "water on t", "°C"},
 	})
 
 	rs.Log().Debug("device.rawState started (%s)", rs.Name())
