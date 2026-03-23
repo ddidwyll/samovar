@@ -2,8 +2,8 @@ package device
 
 import (
 	"samovar/lib/change"
-	"samovar/lib/state"
 	"samovar/lib/i"
+	"samovar/lib/state"
 
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"

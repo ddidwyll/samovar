@@ -2,48 +2,27 @@ package bus
 
 import (
 	"samovar/common/models"
+	"samovar/lib/stage"
 
-	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
 	"errors"
 	"fmt"
 )
 
-var MqttEvents = []gen.Atom{
-	"mqtt_new_message",
-}
+type mqttProducer struct{ stage.Producer }
 
-type mqttProducer struct {
-	act.Actor
-	eventRefs map[gen.Atom]gen.Ref
-}
-
-func newMqttProducer() gen.ProcessBehavior {
-	return &mqttProducer{eventRefs: make(map[gen.Atom]gen.Ref)}
-}
+func newMqttProducer() gen.ProcessBehavior { return &mqttProducer{} }
 
 func (p *mqttProducer) Init(_ ...any) error {
-	opts := gen.EventOptions{false, 0}
-
-	for _, e := range MqttEvents {
-		if ref, err := p.RegisterEvent(e, opts); err == nil {
-			p.eventRefs[e] = ref
-		} else {
-			return err
-		}
-	}
-
 	p.Log().Debug("bus.mqttProducer started (%s)", p.Name())
-	return nil
+	return p.RegisterEvents("mqtt_new_message")
 }
 
 func (p *mqttProducer) HandleMessage(_ gen.PID, msg any) error {
-	switch m := msg.(type) {
+	switch message := msg.(type) {
 	case models.MqttMessage:
-		event := gen.Atom("mqtt_new_message")
-		ref := p.eventRefs[event]
-		p.Log().Debug("bus.mqttProducer receive MqttMessage: %v", m)
-		return p.SendEvent(event, ref, m)
+		p.Log().Debug("bus.mqttProducer receive MqttMessage: %v", message)
+		return p.FireEvent("mqtt_new_message", message)
 	default:
 		err := fmt.Sprintf("bus.mqttProducer receive unexpected message: %#v", msg)
 		return errors.New(err)

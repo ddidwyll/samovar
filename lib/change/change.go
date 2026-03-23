@@ -26,12 +26,14 @@ type Report struct {
 	NewValue     val.Val
 	OldTimestamp int64
 	NewTimestamp int64
+	FieldName    string
+	FieldUnit    string
 }
 
-func (r Request) BuildReport(oldTs int64, oldV, newV val.Val) Report {
+func (r Request) BuildReport(oldTs int64, oldV, newV val.Val, name, unit string) Report {
 	isNew := oldTs == 0 && oldV.IsNil()
 	changed := newV.String() != oldV.String()
-	return Report{isNew, changed, r.Key, r.Reason, oldV, newV, oldTs, r.Timestamp}
+	return Report{isNew, changed, r.Key, r.Reason, oldV, newV, oldTs, r.Timestamp, name, unit}
 }
 
 func (r Report) FormatTS() string {

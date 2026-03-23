@@ -3,36 +3,20 @@ package bus
 import (
 	"samovar/common/models"
 	"samovar/lib/change"
+	"samovar/lib/stage"
 
-	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
 	"errors"
 	"fmt"
 )
 
-var deviceEvents = []gen.Atom{
-	"mqtt_new_message",
-}
+type deviceConsumer struct{ stage.Consumer }
 
-type deviceConsumer struct {
-	act.Actor
-}
-
-func newDeviceConsumer() gen.ProcessBehavior {
-	return &deviceConsumer{}
-}
+func newDeviceConsumer() gen.ProcessBehavior { return &deviceConsumer{} }
 
 func (c *deviceConsumer) Init(_ ...any) error {
-	nodeName := c.Node().Name()
-
-	for _, e := range deviceEvents {
-		if _, err := c.LinkEvent(gen.Event{e, nodeName}); err != nil {
-			return err
-		}
-	}
-
 	c.Log().Debug("bus.deviceConsumer started (%s)", c.Name())
-	return nil
+	return c.LinkEvents("mqtt_new_message")
 }
 
 func (c *deviceConsumer) HandleEvent(event gen.MessageEvent) error {

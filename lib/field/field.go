@@ -67,7 +67,7 @@ func (f *Field) Change(req change.Request) (rep change.Report, err error) {
 		return rep, err
 	}
 
-	rep = req.BuildReport(f.ts, f.val, newVal)
+	rep = req.BuildReport(f.ts, f.val, newVal, f.Name, f.Unit)
 	f.val, f.ts = newVal, req.Timestamp
 
 	return rep, err
