@@ -17,6 +17,10 @@ func (s *sup) Init(_ ...any) (spec act.SupervisorSpec, err error) {
 
 	spec.Children = []act.SupervisorChildSpec{
 		{
+			Name:    "device_change_log",
+			Factory: newChangeLog,
+		},
+		{
 			Name:    "device_raw_state",
 			Factory: newRawState,
 		},

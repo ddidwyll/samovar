@@ -3,8 +3,8 @@ package change
 import (
 	"samovar/lib/val"
 
-	"time"
 	"fmt"
+	"time"
 )
 
 type Request struct {
