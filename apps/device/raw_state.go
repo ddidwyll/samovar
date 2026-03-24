@@ -88,7 +88,7 @@ func (rs *rawState) updateState(req change.Request) error {
 					report.FormatField(),
 					report.OldValue,
 					report.NewValue,
-					report.FormatTS(),
+					report.FormatTime(),
 					report.LastFrom(),
 				)
 			}

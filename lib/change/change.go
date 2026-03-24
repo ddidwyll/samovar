@@ -39,8 +39,16 @@ func (r Request) BuildReport(oldTs int64, oldV, newV val.Val, name, unit string)
 	return Report{isNew, changed, r.Key, newFrom, oldV, newV, oldTs, r.Timestamp, name, unit}
 }
 
-func (r Report) FormatTS() string {
+func (r Report) FormatTime() string {
 	return time.UnixMicro(r.NewTimestamp).Format(time.TimeOnly)
+}
+
+func (r Report) FormatValue() string {
+	if r.OldValue.IsNil() {
+		return r.NewValue.String()
+	} else {
+		return fmt.Sprintf("%s -> %s", r.OldValue, r.NewValue)
+	}
 }
 
 func (r Report) FormatField() string {
