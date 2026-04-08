@@ -67,21 +67,21 @@ func (l *changeLog) logChange(report change.Report) error {
 func (l *changeLog) HandleMessage(_ gen.PID, msg any) error {
 	if report, ok := msg.(change.Report); ok {
 		if i.N(
-  		report.Key,
-  		"term_d",
-  		"term_c",
-  		"term_k",
-  		"power_m",
-  		"flag_otb",
-  		"work",
-  		"otbor",
-  		"term_c_max",
-  		"term_c_min",
-  		"otbor_t",
-  		"num_error",
-  		"count_vent",
-  		"time_stop",
-  		"otbor_minus",
+			report.Key,
+			"term_d",
+			"term_c",
+			"term_k",
+			"power_m",
+			"flag_otb",
+			"work",
+			"otbor",
+			"term_c_max",
+			"term_c_min",
+			"otbor_t",
+			"num_error",
+			"count_vent",
+			"time_stop",
+			"otbor_minus",
 		) {
 			return l.logChange(report)
 		} else {

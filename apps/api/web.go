@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"path/filepath"
 	"time"
 
 	"ergo.services/ergo/act"
@@ -26,35 +27,26 @@ func (w *web) Init(args ...any) (act.PoolOptions, error) {
 	var poolOptions act.PoolOptions
 
 	router := mux.NewRouter()
-
-	// create and spawn api handler meta-process.
-	apiHandler := meta.CreateWebHandler(meta.WebHandlerOptions{})
-	apiHandlerId, err := w.SpawnMeta(apiHandler, gen.MetaOptions{})
-	if err != nil {
-		w.Log().Error("unable to spawn WebHandler meta-process: %s", err)
-		return poolOptions, err
-	}
+	getRouter := router.Methods("GET").Subrouter()
 
 	// sse handler
 	sseHandler := sse.CreateHandler(sse.HandlerOptions{
 		Heartbeat: 15 * time.Second,
 	})
-	_, err = w.SpawnMeta(sseHandler, gen.MetaOptions{})
+	_, err := w.SpawnMeta(sseHandler, gen.MetaOptions{})
 	if err != nil {
 		w.Log().Error("unable to spawn SSEHandler meta-process: %s", err)
 		return poolOptions, err
 	}
 
-	// index handler
-	indexHandler := func(rw http.ResponseWriter, r *http.Request) {
-		rw.Header().Set("Content-Type", "text/html")
-		rw.Write([]byte(htmlPage))
+	getRouter.Handle("/events", sseHandler)
+
+	err = w.registerStores(getRouter)
+	if err != nil {
+		return poolOptions, err
 	}
 
-	router.HandleFunc("/", indexHandler)
-	router.Handle("/api", apiHandler)
-	router.Handle("/events", sseHandler)
-	w.Log().Debug("started WebHandler to serve '/api' (meta-process: %s)", apiHandlerId)
+	registerStatic(getRouter)
 
 	webOptions.Port = 4000
 	webOptions.Host = "localhost"
@@ -81,6 +73,32 @@ func (w *web) Init(args ...any) (act.PoolOptions, error) {
 
 	poolOptions.WorkerFactory = createWebWorker
 	return poolOptions, nil
+}
+
+func (w *web) registerStores(router *mux.Router) error {
+	storesHandler := meta.CreateWebHandler(meta.WebHandlerOptions{})
+	_, err := w.SpawnMeta(storesHandler, gen.MetaOptions{})
+
+	if err != nil {
+		w.Log().Error("unable to spawn WebHandler meta-process: %s", err)
+	} else {
+		router.Handle("/stores/{store}", storesHandler)
+	}
+	return err
+}
+
+func registerStatic(router *mux.Router) {
+	assetDir, _ := filepath.Abs("./client/dist")
+	indexFile := filepath.Join(assetDir, "index.html")
+
+	assetHandler := http.FileServer(http.Dir(assetDir))
+	router.PathPrefix("/assets/").Handler(assetHandler)
+
+	indexHandler := func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, indexFile)
+	}
+
+	router.NotFoundHandler = http.HandlerFunc(indexHandler)
 }
 
 const htmlPage = `<!DOCTYPE html>
