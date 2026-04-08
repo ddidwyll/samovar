@@ -9,7 +9,7 @@ import (
 	"samovar/apps/device"
 	"samovar/apps/mqtt"
 
-	"ergo.services/application/observer"
+	// "ergo.services/application/observer"
 	"ergo.services/ergo"
 	"ergo.services/ergo/gen"
 	"ergo.services/ergo/lib"
@@ -22,7 +22,7 @@ var (
 )
 
 func init() {
-	flag.StringVar(&OptionNodeName, "name", "Samovar@localhost", "node name")
+	flag.StringVar(&OptionNodeName, "name", "samovar@localhost", "node name")
 	flag.StringVar(&OptionNodeCookie, "cookie", lib.RandomString(16), "a secret cookie for the network messaging")
 }
 
@@ -32,7 +32,6 @@ func main() {
 	flag.Parse()
 
 	options.Applications = []gen.ApplicationBehavior{
-		observer.CreateApp(observer.Options{}),
 		bus.CreateBusApp(),
 		api.CreateApiApp(),
 		mqtt.CreateMqttApp(),

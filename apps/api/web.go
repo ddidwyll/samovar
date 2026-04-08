@@ -8,6 +8,8 @@ import (
 	"ergo.services/ergo/gen"
 	"ergo.services/ergo/meta"
 	"ergo.services/meta/sse"
+
+	"github.com/gorilla/mux"
 )
 
 func createWeb() gen.ProcessBehavior {
@@ -23,7 +25,7 @@ func (w *web) Init(args ...any) (act.PoolOptions, error) {
 	var webOptions meta.WebServerOptions
 	var poolOptions act.PoolOptions
 
-	mux := http.NewServeMux()
+	router := mux.NewRouter()
 
 	// create and spawn api handler meta-process.
 	apiHandler := meta.CreateWebHandler(meta.WebHandlerOptions{})
@@ -49,17 +51,15 @@ func (w *web) Init(args ...any) (act.PoolOptions, error) {
 		rw.Write([]byte(htmlPage))
 	}
 
-	// add it to the mux. you can also use middleware functions:
-	// mux.Handle("/api", middleware(apiHandler))
-	mux.HandleFunc("/", indexHandler)
-	mux.Handle("/api", apiHandler)
-	mux.Handle("/events", sseHandler)
+	router.HandleFunc("/", indexHandler)
+	router.Handle("/api", apiHandler)
+	router.Handle("/events", sseHandler)
 	w.Log().Debug("started WebHandler to serve '/api' (meta-process: %s)", apiHandlerId)
 
 	webOptions.Port = 4000
 	webOptions.Host = "localhost"
 
-	webOptions.Handler = mux
+	webOptions.Handler = router
 
 	webserver, err := meta.CreateWebServer(webOptions)
 	if err != nil {
@@ -73,11 +73,11 @@ func (w *web) Init(args ...any) (act.PoolOptions, error) {
 		return poolOptions, err
 	}
 
-	https := "http"
+	proto := "http"
 	if webOptions.CertManager != nil {
-		https = "https"
+		proto = "https"
 	}
-	w.Log().Debug("started web server %s: use %s://%s:%d/", webserverid, https, webOptions.Host, webOptions.Port)
+	w.Log().Info("started web server %s: use %s://%s:%d/", webserverid, proto, webOptions.Host, webOptions.Port)
 
 	poolOptions.WorkerFactory = createWebWorker
 	return poolOptions, nil
