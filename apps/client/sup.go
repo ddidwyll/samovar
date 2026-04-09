@@ -1,4 +1,4 @@
-package api
+package client
 
 import (
 	"ergo.services/ergo/act"
@@ -17,16 +17,17 @@ func (s *sup) Init(args ...any) (spec act.SupervisorSpec, err error) {
 
 	spec.Children = []act.SupervisorChildSpec{
 		{
-			Name:    "api_sse_state",
-			Factory: newsseState,
+			Name:    "client_feed",
+			Factory: newFeed,
 		},
 		{
-			Name:    "api_web",
-			Factory: createWeb,
+			Name:    "client_api",
+			Factory: newApi,
+			Args:    args,
 		},
 		{
-			Name:    "api_actor",
-			Factory: createActor,
+			Name:    "client_state",
+			Factory: newState,
 		},
 	}
 

@@ -4,8 +4,8 @@ import (
 	"flag"
 	"time"
 
-	"samovar/apps/api"
 	"samovar/apps/bus"
+	"samovar/apps/client"
 	"samovar/apps/device"
 	"samovar/apps/mqtt"
 
@@ -33,7 +33,7 @@ func main() {
 
 	options.Applications = []gen.ApplicationBehavior{
 		bus.CreateBusApp(),
-		api.CreateApiApp(),
+		client.CreateClientApp(),
 		mqtt.CreateMqttApp(),
 		device.CreateDeviceApp(),
 	}
