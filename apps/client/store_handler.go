@@ -9,22 +9,22 @@ import (
 	"net/http"
 )
 
-func newApiHandler() gen.ProcessBehavior {
-	return &apiHandler{}
+func newStoreHandler() gen.ProcessBehavior {
+	return &storeHandler{}
 }
 
-type apiHandler struct{ act.WebWorker }
+type storeHandler struct{ act.WebWorker }
 
 type resp = http.ResponseWriter
 type req = http.Request
 
-func (ah *apiHandler) Init(_ ...any) error {
-	ah.Log().Debug("client.api_handler started")
+func (sh *storeHandler) Init(_ ...any) error {
+	sh.Log().Debug("client.store_handler started")
 	return nil
 }
 
-func (ah *apiHandler) HandleGet(_ gen.PID, rw resp, r *req) error {
-	info, _ := ah.Info()
+func (sh *storeHandler) HandleGet(_ gen.PID, rw resp, r *req) error {
+	info, _ := sh.Info()
 	return sendJson(rw, info)
 }
 
@@ -35,11 +35,11 @@ func sendJson(rw resp, data any) (err error) {
 	enc.SetEscapeHTML(false)
 
 	if err = enc.Encode(data); err != nil {
-  	return err
+		return err
 	}
 
 	rw.Header().Set("Content-Type", "application/json")
-	_, err  = rw.Write(buf.Bytes())
+	_, err = rw.Write(buf.Bytes())
 
 	return err
 }

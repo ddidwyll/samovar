@@ -21,8 +21,8 @@ func (s *sup) Init(args ...any) (spec act.SupervisorSpec, err error) {
 			Factory: newFeed,
 		},
 		{
-			Name:    "client_api",
-			Factory: newApi,
+			Name:    "client_store",
+			Factory: newStore,
 			Args:    args,
 		},
 		{
