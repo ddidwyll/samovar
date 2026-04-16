@@ -15,20 +15,31 @@ func newApiHandler() gen.ProcessBehavior {
 
 type apiHandler struct{ act.WebWorker }
 
-func (ah *apiHandler) Init(args ...any) error {
-	ah.Log().Debug("started api handler process with args %v", args)
+type resp = http.ResponseWriter
+type req = http.Request
+
+func (ah *apiHandler) Init(_ ...any) error {
+	ah.Log().Debug("client.api_handler started")
 	return nil
 }
 
-func (ah *apiHandler) HandleGet(from gen.PID, w http.ResponseWriter, r *http.Request) error {
+func (ah *apiHandler) HandleGet(_ gen.PID, rw resp, r *req) error {
+	info, _ := ah.Info()
+	return sendJson(rw, info)
+}
+
+func sendJson(rw resp, data any) (err error) {
 	var buf bytes.Buffer
 
-	ah.Log().Debug("got HTTP r %q", r.URL.Path)
-	w.Header().Set("Content-Type", "application/json")
-	info, _ := ah.Info()
 	enc := json.NewEncoder(&buf)
 	enc.SetEscapeHTML(false)
-	enc.Encode(info)
-	w.Write(buf.Bytes())
-	return nil
+
+	if err = enc.Encode(data); err != nil {
+  	return err
+	}
+
+	rw.Header().Set("Content-Type", "application/json")
+	_, err  = rw.Write(buf.Bytes())
+
+	return err
 }

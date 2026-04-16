@@ -101,7 +101,7 @@ func (a *api) registerApiHandler() error {
 	if err != nil {
 		a.Log().Error("client.api: failed to register api handler %s", err)
 	} else {
-		a.router.Handle("/api/{key}", apiHandler)
+		a.getRouter.Handle("/api", apiHandler)
 	}
 	return err
 }

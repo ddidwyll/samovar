@@ -1,20 +1,19 @@
 package client
 
 import (
-  "samovar/lib/state"
-  st "samovar/lib/state"
+	st "samovar/lib/state"
 
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
 )
 
-type state struct{
-  act.Actor
-  data *st.State
+type state struct {
+	act.Actor
+	data *st.State
 }
 
 func newState() gen.ProcessBehavior {
-  return &state{}
+	return &state{}
 }
 
 func (cs *state) Init(_ ...any) error {
