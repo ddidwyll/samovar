@@ -37,7 +37,7 @@ func (a *api) Init(args ...any) (opts act.PoolOptions, err error) {
 
 	a.registerStatic()
 
-	if err = a.startWebServer(args...); err != nil {
+	if err = a.startWebServer(args[0]); err != nil {
 		return opts, err
 	}
 
@@ -45,8 +45,8 @@ func (a *api) Init(args ...any) (opts act.PoolOptions, err error) {
 	return opts, nil
 }
 
-func (a *api) startWebServer(args ...any) error {
-	cfg, ok := args[0].(*config)
+func (a *api) startWebServer(args any) error {
+	cfg, ok := args.(*config)
 	if !ok {
 		a.Log().Error("invalid config: %#v (%v)", args, ok)
 		return errors.New("invalid client api config")
@@ -80,17 +80,17 @@ func (a *api) initRouter() {
 }
 
 func (a *api) registerFeed() error {
-	sseHandler := sse.CreateHandler(sse.HandlerOptions{
+	feedHandler := sse.CreateHandler(sse.HandlerOptions{
 		ProcessPool: []gen.Atom{"client_feed"},
 		Heartbeat:   15 * time.Second,
 	})
 
-	if _, err := a.SpawnMeta(sseHandler, gen.MetaOptions{}); err != nil {
+	if _, err := a.SpawnMeta(feedHandler, gen.MetaOptions{}); err != nil {
 		a.Log().Error("client.api: failed to register feed %s", err)
 		return err
 	}
 
-	a.getRouter.Handle("/feed", sseHandler)
+	a.getRouter.Handle("/feed", feedHandler)
 	return nil
 }
 

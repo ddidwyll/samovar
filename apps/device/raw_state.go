@@ -14,7 +14,7 @@ import (
 
 type rawState struct {
 	act.Actor
-	state *state.State
+	data *state.State
 }
 
 func newRawState() gen.ProcessBehavior {
@@ -22,7 +22,7 @@ func newRawState() gen.ProcessBehavior {
 }
 
 func (rs *rawState) Init(_ ...any) error {
-	rs.state = state.New(state.Fields{
+	rs.data = state.New(state.Fields{
 		state.FieldParams{"term_d", 'f', "t_top", "°C"},
 		state.FieldParams{"term_c", 'f', "t_mid", "°C"},
 		state.FieldParams{"term_k", 'f', "t_btm", "°C"},
@@ -71,7 +71,7 @@ func (rs *rawState) HandleMessage(_ gen.PID, msg any) error {
 
 func (rs *rawState) updateState(req change.Request) error {
 	rs.Log().Debug("device.rawState change req: %#v", req)
-	report, err := rs.state.Change(req)
+	report, err := rs.data.Change(req)
 
 	if err == nil && report.Changed {
 		report = report.AddFrom("raw_state")
