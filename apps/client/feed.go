@@ -25,14 +25,14 @@ func newFeed() gen.ProcessBehavior {
 
 func (f *feed) Init(_ ...any) (err error) {
 	f.SendAfter(f.PID(), "tick", 2*time.Second)
-	f.Log().Info("client.feed started (%s)", f.Name())
+	f.Log().Debug("client.feed started (%s)", f.Name())
 	return
 }
 
 func (f *feed) HandleMessage(from gen.PID, message any) error {
 	switch m := message.(type) {
 	case sse.MessageConnect:
-		f.Log().Info("New SSE connection: %s (remote: %s)", m.ID, m.RemoteAddr)
+		f.Log().Debug("New SSE connection: %s (remote: %s)", m.ID, m.RemoteAddr)
 		f.connections[m.ID] = true
 
 		connLen := len(f.connections)
@@ -44,11 +44,11 @@ func (f *feed) HandleMessage(from gen.PID, message any) error {
 		f.SendAlias(m.ID, welcome)
 
 	case sse.MessageDisconnect:
-		f.Log().Info("SSE disconnected %s", m.ID)
+		f.Log().Debug("SSE disconnected %s", m.ID)
 		delete(f.connections, m.ID)
 
 	case sse.MessageLastEventID:
-		f.Log().Info("Client reconnected with Last-Event-ID: %s", m.LastEventID)
+		f.Log().Debug("Client reconnected with Last-Event-ID: %s", m.LastEventID)
 
 	case string:
 		if m == "tick" {
@@ -70,7 +70,7 @@ func (f *feed) HandleMessage(from gen.PID, message any) error {
 
 			f.SendAfter(f.PID(), "tick", 2*time.Second)
 		} else {
-			f.Log().Warning("Unexpected webWorker message: %s", m)
+			f.Log().Warning("client.feed received unexpected message: %s", m)
 		}
 	}
 

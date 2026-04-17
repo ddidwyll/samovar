@@ -4,18 +4,19 @@ import (
 	"samovar/lib/val"
 
 	"fmt"
+	"slices"
 	"time"
 )
+
+func NewRequest(key string, val any, from string, ts int64) Request {
+	return Request{key, val, []string{from}, ts}
+}
 
 type Request struct {
 	Key       string
 	Value     any
 	From      []string
 	Timestamp int64
-}
-
-func NewRequest(key string, val any, from string, ts int64) Request {
-	return Request{key, val, []string{from}, ts}
 }
 
 type Report struct {
@@ -34,9 +35,16 @@ type Report struct {
 func (r Request) BuildReport(oldTs int64, oldV, newV val.Val, name, unit string) Report {
 	isNew := oldTs == 0 && oldV.IsNil()
 	changed := newV.String() != oldV.String()
-	newFrom := make([]string, len(r.From), len(r.From))
-	copy(newFrom, r.From)
+	newFrom := slices.Clone(r.From)
 	return Report{isNew, changed, r.Key, newFrom, oldV, newV, oldTs, r.Timestamp, name, unit}
+}
+
+func (r Report) NewRequest() (req Request) {
+	req.Key = r.Key
+	req.Value = r.NewValue
+	req.Timestamp = r.NewTimestamp
+	req.From = slices.Clone(r.From)
+	return req
 }
 
 func (r Report) FormatTime() string {

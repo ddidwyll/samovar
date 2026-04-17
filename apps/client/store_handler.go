@@ -43,3 +43,8 @@ func sendJson(rw resp, data any) (err error) {
 
 	return err
 }
+
+// func (sh *storeHandler) HandleMessage(_ gen.PID, msg any) error {
+//   sh.Log().Info("client.storeHandler received message: %#v", msg)
+//   return nil
+// }

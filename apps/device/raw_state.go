@@ -74,7 +74,7 @@ func (rs *rawState) updateState(req change.Request) error {
 	report, err := rs.data.Change(req)
 
 	if err == nil && report.Changed {
-		report = report.AddFrom("raw_state")
+		report = report.AddFrom("device_raw_state")
 		if err = rs.Send("device_producer", report); err != nil {
 			return err
 		}

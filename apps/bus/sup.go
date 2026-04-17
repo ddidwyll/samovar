@@ -28,6 +28,10 @@ func (s *sup) Init(_ ...any) (spec act.SupervisorSpec, err error) {
 			Name:    "device_consumer",
 			Factory: newDeviceConsumer,
 		},
+		{
+			Name:    "client_consumer",
+			Factory: newClientConsumer,
+		},
 	}
 
 	return spec, err

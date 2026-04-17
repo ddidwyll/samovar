@@ -46,7 +46,12 @@ func New(fields Fields) *State {
 	return &newState
 }
 
-func (s *State) Fetch(k string) (f *field.Field, err error) {
+func (s *State) HasField(key string) bool {
+	_, has := (*s)[key]
+	return has
+}
+
+func (s *State) FetchField(k string) (f *field.Field, err error) {
 	if field, has := (*s)[k]; has {
 		return field, err
 	} else {
