@@ -5,19 +5,9 @@ import (
 
 	"fmt"
 	"slices"
+	"strings"
 	"time"
 )
-
-func NewRequest(key string, val any, from string, ts int64) Request {
-	return Request{key, val, []string{from}, ts}
-}
-
-type Request struct {
-	Key       string
-	Value     any
-	From      []string
-	Timestamp int64
-}
 
 type Report struct {
 	IsNew        bool
@@ -64,6 +54,30 @@ func (r Report) FormatField() string {
 		return r.FieldName
 	} else {
 		return fmt.Sprintf("%s (%s)", r.FieldName, r.FieldUnit)
+	}
+}
+
+func (r Report) MakeLogString(prefix string) string {
+	field := r.FormatField()
+	field = strings.ReplaceAll(field, "%", "%%")
+
+	if r.IsNew {
+		return fmt.Sprintf(
+			"%s [%s\t]:\t%s",
+			prefix,
+			field,
+			r.NewValue,
+		)
+	} else {
+		return fmt.Sprintf(
+			"%s [%s\t]:\t%s -> %s\t\t%s\t%s",
+			prefix,
+			field,
+			r.OldValue,
+			r.NewValue,
+			r.FormatTime(),
+			r.LastFrom(),
+		)
 	}
 }
 

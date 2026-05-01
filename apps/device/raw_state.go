@@ -45,7 +45,7 @@ func (rs *rawState) Init(_ ...any) error {
 		state.FieldParams{"term_c_min", 'f', "t_mid_min", "°C"},
 		state.FieldParams{"term_k_max", 'f', "t_btm_max", "°C"},
 		state.FieldParams{"term_nasos", 'f', "water_on_t", "°C"},
-		state.FieldParams{"tern_k_m", 'f', "full_power_t", "°C"},
+		state.FieldParams{"term_k_m", 'f', "full_pwr_t", "°C"},
 		state.FieldParams{"kontaktor", 's', "kontaktor", ""},
 		state.FieldParams{"num_error", 's', "err_number", ""},
 		state.FieldParams{"count_vent", 's', "count_vent", "?"},
@@ -79,26 +79,14 @@ func (rs *rawState) updateState(req change.Request) error {
 			return err
 		}
 
-		if report.IsNew {
-			rs.Log().Info("device.rawState [%s\t]:\t%s", report.FormatField(), report.NewValue)
-		} else {
-			if !i.N(req.Key, "press_a", "power") {
-				rs.Log().Info(
-					"device.rawState [%s\t]:\t%s -> %s\t\t%s\t%s",
-					report.FormatField(),
-					report.OldValue,
-					report.NewValue,
-					report.FormatTime(),
-					report.LastFrom(),
-				)
-			}
+		if !i.N(req.Key, "press_a", "power") {
+			rs.Log().Info(report.MakeLogString("device.rawState"))
 		}
 	}
 
 	// if err != nil {
 	//  	rs.Log().Error("device.rawState state error: %s", err)
-	//  	return err
 	// }
 
-	return nil
+	return err
 }

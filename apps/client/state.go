@@ -28,7 +28,7 @@ func (cs *state) Init(_ ...any) error {
 }
 
 func (cs *state) HandleMessage(_ gen.PID, msg any) error {
-	cs.Log().Info("client.state received message: %#v", msg)
+	cs.Log().Debug("client.state received message: %#v", msg)
 	return nil
 }
 
@@ -41,7 +41,7 @@ func (cs *state) Terminate(reason error) {
 	cs.Log().Debug("client.state terminated: %s", reason)
 }
 
-func (cs *state) updateState(req change.Request) error {
-  cs.Log().Debug("client.state change req: %#v", req)
-  report, err := cs.data.Change(req)
-}
+// func (cs *state) updateState(req change.Request) error {
+// 	cs.Log().Debug("client.state change req: %#v", req)
+// 	report, err := cs.data.Change(req)
+// }

@@ -23,7 +23,7 @@ func (cc *clientConsumer) Init(_ ...any) error {
 
 func (cc *clientConsumer) HandleEvent(event gen.MessageEvent) error {
 	if report, ok := event.Message.(change.Report); ok {
-		cc.Log().Info("bus.clientConsumer <- change.Report[%s]", report.LastFrom())
+		cc.Log().Debug("bus.clientConsumer <- change.Report[%s]", report.LastFrom())
 
 		switch report.LastFrom() {
 		case "device_raw_state":
