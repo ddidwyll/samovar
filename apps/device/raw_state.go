@@ -97,6 +97,7 @@ func (rs *rawState) updateState(req change.Request) error {
 
 	// if err != nil {
 	//  	rs.Log().Error("device.rawState state error: %s", err)
+	//  	return err
 	// }
 
 	return nil

@@ -2,7 +2,6 @@ package bus
 
 import (
 	"samovar/lib/change"
-	"samovar/lib/i"
 	"samovar/lib/stage"
 
 	"ergo.services/ergo/gen"
@@ -24,13 +23,14 @@ func (cc *clientConsumer) Init(_ ...any) error {
 
 func (cc *clientConsumer) HandleEvent(event gen.MessageEvent) error {
 	if report, ok := event.Message.(change.Report); ok {
-		from := report.LastFrom()
-		cc.Log().Debug("bus.clientConsumer <- change.Report[%s]", from)
+		cc.Log().Info("bus.clientConsumer <- change.Report[%s]", report.LastFrom())
 
-		switch {
-		case i.N(from, "device_raw_state", "device_state"):
+		switch report.LastFrom() {
+		case "device_raw_state":
 			return cc.Send("client_state", report.NewRequest())
-		case from == "client_state":
+		case "device_state":
+			return cc.Send("client_state", report.NewRequest())
+		case "client_state":
 			return cc.Send("client_store", report.NewRequest())
 		default:
 			return nil

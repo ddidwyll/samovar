@@ -30,7 +30,7 @@ func (p *deviceProducer) HandleMessage(_ gen.PID, msg any) error {
 	}
 
 	switch report.LastFrom() {
-	case "raw_state":
+	case "device_raw_state":
 		p.FireEvent("device_raw_state_changed", report)
 	default:
 		p.Log().Error("bus.deviceProducer unexpected change.Report: %s", report.LastFrom())

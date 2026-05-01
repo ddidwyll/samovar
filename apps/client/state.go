@@ -40,3 +40,8 @@ func (cs *state) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
 func (cs *state) Terminate(reason error) {
 	cs.Log().Debug("client.state terminated: %s", reason)
 }
+
+func (cs *state) updateState(req change.Request) error {
+  cs.Log().Debug("client.state change req: %#v", req)
+  report, err := cs.data.Change(req)
+}
