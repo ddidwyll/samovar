@@ -87,6 +87,12 @@ func (f *Field) castInt(a any) (v val.Val, err error) {
 		v = val.FltAsInt(c)
 	case string:
 		v, err = val.StrAsInt(c)
+	case val.Int:
+		v = c
+	case val.Flt:
+		v = val.IntAsInt(c.ToInt())
+	case val.Str:
+		v, err = val.StrAsInt(c.String())
 	default:
 		v = val.Nil{}
 		err = errors.New("failed to cast field")
@@ -105,6 +111,12 @@ func (f *Field) castFlt(a any) (v val.Val, err error) {
 		v = val.FltAsFlt(c)
 	case string:
 		v, err = val.StrAsFlt(c)
+	case val.Int:
+		v = val.IntAsFlt(c.ToInt())
+	case val.Flt:
+		v = c
+	case val.Str:
+		v, err = val.StrAsFlt(c.String())
 	default:
 		v = val.Nil{}
 		err = errors.New("failed to cast field")
@@ -123,6 +135,12 @@ func (f *Field) castStr(a any) (v val.Val, err error) {
 		v = val.FltAsStr(c)
 	case string:
 		v, err = val.StrAsStr(c)
+	case val.Int:
+		v, err = val.StrAsStr(c.String())
+	case val.Flt:
+		v, err = val.StrAsStr(c.String())
+	case val.Str:
+		v = c
 	default:
 		v = val.Nil{}
 		err = errors.New("failed to cast field")

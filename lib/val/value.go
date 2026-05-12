@@ -36,6 +36,7 @@ type Num interface {
 }
 
 func (v Int) ToInt() int64 { return v.i }
+func (v Flt) ToInt() int64 { return v.i / 100 }
 func (v Flt) AsInt() int64 { return v.i }
 
 func (v Int) ToFlt() float64 { return float64(v.i) }
@@ -111,7 +112,6 @@ func StrAsStr(s string) (v Val, err error) {
 }
 
 func trimZeros(s string) string {
-	return strings.TrimRightFunc(s, func(r rune) bool {
-		return r == '0' || r == '.'
-	})
+	s = strings.TrimRight(s, "0")
+	return strings.TrimSuffix(s, ".")
 }

@@ -1,4 +1,4 @@
-package client
+package device
 
 import (
 	"samovar/lib/change"
@@ -27,41 +27,52 @@ func (s *state) Init(_ ...any) error {
 		st.FieldParams{"t_btm", 'f', "t bottom", "°C"},
 	})
 
-	s.Log().Debug("client.state started (%s)", s.Name())
+	s.Log().Debug("device.state started (%s)", s.Name())
 	return nil
 }
 
 func (s *state) HandleMessage(_ gen.PID, msg any) error {
-	s.Log().Debug("client.state received message: %#v", msg)
+	s.Log().Debug("device.state received message: %#v", msg)
 
-	switch v := msg.(type) {
+	switch req := msg.(type) {
 	case change.Request:
-		return s.updateState(v)
+		switch req.LastFrom() {
+		case "device_raw_state":
+			return s.applyFromRaw(req)
+		default:
+			return nil
+		}
 	default:
-		err := fmt.Sprintf("client.state unexpected message: %#v", msg)
+		err := fmt.Sprintf("device.state unexpected message: %#v", msg)
 		return errors.New(err)
 	}
-	return nil
 }
 
 func (s *state) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
-	s.Log().Debug("client.state got request: %#v", req)
+	s.Log().Debug("device.state got request: %#v", req)
 	return gen.Atom("pong"), nil
 }
 
 func (s *state) Terminate(reason error) {
-	s.Log().Debug("client.state terminated: %s", reason)
+	s.Log().Debug("device.state terminated: %s", reason)
 }
 
 func (s *state) updateState(req change.Request) error {
-	s.Log().Debug("client.state change req: %#v", req)
+	s.Log().Debug("device.state change req: %#v", req)
 	report, err := s.data.Change(req)
 
 	if err == nil && report.Changed {
-		report = report.AddFrom("client_state")
-		// err = s.Send("client_producer", report)
-		s.Log().Debug(report.MakeLogString("client.state"))
+		report = report.AddFrom("device_state")
+		// err = s.Send("device_producer", report)
+		s.Log().Info(report.MakeLogString("device.state"))
 	}
 
+	return err
+}
+
+func (s *state) applyFromRaw(req change.Request) error {
+	if req, mapped := mapFromRaw(req); mapped {
+		return s.updateState(req)
+	}
 	return nil
 }

@@ -10,3 +10,13 @@ type Request struct {
 	From      []string
 	Timestamp int64
 }
+
+func (r Request) LastFrom() string {
+	length := len(r.From)
+
+	if length == 0 {
+		return ""
+	} else {
+		return r.From[length-1]
+	}
+}

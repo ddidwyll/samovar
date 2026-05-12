@@ -3,7 +3,7 @@ package device
 import (
 	"samovar/lib/change"
 	"samovar/lib/i"
-	"samovar/lib/state"
+	st "samovar/lib/state"
 
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
@@ -14,7 +14,7 @@ import (
 
 type rawState struct {
 	act.Actor
-	data *state.State
+	data *st.State
 }
 
 func newRawState() gen.ProcessBehavior {
@@ -22,35 +22,35 @@ func newRawState() gen.ProcessBehavior {
 }
 
 func (rs *rawState) Init(_ ...any) error {
-	rs.data = state.New(state.Fields{
-		state.FieldParams{"term_d", 'f', "t_top", "°C"},
-		state.FieldParams{"term_c", 'f', "t_mid", "°C"},
-		state.FieldParams{"term_k", 'f', "t_btm", "°C"},
-		state.FieldParams{"power", 'i', "power_fact", "W"},
-		state.FieldParams{"power_m", 'i', "power_plan", "W"},
-		state.FieldParams{"press_a", 'f', "press_atm", "mm"},
-		state.FieldParams{"flag_otb", 's', "collect_mode", ""},
-		state.FieldParams{"work", 's', "work_mode", ""},
-		state.FieldParams{"otbor", 'i', "collect_fact", "%"},
-		state.FieldParams{"otbor_g_1", 'i', "cllct_head", "%"},
-		state.FieldParams{"otbor_g_2", 'i', "cllct_ahead", "%"},
-		state.FieldParams{"otbor_t", 'i', "cllct_body", "%"},
-		state.FieldParams{"delta_t", 'i', "delta_body", "°C"},
-		state.FieldParams{"time_stop", 'i', "max_stop", "s"},
-		state.FieldParams{"otbor_minus", 'i', "decrement", "%"},
-		state.FieldParams{"min_otb", 'i', "period_full", "m"},
-		state.FieldParams{"sek_otb", 'i', "period_cllct", "s"},
-		state.FieldParams{"term_d_m", 'f', "t_top_max", "°C"},
-		state.FieldParams{"term_c_max", 'f', "t_mid_max", "°C"},
-		state.FieldParams{"term_c_min", 'f', "t_mid_min", "°C"},
-		state.FieldParams{"term_k_max", 'f', "t_btm_max", "°C"},
-		state.FieldParams{"term_nasos", 'f', "water_on_t", "°C"},
-		state.FieldParams{"term_k_m", 'f', "full_pwr_t", "°C"},
-		state.FieldParams{"kontaktor", 's', "kontaktor", ""},
-		state.FieldParams{"num_error", 's', "err_number", ""},
-		state.FieldParams{"count_vent", 's', "count_vent", "?"},
-		state.FieldParams{"term_vent", 's', "term_vent", "?"},
-		state.FieldParams{"term_v", 's', "term_v", "?"},
+	rs.data = st.New(st.Fields{
+		st.FieldParams{"term_d", 'f', "t_top", "°C"},
+		st.FieldParams{"term_c", 'f', "t_mid", "°C"},
+		st.FieldParams{"term_k", 'f', "t_btm", "°C"},
+		st.FieldParams{"power", 'i', "power_fact", "W"},
+		st.FieldParams{"power_m", 'i', "power_plan", "W"},
+		st.FieldParams{"press_a", 'f', "press_atm", "mm"},
+		st.FieldParams{"flag_otb", 's', "collect_mode", ""},
+		st.FieldParams{"work", 's', "work_mode", ""},
+		st.FieldParams{"otbor", 'i', "collect_fact", "%"},
+		st.FieldParams{"otbor_g_1", 'i', "cllct_head", "%"},
+		st.FieldParams{"otbor_g_2", 'i', "cllct_ahead", "%"},
+		st.FieldParams{"otbor_t", 'i', "cllct_body", "%"},
+		st.FieldParams{"delta_t", 'i', "delta_body", "°C"},
+		st.FieldParams{"time_stop", 'i', "max_stop", "s"},
+		st.FieldParams{"otbor_minus", 'i', "decrement", "%"},
+		st.FieldParams{"min_otb", 'i', "period_full", "m"},
+		st.FieldParams{"sek_otb", 'i', "period_cllct", "s"},
+		st.FieldParams{"term_d_m", 'f', "t_top_max", "°C"},
+		st.FieldParams{"term_c_max", 'f', "t_mid_max", "°C"},
+		st.FieldParams{"term_c_min", 'f', "t_mid_min", "°C"},
+		st.FieldParams{"term_k_max", 'f', "t_btm_max", "°C"},
+		st.FieldParams{"term_nasos", 'f', "water_on_t", "°C"},
+		st.FieldParams{"term_k_m", 'f', "full_pwr_t", "°C"},
+		st.FieldParams{"kontaktor", 's', "kontaktor", ""},
+		st.FieldParams{"num_error", 's', "err_number", ""},
+		st.FieldParams{"count_vent", 's', "count_vent", "?"},
+		st.FieldParams{"term_vent", 'f', "term_vent", "?"},
+		st.FieldParams{"term_v", 's', "term_v", "?"},
 	})
 
 	rs.Log().Debug("device.rawState started (%s)", rs.Name())
@@ -80,7 +80,7 @@ func (rs *rawState) updateState(req change.Request) error {
 		}
 
 		if !i.N(req.Key, "press_a", "power") {
-			rs.Log().Info(report.MakeLogString("device.rawState"))
+			rs.Log().Debug(report.MakeLogString("device.rawState"))
 		}
 	}
 

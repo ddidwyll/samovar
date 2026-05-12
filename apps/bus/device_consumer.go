@@ -28,7 +28,14 @@ func (dc *deviceConsumer) HandleEvent(event gen.MessageEvent) error {
 		return dc.Send("device_raw_state", request)
 	case change.Report:
 		dc.Log().Debug("bus.deviceConsumer receive change.Report: %+v", m)
-		return dc.Send("device_change_log", m)
+		switch m.LastFrom() {
+		case "device_state":
+			return dc.Send("device_change_log", m)
+		case "device_raw_state":
+			return dc.Send("device_state", m.NewRequest())
+		default:
+			return nil
+		}
 	default:
 		err := fmt.Sprintf("bus.deviceConsumer receive unexpected event: %#v", event)
 		return errors.New(err)
