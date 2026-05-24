@@ -64,7 +64,7 @@ let make = (~url): readable<state> => {
     | None => {
         let es = makeEventSource(url)
 
-        addEventListener(es, "message", evt => {
+        addEventListener(es, "change", evt => {
           switch eventData(evt)->parsePatch {
           | None => ()
           | Some({key, value}) => {

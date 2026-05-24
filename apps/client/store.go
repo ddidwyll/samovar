@@ -89,7 +89,7 @@ func (s *store) registerFeed() error {
 		return err
 	}
 
-	s.getRouter.Handle("/feed", feedHandler)
+	s.getRouter.Handle("/store/feed", feedHandler)
 	return nil
 }
 
@@ -100,7 +100,7 @@ func (s *store) registerStoreHandler() error {
 	if err != nil {
 		s.Log().Error("client.store: failed to register store handler %s", err)
 	} else {
-		s.getRouter.Handle("/store", storeHandler)
+		s.router.Handle("/store", storeHandler).Methods("GET", "PATCH")
 	}
 	return err
 }

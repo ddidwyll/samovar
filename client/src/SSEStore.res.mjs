@@ -53,7 +53,7 @@ function make(url) {
       return;
     }
     let es = new EventSource(url);
-    es.addEventListener("message", evt => {
+    es.addEventListener("change", evt => {
       let match = parsePatch(evt.data);
       if (match !== undefined) {
         state[match.key] = match.value;

@@ -3,6 +3,7 @@ package change
 import (
 	"samovar/lib/val"
 
+	"encoding/json"
 	"fmt"
 	"slices"
 	"strings"
@@ -10,16 +11,16 @@ import (
 )
 
 type Report struct {
-	IsNew        bool
-	Changed      bool
-	Key          string
-	From         []string
-	OldValue     val.Val
-	NewValue     val.Val
-	OldTimestamp int64
-	NewTimestamp int64
-	FieldName    string
-	FieldUnit    string
+	IsNew        bool     `json:"-"`
+	Changed      bool     `json:"-"`
+	Key          string   `json:"key"`
+	From         []string `json:"-"`
+	OldValue     val.Val  `json:"-"`
+	NewValue     val.Val  `json:"value"`
+	OldTimestamp int64    `json:"-"`
+	NewTimestamp int64    `json:"timestamp"`
+	FieldName    string   `json:"name"`
+	FieldUnit    string   `json:"unit"`
 }
 
 func (r Request) BuildReport(oldTs int64, oldV, newV val.Val, name, unit string) Report {
@@ -94,4 +95,9 @@ func (r Report) LastFrom() string {
 	} else {
 		return r.From[length-1]
 	}
+}
+
+func (r Report) ToJson() []byte {
+	json, _ := json.Marshal(r)
+	return json
 }

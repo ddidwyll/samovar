@@ -18,7 +18,11 @@ func newClientConsumer() gen.ProcessBehavior {
 
 func (cc *clientConsumer) Init(_ ...any) error {
 	cc.Log().Debug("bus.clientConsumer started (%s)", cc.Name())
-	return cc.LinkEvents("device_raw_state_changed")
+
+	return cc.LinkEvents(
+		"device_state_changed",
+		"client_state_changed",
+	)
 }
 
 func (cc *clientConsumer) HandleEvent(event gen.MessageEvent) error {
@@ -26,12 +30,10 @@ func (cc *clientConsumer) HandleEvent(event gen.MessageEvent) error {
 		cc.Log().Debug("bus.clientConsumer <- change.Report[%s]", report.LastFrom())
 
 		switch report.LastFrom() {
-		case "device_raw_state":
-			return cc.Send("client_state", report.NewRequest())
 		case "device_state":
 			return cc.Send("client_state", report.NewRequest())
 		case "client_state":
-			return cc.Send("client_store", report.NewRequest())
+			return cc.Send("client_feed", report)
 		default:
 			return nil
 		}

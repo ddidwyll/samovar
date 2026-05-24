@@ -1,6 +1,7 @@
 package val
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
@@ -25,6 +26,7 @@ type Str struct {
 type Nil struct{}
 
 type Val interface {
+	json.Marshaler
 	String() string
 	IsNil() bool
 	IsNum() bool
@@ -33,6 +35,7 @@ type Val interface {
 type Num interface {
 	Val
 	ToFlt() float64
+	ToInt() int64
 }
 
 func (v Int) ToInt() int64 { return v.i }
@@ -114,4 +117,17 @@ func StrAsStr(s string) (v Val, err error) {
 func trimZeros(s string) string {
 	s = strings.TrimRight(s, "0")
 	return strings.TrimSuffix(s, ".")
+}
+
+func (v Str) MarshalJSON() ([]byte, error) {
+	return json.Marshal(v.s)
+}
+func (v Flt) MarshalJSON() ([]byte, error) {
+	return json.Marshal(v.s)
+}
+func (v Int) MarshalJSON() ([]byte, error) {
+	return json.Marshal(v.s)
+}
+func (v Nil) MarshalJSON() ([]byte, error) {
+	return json.Marshal(nil)
 }

@@ -63,8 +63,8 @@ func (s *state) updateState(req change.Request) error {
 
 	if err == nil && report.Changed {
 		report = report.AddFrom("device_state")
-		// err = s.Send("device_producer", report)
-		s.Log().Info(report.MakeLogString("device.state"))
+		err = s.Send("device_producer", report)
+		s.Log().Debug(report.MakeLogString("device.state"))
 	}
 
 	return err

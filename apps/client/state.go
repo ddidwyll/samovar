@@ -59,8 +59,12 @@ func (s *state) updateState(req change.Request) error {
 
 	if err == nil && report.Changed {
 		report = report.AddFrom("client_state")
-		// err = s.Send("client_producer", report)
-		s.Log().Debug(report.MakeLogString("client.state"))
+
+		if err = s.Send("client_producer", report); err == nil {
+			s.Log().Debug(report.MakeLogString("client.state"))
+		} else {
+			return err
+		}
 	}
 
 	return nil
