@@ -25,9 +25,9 @@
   //   })
   // })
 
-  import { make } from "../SSEStore.res.mjs"
+  import { store } from "../TestServerStateStore.res.mjs"
 
-  const events = make("//localhost:4000/store/feed")
+  // const events = make("//localhost:4000/store/feed")
 </script>
 
 <!-- connected: {connected}
@@ -41,4 +41,4 @@
   no events
 {/each}
 -->
-<pre>{JSON.stringify($events, null, 2)}</pre>
+<pre>{JSON.stringify($store, null, 2)}</pre>
