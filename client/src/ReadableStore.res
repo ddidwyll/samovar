@@ -4,6 +4,7 @@ type unsubscribe = unit => unit
 
 type t<'state> = {
   subscribe: subscriber<'state> => unsubscribe,
+  publish: unit => unit,
 }
 
 type subscription<'state> = {
@@ -11,22 +12,18 @@ type subscription<'state> = {
   run: subscriber<'state>,
 }
 
-type lifecycle<'state> = {
-  start: unit => unit,
-  stop: unit => unit,
-  getState: unit => 'state,
-}
-
 let make = (~start, ~stop, ~getState): t<'state> => {
   let subscribers = ref([])
   let nextId = ref(0)
 
-  // let notify = (value: 'state) => {
-  //   subscribers.contents
-  //   -> Belt.Array.forEach(sub => sub.run(value))
-  // }
+  let notify = (state: 'state) => {
+    Console.log2("notify", state)
 
-  // let publish = () => getState()->notify
+    subscribers.contents
+    -> Belt.Array.forEach(sub => sub.run(state))
+  }
+
+  let publish = () => getState()->notify
 
   let countSubscribers = () => Belt.Array.length(subscribers.contents)
 
@@ -51,5 +48,5 @@ let make = (~start, ~stop, ~getState): t<'state> => {
     }
   }
 
-  {subscribe: subscribe}
+  {subscribe, publish}
 }

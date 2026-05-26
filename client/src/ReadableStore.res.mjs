@@ -9,6 +9,11 @@ function make(start, stop, getState) {
   let nextId = {
     contents: 0
   };
+  let publish = () => {
+    let state = getState();
+    console.log("notify", state);
+    Belt_Array.forEach(subscribers.contents, sub => sub.run(state));
+  };
   let subscribe = run => {
     let id = nextId.contents;
     nextId.contents = id + 1 | 0;
@@ -31,7 +36,8 @@ function make(start, stop, getState) {
     };
   };
   return {
-    subscribe: subscribe
+    subscribe: subscribe,
+    publish: publish
   };
 }
 

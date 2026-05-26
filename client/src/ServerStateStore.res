@@ -4,7 +4,7 @@ type item<'value> = FeedClient.patch<'value>
 type state<'value> = Map.t<item<'value>>
 
 type t<'value> = {
-  subscribe: (state<'value> => unit) => (unit => unit),
+  subscribe: (state<'value> => unit) => (unit => unit)
 }
 
 let make = (
@@ -12,16 +12,16 @@ let make = (
   ~decodeValue: JSON.t => option<'value>,
 ): t<'value> => {
   let state = ref(Map.empty)
-  let notifyRef = ref((_state: state<'value>) => ())
   let connection = ref(None)
-  let publish = () => notifyRef.contents(state.contents)
+  let publishRef = ref(() => ())
+  let onError = Some(Console.error)
 
   let onPatch = (patch: item<'value>) => {
     state :=
       state.contents
       -> Map.set(patch.key, patch)
 
-    publish()
+    publishRef.contents()
   }
 
   let start = () => {
@@ -29,12 +29,7 @@ let make = (
     | Some(_) => ()
     | None =>
       connection :=
-        FeedClient.start(
-          ~url,
-          ~decodeValue,
-          ~onPatch,
-          ~onError=Some(Console.error),
-        )
+        FeedClient.start(~url, ~decodeValue, ~onPatch, ~onError)
         -> Some
     }
   }
@@ -48,31 +43,10 @@ let make = (
     }
   }
 
-  let subscribers = ref([])
+  let getState = () => state.contents
+  let store = ReadableStore.make(~start, ~stop, ~getState)
 
-  let subscribe = run => {
-    subscribers := [run, ...subscribers.contents]
+  publishRef := store.publish
 
-    notifyRef := state =>
-      subscribers.contents
-      -> Belt.Array.forEach(cb => cb(state))
-
-    if Belt.Array.length(subscribers.contents) == 1 {
-      start()
-    }
-
-    run(state.contents)
-
-    () => {
-      subscribers :=
-        subscribers.contents
-        -> Belt.Array.keep(cb => cb != run)
-
-      if Belt.Array.length(subscribers.contents) == 0 {
-        stop()
-      }
-    }
-  }
-
-  {subscribe: subscribe}
+  {subscribe: store.subscribe}
 }
