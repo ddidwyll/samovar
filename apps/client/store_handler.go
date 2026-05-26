@@ -4,8 +4,6 @@ import (
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
 
-	"bytes"
-	"encoding/json"
 	"net/http"
 )
 
@@ -24,22 +22,17 @@ func (sh *storeHandler) Init(_ ...any) error {
 }
 
 func (sh *storeHandler) HandleGet(_ gen.PID, rw resp, r *req) error {
-	info, _ := sh.Info()
-	return sendJson(rw, info)
+	switch r.RequestURI {
+	case "/store/fields":
+		return sendJson(rw, stateFields.ToJson())
+	default:
+		return sendJson(rw, []byte(`{"ack":"ok"}`))
+	}
 }
 
-func sendJson(rw resp, data any) (err error) {
-	var buf bytes.Buffer
-
-	enc := json.NewEncoder(&buf)
-	enc.SetEscapeHTML(false)
-
-	if err = enc.Encode(data); err != nil {
-		return err
-	}
-
+func sendJson(rw resp, data []byte) (err error) {
 	rw.Header().Set("Content-Type", "application/json")
-	_, err = rw.Write(buf.Bytes())
+	_, err = rw.Write(data)
 
 	return err
 }

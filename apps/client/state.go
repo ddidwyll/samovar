@@ -20,12 +20,14 @@ func newState() gen.ProcessBehavior {
 	return &state{}
 }
 
+var stateFields = st.Fields{
+	st.FieldParams{"t_top", 'f', "t top", "°C"},
+	st.FieldParams{"t_mid", 'f', "t middle", "°C"},
+	st.FieldParams{"t_btm", 'f', "t bottom", "°C"},
+}
+
 func (s *state) Init(_ ...any) error {
-	s.data = st.New(st.Fields{
-		st.FieldParams{"t_top", 'f', "t top", "°C"},
-		st.FieldParams{"t_mid", 'f', "t middle", "°C"},
-		st.FieldParams{"t_btm", 'f', "t bottom", "°C"},
-	})
+	s.data = st.New(stateFields)
 
 	s.Log().Debug("client.state started (%s)", s.Name())
 	return nil

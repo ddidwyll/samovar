@@ -20,8 +20,7 @@ func newStore() gen.ProcessBehavior {
 
 type store struct {
 	act.Pool
-	router    *mux.Router
-	getRouter *mux.Router
+	router *mux.Router
 }
 
 func (s *store) Init(args ...any) (opts act.PoolOptions, err error) {
@@ -75,7 +74,6 @@ func (s *store) startWebServer(args any) error {
 func (s *store) initRouter() {
 	s.router = mux.NewRouter()
 	s.router.Use(middleware)
-	s.getRouter = s.router.Methods("GET").Subrouter()
 }
 
 func (s *store) registerFeed() error {
@@ -89,7 +87,7 @@ func (s *store) registerFeed() error {
 		return err
 	}
 
-	s.getRouter.Handle("/store/feed", feedHandler)
+	s.router.Handle("/store/feed", feedHandler).Methods("GET")
 	return nil
 }
 
@@ -101,6 +99,7 @@ func (s *store) registerStoreHandler() error {
 		s.Log().Error("client.store: failed to register store handler %s", err)
 	} else {
 		s.router.Handle("/store", storeHandler).Methods("GET", "PATCH")
+		s.router.Handle("/store/fields", storeHandler).Methods("GET")
 	}
 	return err
 }
@@ -110,13 +109,13 @@ func (s *store) registerStatic() {
 	indexFile := filepath.Join(assetDir, "index.html")
 
 	assetHandler := http.FileServer(http.Dir(assetDir))
-	s.getRouter.PathPrefix("/assets/").Handler(assetHandler)
+	s.router.PathPrefix("/assets/").Handler(assetHandler).Methods("GET")
 
 	indexHandler := func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, indexFile)
 	}
 
-	s.getRouter.NotFoundHandler = http.HandlerFunc(indexHandler)
+	s.router.NotFoundHandler = http.HandlerFunc(indexHandler)
 }
 
 func middleware(h http.Handler) http.Handler {

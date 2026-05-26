@@ -13,13 +13,9 @@ let make = (~url: string, ~decodeValue: decoder<'value>): t<'value> => {
   let onError = Console.error
 
   let onPatch = (patches: patches<'value>) => {
-    Console.log2("onPatch.patches", patches)
-
     patches->Array.forEach(patch => {
       state.contents->Dict.set(patch.key, patch.value)
     })
-
-    Console.log2("onPatch.state", state.contents)
 
     publishRef.contents()
   }

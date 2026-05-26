@@ -17,11 +17,9 @@ function make(url, decodeValue) {
     console.error(prim);
   };
   let onPatch = patches => {
-    console.log("onPatch.patches", patches);
     patches.forEach(patch => {
       state.contents[patch.key] = patch.value;
     });
-    console.log("onPatch.state", state.contents);
     publishRef.contents();
   };
   let start = () => {

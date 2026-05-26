@@ -20,10 +20,10 @@ type Entry struct {
 type Entries []Entry
 
 type FieldParams struct {
-	Key  string
-	Type field.Type
-	Name string
-	Unit string
+	Key  string     `json:"key"`
+	Type field.Type `json:"-"`
+	Name string     `json:"name"`
+	Unit string     `json:"unit"`
 }
 
 type Fields []FieldParams
@@ -125,5 +125,10 @@ func (kv *KeyVals) ToJson() []byte {
 
 func (entries *Entries) ToJson() []byte {
 	json, _ := json.Marshal(entries)
+	return json
+}
+
+func (fields *Fields) ToJson() []byte {
+	json, _ := json.Marshal(fields)
 	return json
 }
