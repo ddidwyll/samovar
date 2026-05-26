@@ -5,11 +5,19 @@ import (
 	"samovar/lib/field"
 	"samovar/lib/val"
 
+	"encoding/json"
 	"errors"
 	"fmt"
 )
 
 type State map[string]*field.Field
+type KeyVals map[string]val.Val
+
+type Entry struct {
+	Key   string  `json:"key"`
+	Value val.Val `json:"value"`
+}
+type Entries []Entry
 
 type FieldParams struct {
 	Key  string
@@ -26,7 +34,9 @@ func New(fields Fields) *State {
 	for _, params := range fields {
 		field := field.New(params.Name, params.Type)
 		field.Unit = params.Unit
-		keys := [2]string{params.Key, params.Name}
+		// STATE BY NAME
+		// keys := [...]string{params.Key, params.Name}
+		keys := [...]string{params.Key}
 
 		for _, key := range keys {
 			if key == "" {
@@ -44,6 +54,23 @@ func New(fields Fields) *State {
 	}
 
 	return &newState
+}
+
+func (s *State) KeyVals() KeyVals {
+	kv := make(KeyVals, len(*s))
+	for key, field := range *s {
+		kv[key] = field.Get()
+	}
+	return kv
+}
+
+func (s *State) Entries() Entries {
+	entries := make(Entries, 0, len(*s))
+	for key, field := range *s {
+		entry := Entry{key, field.Get()}
+		entries = append(entries, entry)
+	}
+	return entries
 }
 
 func (s *State) HasField(key string) bool {
@@ -89,4 +116,14 @@ func (s *State) Change(req change.Request) (rep change.Report, err error) {
 		err := fmt.Sprintf("field [%s] not found", req.Key)
 		return rep, errors.New(err)
 	}
+}
+
+func (kv *KeyVals) ToJson() []byte {
+	json, _ := json.Marshal(kv)
+	return json
+}
+
+func (entries *Entries) ToJson() []byte {
+	json, _ := json.Marshal(entries)
+	return json
 }

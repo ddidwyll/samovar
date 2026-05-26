@@ -5,15 +5,14 @@ import * as Stdlib_Array from "@rescript/runtime/lib/es6/Stdlib_Array.js";
 import * as Stdlib_Option from "@rescript/runtime/lib/es6/Stdlib_Option.js";
 import * as Primitive_option from "@rescript/runtime/lib/es6/Primitive_option.js";
 
-let decodeString = Stdlib_JSON.Decode.string;
+let decodeKey = Stdlib_JSON.Decode.string;
 
 function decodePatch(json, decodeValue) {
-  let obj = Stdlib_JSON.Decode.object(json);
-  if (obj === undefined) {
+  if (typeof json !== "object" || json === null || Array.isArray(json)) {
     return;
   }
-  let match = Stdlib_Option.flatMap(obj["key"], decodeString);
-  let match$1 = Stdlib_Option.flatMap(obj["value"], decodeValue);
+  let match = Stdlib_Option.flatMap(json["key"], decodeKey);
+  let match$1 = Stdlib_Option.flatMap(json["value"], decodeValue);
   if (match !== undefined && match$1 !== undefined) {
     return {
       key: match,
@@ -22,7 +21,14 @@ function decodePatch(json, decodeValue) {
   }
 }
 
-function decodePatches(json, decodeValue) {
+function parsePatches(event, decodeValue, onError) {
+  let json;
+  try {
+    json = JSON.parse(event.data);
+  } catch (exn) {
+    onError("Failed to parse json");
+    return;
+  }
   if (Array.isArray(json)) {
     return Stdlib_Array.filterMap(json, p => decodePatch(p, decodeValue));
   }
@@ -39,18 +45,20 @@ function decodePatches(json, decodeValue) {
 
 function start(url, decodeValue, onPatch, onError) {
   let source = new EventSource(url);
-  source.addEventListener("change", evt => {
-    let json;
-    try {
-      json = JSON.parse(evt.data);
-    } catch (exn) {
-      return Stdlib_Option.forEach(onError, cb => cb("Failed to parse patch json"));
-    }
-    let patches = decodePatches(json, decodeValue);
+  source.addEventListener("change", event => {
+    let patches = parsePatches(event, decodeValue, onError);
     if (patches !== undefined) {
       return onPatch(patches);
     } else {
-      return Stdlib_Option.forEach(onError, cb => cb("Unexpected patch format"));
+      return onError("Unexpected patch format");
+    }
+  });
+  source.addEventListener("init", event => {
+    let patches = parsePatches(event, decodeValue, onError);
+    if (patches !== undefined) {
+      return onPatch(patches);
+    } else {
+      return onError("Unexpected patch format");
     }
   });
   return {
@@ -64,9 +72,9 @@ function stop(client) {
 }
 
 export {
-  decodeString,
+  decodeKey,
   decodePatch,
-  decodePatches,
+  parsePatches,
   start,
   stop,
 }

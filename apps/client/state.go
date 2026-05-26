@@ -44,9 +44,15 @@ func (s *state) HandleMessage(_ gen.PID, msg any) error {
 	return nil
 }
 
-func (s *state) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
-	s.Log().Debug("client.state got request: %#v", req)
-	return gen.Atom("pong"), nil
+func (s *state) HandleCall(_ gen.PID, _ gen.Ref, key any) (any, error) {
+	switch k := key.(type) {
+	case string:
+		return s.data.FetchField(k)
+	case nil:
+		return s.data.Entries(), nil
+	default:
+		return nil, errors.New("client.state: Unexpected call")
+	}
 }
 
 func (s *state) Terminate(reason error) {
@@ -61,11 +67,23 @@ func (s *state) updateState(req change.Request) error {
 		report = report.AddFrom("client_state")
 
 		if err = s.Send("client_producer", report); err == nil {
-			s.Log().Debug(report.MakeLogString("client.state"))
+			s.Log().Info(report.MakeLogString("client.state"))
 		} else {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func stateEntries(p gen.Process) (st.Entries, error) {
+	if kv, err := p.Call(gen.Atom("client_state"), nil); err != nil {
+		return nil, err
+	} else {
+		if result, ok := kv.(st.Entries); !ok {
+			return nil, errors.New("Unexpected error")
+		} else {
+			return result, nil
+		}
+	}
 }

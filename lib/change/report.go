@@ -18,9 +18,9 @@ type Report struct {
 	OldValue     val.Val  `json:"-"`
 	NewValue     val.Val  `json:"value"`
 	OldTimestamp int64    `json:"-"`
-	NewTimestamp int64    `json:"timestamp"`
-	FieldName    string   `json:"name"`
-	FieldUnit    string   `json:"unit"`
+	NewTimestamp int64    `json:"-"`
+	FieldName    string   `json:"-"`
+	FieldUnit    string   `json:"-"`
 }
 
 func (r Request) BuildReport(oldTs int64, oldV, newV val.Val, name, unit string) Report {

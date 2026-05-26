@@ -17,8 +17,8 @@ func (s *sup) Init(args ...any) (spec act.SupervisorSpec, err error) {
 
 	spec.Children = []act.SupervisorChildSpec{
 		{
-			Name:    "client_feed",
-			Factory: newFeed,
+			Name:    "client_state",
+			Factory: newState,
 		},
 		{
 			Name:    "client_store",
@@ -26,8 +26,8 @@ func (s *sup) Init(args ...any) (spec act.SupervisorSpec, err error) {
 			Args:    args,
 		},
 		{
-			Name:    "client_state",
-			Factory: newState,
+			Name:    "client_feed",
+			Factory: newFeed,
 		},
 	}
 

@@ -10,7 +10,7 @@ let make = (~url: string, ~decodeValue: decoder<'value>): t<'value> => {
   let state = ref(Dict.make())
   let connection = ref(None)
   let publishRef = ref(() => ())
-  let onError = Some(Console.error)
+  let onError = Console.error
 
   let onPatch = (patches: patches<'value>) => {
     Console.log2("onPatch.patches", patches)

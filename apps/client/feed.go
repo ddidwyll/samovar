@@ -26,7 +26,6 @@ func newFeed() gen.ProcessBehavior {
 }
 
 func (f *feed) Init(_ ...any) (err error) {
-	// f.SendAfter(f.PID(), "tick", 2*time.Second)
 	f.Log().Debug("client.feed started (%s)", f.Name())
 	return
 }
@@ -34,16 +33,7 @@ func (f *feed) Init(_ ...any) (err error) {
 func (f *feed) HandleMessage(from gen.PID, msg any) error {
 	switch m := msg.(type) {
 	case sse.MessageConnect:
-		f.Log().Debug("New SSE connection: %s (remote: %s)", m.ID, m.RemoteAddr)
-		f.connections[m.ID] = true
-
-		connLen := len(f.connections)
-		welcome := sse.Message{
-			Event: "welcome",
-			Data:  []byte(fmt.Sprintf("Connected! You are client #%d", connLen)),
-			MsgID: fmt.Sprintf("%d", f.counter),
-		}
-		f.SendAlias(m.ID, welcome)
+		return f.handleConnect(m)
 
 	case sse.MessageDisconnect:
 		f.Log().Debug("SSE disconnected %s", m.ID)
@@ -54,29 +44,9 @@ func (f *feed) HandleMessage(from gen.PID, msg any) error {
 
 	case change.Report:
 		if m.LastFrom() == "client_state" {
-			return f.broadcastChanges(m)
+			return f.broadcastFeed(m)
 		}
 
-	// case string:
-	// 	if m == "tick" {
-	// 		now := time.Now().Format("15.04.05")
-	// 		conns := f.connections
-
-	// 		for connID := range conns {
-	// 			msg := sse.Message{
-	// 				Event: "time",
-	// 				Data:  []byte(fmt.Sprintf(`{"counter": %d, "time": "%s", "clients": %d}`, counter, now, len(conns))),
-	// 				MsgID: fmt.Sprintf("%d", counter),
-	// 			}
-	// 			if err := f.SendAlias(connID, msg); err != nil {
-	// 				f.Log().Error("Failed to send to %s: %s", connID, err)
-	// 			}
-	// 		}
-
-	// 		f.SendAfter(f.PID(), "tick", 2*time.Second)
-	// 	} else {
-	// 		f.Log().Warning("client.feed received unexpected message: %s", m)
-	// 	}
 	default:
 		err := fmt.Sprintf("client.feed: unexpected message (%#v)", msg)
 		return errors.New(err)
@@ -85,7 +55,26 @@ func (f *feed) HandleMessage(from gen.PID, msg any) error {
 	return nil
 }
 
-func (f *feed) broadcastChanges(r change.Report) error {
+func (f *feed) handleConnect(m sse.MessageConnect) error {
+	f.Log().Debug("New SSE connection: %s (remote: %s)", m.ID, m.RemoteAddr)
+
+	if entries, err := stateEntries(f); err != nil {
+		f.Log().Error("%v", err)
+		return err
+	} else {
+		f.connections[m.ID] = true
+
+		initMsg := sse.Message{
+			Event: "init",
+			Data:  entries.ToJson(),
+			MsgID: fmt.Sprintf("%d", f.counter),
+		}
+
+		return f.SendAlias(m.ID, initMsg)
+	}
+}
+
+func (f *feed) broadcastFeed(r change.Report) error {
 	msg := sse.Message{
 		Event: "change",
 		Data:  r.ToJson(),
@@ -99,6 +88,6 @@ func (f *feed) broadcastChanges(r change.Report) error {
 	}
 
 	f.counter += 1
-	f.Log().Info("client.feed[%s]: %s", r.FormatField(), r.FormatValue())
+	f.Log().Info("client.feed[%s]: %s", r.FieldName, r.FormatValue())
 	return nil
 }

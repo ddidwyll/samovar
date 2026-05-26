@@ -12,10 +12,10 @@ type patches<'value> = array<patch<'value>>
 type json = JSON.t
 type valueDecoder<'value> = json => option<'value>
 type statePatcher<'value> = patches<'value> => unit
-type errorHandler = option<string => unit>
+type errorHandler = string => unit
 
 type patchDecoder<'value> = (json, valueDecoder<'value>) => option<patch<'value>>
-type patchesDecoder<'value> = (json, valueDecoder<'value>) => option<patches<'value>>
+type patchParser<'value> = (event, valueDecoder<'value>, errorHandler) => option<patches<'value>>
 
 type config<'value> = {
   url: string,
@@ -29,27 +29,33 @@ type t<'value> = {
   _phantom: option<'value>,
 }
 
-let decodeString = JSON.Decode.string
+let decodeKey = JSON.Decode.string
 
 let decodePatch: patchDecoder<'value> = (json, decodeValue) => {
-  switch JSON.Decode.object(json) {
-  | None => None
-  | Some(obj) =>
+  switch json {
+  | JSON.Object(obj) =>
     switch (
-      Dict.get(obj, "key")->Option.flatMap(decodeString),
+      Dict.get(obj, "key")->Option.flatMap(decodeKey),
       Dict.get(obj, "value")->Option.flatMap(decodeValue),
     ) {
     | (Some(key), Some(value)) => Some({key, value})
     | _ => None
     }
+  | _ => None
   }
 }
 
-let decodePatches: patchesDecoder<'value> = (json, decodeValue) => {
-  switch json {
-  | JSON.Object(_) => decodePatch(json, decodeValue)->Option.map(p => [p])
-  | JSON.Array(patches) => Array.filterMap(patches, p => decodePatch(p, decodeValue))->Some
-  | _ => None
+let parsePatches: patchParser<'value> = (event, decodeValue, onError) => {
+  switch eventData(event)->JSON.parseOrThrow {
+  | exception _ =>
+    onError("Failed to parse json")
+    None
+  | json =>
+    switch json {
+    | JSON.Object(_) => decodePatch(json, decodeValue)->Option.map(p => [p])
+    | JSON.Array(patches) => Array.filterMap(patches, p => decodePatch(p, decodeValue))->Some
+    | _ => None
+    }
   }
 }
 
@@ -61,16 +67,17 @@ let start = (
 ): t<'value> => {
   let source = makeEventSource(url)
 
-  let handleError = error => onError->Option.forEach(cb => cb(error))
+  addEventListener(source, "change", event => {
+    switch parsePatches(event, decodeValue, onError) {
+    | Some(patches) => onPatch(patches)
+    | None => onError("Unexpected patch format")
+    }
+  })
 
-  addEventListener(source, "change", evt => {
-    switch eventData(evt)->JSON.parseOrThrow {
-    | exception _ => handleError("Failed to parse patch json")
-    | json =>
-      switch decodePatches(json, decodeValue) {
-      | Some(patches) => onPatch(patches)
-      | None => handleError("Unexpected patch format")
-      }
+  addEventListener(source, "init", event => {
+    switch parsePatches(event, decodeValue, onError) {
+    | Some(patches) => onPatch(patches)
+    | None => onError("Unexpected patch format")
     }
   })
 
