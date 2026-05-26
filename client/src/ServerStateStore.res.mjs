@@ -2,11 +2,10 @@
 
 import * as FeedClient from "./FeedClient.res.mjs";
 import * as ReadableStore from "./ReadableStore.res.mjs";
-import * as Belt_MapString from "@rescript/runtime/lib/es6/Belt_MapString.js";
 
 function make(url, decodeValue) {
   let state = {
-    contents: undefined
+    contents: {}
   };
   let connection = {
     contents: undefined
@@ -17,16 +16,21 @@ function make(url, decodeValue) {
   let onError = prim => {
     console.error(prim);
   };
-  let onPatch = patch => {
-    state.contents = Belt_MapString.set(state.contents, patch.key, patch);
+  let onPatch = patches => {
+    console.log("onPatch.patches", patches);
+    patches.forEach(patch => {
+      state.contents[patch.key] = patch.value;
+    });
+    console.log("onPatch.state", state.contents);
     publishRef.contents();
   };
   let start = () => {
+    let conn = FeedClient.start(url, decodeValue, onPatch, onError);
     let match = connection.contents;
     if (match !== undefined) {
       return;
     } else {
-      connection.contents = FeedClient.start(url, decodeValue, onPatch, onError);
+      connection.contents = conn;
       return;
     }
   };
@@ -46,10 +50,7 @@ function make(url, decodeValue) {
   };
 }
 
-let $$Map;
-
 export {
-  $$Map,
   make,
 }
 /* No side effect */

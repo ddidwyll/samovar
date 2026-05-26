@@ -19,8 +19,7 @@ let make = (~start, ~stop, ~getState): t<'state> => {
   let notify = (state: 'state) => {
     Console.log2("notify", state)
 
-    subscribers.contents
-    -> Belt.Array.forEach(sub => sub.run(state))
+    subscribers.contents->Belt.Array.forEach(sub => sub.run(state))
   }
 
   let publish = () => getState()->notify

@@ -1,10 +1,3 @@
-module StringMap = Belt.Map.String
-
-type patch<'value> = {
-  key: string,
-  value: 'value,
-}
-
 type source
 type event
 
@@ -13,15 +6,21 @@ type event
 @send external addEventListener: (source, string, event => unit) => unit = "addEventListener"
 @get external eventData: event => string = "data"
 
+type patch<'value> = {key: string, value: 'value}
+type patches<'value> = array<patch<'value>>
+
 type json = JSON.t
-type decoder<'value> = json => option<'value>
-type patcher<'value> = patch<'value> => unit
+type valueDecoder<'value> = json => option<'value>
+type statePatcher<'value> = patches<'value> => unit
 type errorHandler = option<string => unit>
+
+type patchDecoder<'value> = (json, valueDecoder<'value>) => option<patch<'value>>
+type patchesDecoder<'value> = (json, valueDecoder<'value>) => option<patches<'value>>
 
 type config<'value> = {
   url: string,
-  decodeValue: decoder<'value>,
-  onPatch: patcher<'value>,
+  decodeValue: valueDecoder<'value>,
+  onPatch: statePatcher<'value>,
   onError: errorHandler,
 }
 
@@ -32,7 +31,7 @@ type t<'value> = {
 
 let decodeString = JSON.Decode.string
 
-let decodePatch = (json: json, decodeValue: decoder<'value>): option<patch<'value>> => {
+let decodePatch: patchDecoder<'value> = (json, decodeValue) => {
   switch JSON.Decode.object(json) {
   | None => None
   | Some(obj) =>
@@ -46,10 +45,18 @@ let decodePatch = (json: json, decodeValue: decoder<'value>): option<patch<'valu
   }
 }
 
+let decodePatches: patchesDecoder<'value> = (json, decodeValue) => {
+  switch json {
+  | JSON.Object(_) => decodePatch(json, decodeValue)->Option.map(p => [p])
+  | JSON.Array(patches) => Array.filterMap(patches, p => decodePatch(p, decodeValue))->Some
+  | _ => None
+  }
+}
+
 let start = (
   ~url: string,
-  ~decodeValue: decoder<'value>,
-  ~onPatch: patcher<'value>,
+  ~decodeValue: valueDecoder<'value>,
+  ~onPatch: statePatcher<'value>,
   ~onError: errorHandler,
 ): t<'value> => {
   let source = makeEventSource(url)
@@ -60,8 +67,8 @@ let start = (
     switch eventData(evt)->JSON.parseOrThrow {
     | exception _ => handleError("Failed to parse patch json")
     | json =>
-      switch decodePatch(json, decodeValue) {
-      | Some(patch) => onPatch(patch)
+      switch decodePatches(json, decodeValue) {
+      | Some(patches) => onPatch(patches)
       | None => handleError("Unexpected patch format")
       }
     }

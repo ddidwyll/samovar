@@ -99,6 +99,6 @@ func (f *feed) broadcastChanges(r change.Report) error {
 	}
 
 	f.counter += 1
-	f.Log().Debug("broadcasted[%d]: %v", f.counter, msg)
+	f.Log().Info("client.feed[%s]: %s", r.FormatField(), r.FormatValue())
 	return nil
 }
