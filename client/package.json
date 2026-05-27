@@ -17,6 +17,7 @@
     "vite": "^8.0.1"
   },
   "dependencies": {
+    "@rescript/webapi": "^0.1.0-experimental-0781ac8",
     "rescript": "^12.2.0"
   }
 }
