@@ -10,5 +10,5 @@
   },
   "suffix": ".res.mjs",
   "dependencies": ["@rescript/webapi"],
-  "compiler-flags": ["-open Webapi"]
+  "compiler-flags": ["-open Common"]
 }
