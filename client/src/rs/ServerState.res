@@ -66,7 +66,8 @@ module Values = {
   let parsePatches = (jsonString): option<patches> => {
     switch JSON.parseOrThrow(jsonString) {
     | exception _ => None
-    | JSON.Array(arr) => arr->Array.map(parsePatch)->Option.all
+    // | JSON.Array(arr) => arr->Array.map(parsePatch)->Option.all # null-value-patch error
+    | JSON.Array(arr) => arr->Array.filterMap(parsePatch)->Some
     | json => parsePatch(json)->Option.map(p => [p])
     }
   }

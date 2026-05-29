@@ -3,6 +3,7 @@
 import * as Api from "./Api.res.mjs";
 import * as Common from "./Common.res.mjs";
 import * as Stdlib_JSON from "@rescript/runtime/lib/es6/Stdlib_JSON.js";
+import * as Stdlib_Array from "@rescript/runtime/lib/es6/Stdlib_Array.js";
 import * as Store from "svelte/store";
 import * as Stdlib_Option from "@rescript/runtime/lib/es6/Stdlib_Option.js";
 
@@ -104,7 +105,7 @@ function parsePatches(jsonString) {
   if (exit === 1) {
     let exit$1 = 0;
     if (Array.isArray(arr)) {
-      return Stdlib_Option.all(arr.map(parsePatch));
+      return Stdlib_Array.filterMap(arr, parsePatch);
     }
     exit$1 = 2;
     if (exit$1 === 2) {

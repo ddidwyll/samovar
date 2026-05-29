@@ -1,13 +1,14 @@
 <script>
-  import { store } from "../rs/StateStore.res.mjs"
+  import { store } from "../rs/ServerState.res.mjs"
 </script>
 
-<!--
-{#each Object.entries($store) as [key, value]}
-  {key}: {value}
+{#each $store.fields as {key, name, unit}}
+  {@const value = $store.values[key] || "?"}
+  {name}: {value} {unit}
   <br>
 {:else}
   empty
 {/each}
+<!--
+<pre>{JSON.stringify($store.fields, null, 2)}</pre>
 -->
-<pre>{JSON.stringify($store, null, 2)}</pre>
