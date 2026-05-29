@@ -176,3 +176,5 @@ let make = async (): store => {
 
   store
 }
+
+let store = await make()

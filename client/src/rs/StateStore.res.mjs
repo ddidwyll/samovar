@@ -221,6 +221,8 @@ async function make$1() {
   });
 }
 
+let store = await make$1();
+
 let Store$1;
 
 export {
@@ -232,5 +234,6 @@ export {
   State,
   Store$1 as Store,
   make$1 as make,
+  store,
 }
-/* Api Not a pure module */
+/* store Not a pure module */
