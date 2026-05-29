@@ -1,7 +1,7 @@
 let getFieldUrl = "http://localhost:4000/store/fields"
 let feedSourceUrl = "http://localhost:4000/store/feed"
 
-type errorHandler = (Err.t) => unit
+type errorHandler = Err.t => unit
 
 module Fields = {
   type field = {
@@ -70,6 +70,12 @@ module Values = {
     | json => parsePatch(json)->Option.map(p => [p])
     }
   }
+
+  let applyPatches = (values, patches) => {
+    Array.forEach(patches, patch => {
+      Dict.set(values, patch.key, patch.value)
+    })
+  }
 }
 
 module Feed = {
@@ -83,10 +89,7 @@ module Feed = {
 
   type t = {source: source}
 
-  let start = (
-    ~onPatch: Values.patcher,
-    ~onError: errorHandler,
-  ): t => {
+  let subscribe = (~onPatch: Values.patcher, ~onError: errorHandler): t => {
     let source = makeEventSource(feedSourceUrl)
 
     addEventListener(source, "change", evt => {
@@ -106,17 +109,15 @@ module Feed = {
     {source: source}
   }
 
-  let stop = (client: t) => {
-    closeEventSource(client.source)
+  let unsubscribe = (feed: t) => {
+    closeEventSource(feed.source)
   }
 }
 
 module State = {
-  type ack = Ready | Failed
-
   type status = {
-    ack: ack,
-    err: option<string>,
+    mutable ack: [#ok | #err],
+    mutable err: option<string>,
   }
 
   type t = {
@@ -125,23 +126,53 @@ module State = {
     status: status,
   }
 
-  let onError = (err): t => {
-    let err = Err.string(err)->Some
-    let status = {err, ack: Failed}
+  let setStatus = (state, status: [#ok | #err(Err.t)]): t => {
+    let (ack, err) =
+      switch status {
+      | #ok => (#ok, None)
+      | #err(e) => (#err, Err.string(e)->Some)
+      }
 
-    {status, fields: [], values: Dict.make()}
+    state.status.ack = ack
+    state.status.err = err
+    state
   }
 
-  let onSuccess = (fields, values): t => {
-    let status = {ack: Ready, err: None}
+  let patchValues = (state, patches): t => {
+    state.values->Values.applyPatches(patches)
+    state
+  }
 
-    {fields, status, values}
+  let default = (~fields=[]) => {
+    fields: fields,
+    values: Dict.make(),
+    status: {ack: #ok, err: None},
   }
 
   let make = async (): t => {
     switch await Fields.fetch() {
-    | Error(err) => onError(err)
-    | Ok(fields) => onSuccess(fields, Dict.make())
+    | Error(err) => default()->setStatus(#err(err))
+    | Ok(fields) => default(~fields)
     }
   }
+}
+
+module Store = SvelteStore.Readable
+
+type state = State.t
+type store = Store.t<state>
+
+type t = {store: store}
+
+let make = async (): store => {
+  let state = await State.make()
+  let store = Store.make(state, (_set, update) => {
+    let onPatch = patches => update(State.patchValues(_, patches))
+    let onError = err => update(State.setStatus(_, #err(err)))
+    let feedClient = Feed.subscribe(~onPatch, ~onError)
+
+    () => Feed.unsubscribe(feedClient)
+  })
+
+  store
 }

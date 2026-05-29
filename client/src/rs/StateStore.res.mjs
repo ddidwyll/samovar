@@ -3,6 +3,7 @@
 import * as Api from "./Api.res.mjs";
 import * as Common from "./Common.res.mjs";
 import * as Stdlib_JSON from "@rescript/runtime/lib/es6/Stdlib_JSON.js";
+import * as Store from "svelte/store";
 import * as Stdlib_Option from "@rescript/runtime/lib/es6/Stdlib_Option.js";
 
 let getFieldUrl = "http://localhost:4000/store/fields";
@@ -112,12 +113,19 @@ function parsePatches(jsonString) {
   }
 }
 
+function applyPatches(values, patches) {
+  patches.forEach(patch => {
+    values[patch.key] = patch.value;
+  });
+}
+
 let Values = {
   parsePatch: parsePatch,
-  parsePatches: parsePatches
+  parsePatches: parsePatches,
+  applyPatches: applyPatches
 };
 
-function start(onPatch, onError) {
+function subscribe(onPatch, onError) {
   let source = new EventSource(feedSourceUrl);
   source.addEventListener("change", evt => {
     let patches = parsePatches(evt.data);
@@ -140,34 +148,40 @@ function start(onPatch, onError) {
   };
 }
 
-function stop(client) {
-  client.source.close();
+function unsubscribe(feed) {
+  feed.source.close();
 }
 
 let Feed = {
-  start: start,
-  stop: stop
+  subscribe: subscribe,
+  unsubscribe: unsubscribe
 };
 
-function onError(err) {
-  let err$1 = Common.Err.string(err);
-  let status = {
-    ack: "Failed",
-    err: err$1
-  };
-  return {
-    fields: [],
-    values: {},
-    status: status
-  };
+function setStatus(state, status) {
+  let match = typeof status === "object" ? [
+      "err",
+      Common.Err.string(status.VAL)
+    ] : [
+      "ok",
+      undefined
+    ];
+  state.status.ack = match[0];
+  state.status.err = match[1];
+  return state;
 }
 
-function onSuccess(fields, values) {
+function patchValues(state, patches) {
+  applyPatches(state.values, patches);
+  return state;
+}
+
+function $$default(fieldsOpt) {
+  let fields = fieldsOpt !== undefined ? fieldsOpt : [];
   return {
     fields: fields,
-    values: values,
+    values: {},
     status: {
-      ack: "Ready",
+      ack: "ok",
       err: undefined
     }
   };
@@ -176,17 +190,38 @@ function onSuccess(fields, values) {
 async function make() {
   let err = await fetch();
   if (err.TAG === "Ok") {
-    return onSuccess(err._0, {});
+    return $$default(err._0);
   } else {
-    return onError(err._0);
+    return setStatus($$default(undefined), {
+      NAME: "err",
+      VAL: err._0
+    });
   }
 }
 
 let State = {
-  onError: onError,
-  onSuccess: onSuccess,
+  setStatus: setStatus,
+  patchValues: patchValues,
+  $$default: $$default,
   make: make
 };
+
+async function make$1() {
+  let state = await make();
+  return Store.readable(state, (_set, update) => {
+    let onPatch = patches => update(__x => patchValues(__x, patches));
+    let onError = err => update(__x => setStatus(__x, {
+      NAME: "err",
+      VAL: err
+    }));
+    let feedClient = subscribe(onPatch, onError);
+    return () => {
+      feedClient.source.close();
+    };
+  });
+}
+
+let Store$1;
 
 export {
   getFieldUrl,
@@ -195,5 +230,7 @@ export {
   Values,
   Feed,
   State,
+  Store$1 as Store,
+  make$1 as make,
 }
 /* Api Not a pure module */
