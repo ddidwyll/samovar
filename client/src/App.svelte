@@ -1,10 +1,7 @@
 <script>
-  import Counter from "./lib/Counter.svelte"
-  import { store } from "./rs/ServerState.res.mjs"
+  import StateTable from "./lib/ServerStateTable.svelte"
 </script>
 
 <section id="center">
-  ACK: {$store.status.ack}
-  <br>
-  <Counter />
+  <StateTable />
 </section>
