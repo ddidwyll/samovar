@@ -1,7 +1,12 @@
 module Err = {
-  type t = {msg: string}
+  type from = Exn | Json | Undefined
 
-  let make = (msg): t => {msg: msg}
+  type t = {
+    msg: string,
+    from: from,
+  }
+
+  let make = (msg, ~from=Undefined): t => {msg, from}
 
   let buildDefault = (defaultErr): string => {
     defaultErr->Option.getOr("Unexpexted")
@@ -9,16 +14,18 @@ module Err = {
 
   let catch = (exn, ~defaultErr=?): t => {
     switch JsExn.message(exn) {
-    | Some(msg) => make(msg)
-    | None => defaultErr->buildDefault->make
+    | Some(msg) => make(msg, ~from=Exn)
+    | None => defaultErr->buildDefault->make(~from=Exn)
     }
   }
 
   let parse = (json, ~defaultErr=?): t => {
     JSON.Decode.object(json)
-    ->Option.flatMap(obj => Dict.get(obj, "msg"))
+    ->Option.flatMap(Dict.get(_, "msg"))
     ->Option.flatMap(JSON.Decode.string)
     ->Option.getOr(buildDefault(defaultErr))
-    ->make
+    ->make(~from=Json)
   }
+
+  let string = (err: t): string => err.msg
 }

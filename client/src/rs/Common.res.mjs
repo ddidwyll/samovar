@@ -4,9 +4,11 @@ import * as Stdlib_JSON from "@rescript/runtime/lib/es6/Stdlib_JSON.js";
 import * as Stdlib_JsExn from "@rescript/runtime/lib/es6/Stdlib_JsExn.js";
 import * as Stdlib_Option from "@rescript/runtime/lib/es6/Stdlib_Option.js";
 
-function make(msg) {
+function make(msg, fromOpt) {
+  let from = fromOpt !== undefined ? fromOpt : "Undefined";
   return {
-    msg: msg
+    msg: msg,
+    from: from
   };
 }
 
@@ -17,27 +19,26 @@ function buildDefault(defaultErr) {
 function $$catch(exn, defaultErr) {
   let msg = Stdlib_JsExn.message(exn);
   if (msg !== undefined) {
-    return {
-      msg: msg
-    };
+    return make(msg, "Exn");
   } else {
-    return {
-      msg: Stdlib_Option.getOr(defaultErr, "Unexpexted")
-    };
+    return make(Stdlib_Option.getOr(defaultErr, "Unexpexted"), "Exn");
   }
 }
 
 function parse(json, defaultErr) {
-  return {
-    msg: Stdlib_Option.getOr(Stdlib_Option.flatMap(Stdlib_Option.flatMap(Stdlib_JSON.Decode.object(json), obj => obj["msg"]), Stdlib_JSON.Decode.string), Stdlib_Option.getOr(defaultErr, "Unexpexted"))
-  };
+  return make(Stdlib_Option.getOr(Stdlib_Option.flatMap(Stdlib_Option.flatMap(Stdlib_JSON.Decode.object(json), __x => __x["msg"]), Stdlib_JSON.Decode.string), Stdlib_Option.getOr(defaultErr, "Unexpexted")), "Json");
+}
+
+function string(err) {
+  return err.msg;
 }
 
 let Err = {
   make: make,
   buildDefault: buildDefault,
   $$catch: $$catch,
-  parse: parse
+  parse: parse,
+  string: string
 };
 
 export {

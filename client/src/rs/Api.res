@@ -1,7 +1,5 @@
-type result = Ok(JSON.t) | Error(Err.t)
-
 module Get = {
-  let request = async (url): result => {
+  let request = async (url): result<JSON.t, Err.t> => {
     let defaultErr = "Error processing API request"
 
     try {

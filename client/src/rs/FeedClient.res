@@ -48,7 +48,7 @@ let decodePatch: patchDecoder<'value> = (json, decodeValue) => {
 let parsePatches: patchParser<'value> = (event, decodeValue, onError) => {
   switch eventData(event)->JSON.parseOrThrow {
   | exception _ =>
-    onError("Failed to parse json")
+    onError("Failed to parse patches")
     None
   | json =>
     switch json {

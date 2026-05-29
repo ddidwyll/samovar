@@ -26,7 +26,7 @@ function parsePatches(event, decodeValue, onError) {
   try {
     json = JSON.parse(event.data);
   } catch (exn) {
-    onError("Failed to parse json");
+    onError("Failed to parse patches");
     return;
   }
   if (Array.isArray(json)) {
