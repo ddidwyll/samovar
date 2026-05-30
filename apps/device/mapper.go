@@ -11,9 +11,11 @@ type mapper func(request) (request, bool)
 var mappers = []mapper{tryAsIs}
 
 var asIsMap = map[string]string{
-	"term_d": "t_top",
-	"term_c": "t_mid",
-	"term_k": "t_btm",
+	"term_d":  "t_top",
+	"term_c":  "t_mid",
+	"term_k":  "t_btm",
+	"power_m": "power",
+	"otbor":   "collect",
 }
 
 func mapFromRaw(req request) (request, bool) {

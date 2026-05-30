@@ -25,6 +25,8 @@ func (s *state) Init(_ ...any) error {
 		st.FieldParams{"t_top", 'f', "t top", "°C"},
 		st.FieldParams{"t_mid", 'f', "t middle", "°C"},
 		st.FieldParams{"t_btm", 'f', "t bottom", "°C"},
+		st.FieldParams{"power", 'i', "power", "W"},
+		st.FieldParams{"collect", 'i', "collect", "%"},
 	})
 
 	s.Log().Debug("device.state started (%s)", s.Name())

@@ -17,8 +17,3 @@
     {/each}
   </tbody>
 </table>
-
-<style>
-  table {
-  }
-</style>

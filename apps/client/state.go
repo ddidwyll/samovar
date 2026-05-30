@@ -24,6 +24,8 @@ var stateFields = st.Fields{
 	st.FieldParams{"t_top", 'f', "t top", "°C"},
 	st.FieldParams{"t_mid", 'f', "t middle", "°C"},
 	st.FieldParams{"t_btm", 'f', "t bottom", "°C"},
+	st.FieldParams{"power", 'i', "power", "W"},
+	st.FieldParams{"collect", 'i', "collect", "%"},
 }
 
 func (s *state) Init(_ ...any) error {
