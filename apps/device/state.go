@@ -26,6 +26,7 @@ func (s *state) Init(_ ...any) error {
 		st.FieldParams{"t_mid", 'f', "t middle", "°C"},
 		st.FieldParams{"t_btm", 'f', "t bottom", "°C"},
 		st.FieldParams{"power", 'i', "power", "W"},
+		st.FieldParams{"press", 'i', "press", "mm"},
 		st.FieldParams{"collect", 'i', "collect", "%"},
 	})
 

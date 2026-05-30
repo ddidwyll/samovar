@@ -23,8 +23,8 @@ type fieldId struct {
 
 type changes map[string]map[string]value
 
-type args map[string]value
-type calc func(args) (value, error)
+type Args map[string]value
+type calcFn func(Args) (value, error)
 
 type fields map[string]map[string]bool
 
@@ -32,25 +32,25 @@ type watcher struct {
 	fieldIds []fieldId
 	fields   fields
 	target   fieldId
-	calc     calc
+	calc     calcFn
 }
 
 type process interface {
 	Call(to any, message any) (any, error)
 	Send(to any, message any) error
+	Name() gen.Atom
 }
 
 type Calc struct {
 	watchers []watcher
 	process  process
-	calcName string
 }
 
-func NewCalc(p process, calcName string) Calc {
-	return Calc{make([]watcher, 0), p, calcName}
+func NewCalc(p process) *Calc {
+	return &Calc{make([]watcher, 0), p}
 }
 
-func (c *Calc) Watch(target string, fn calc, fieldStrings ...string) {
+func (c *Calc) Watch(fn calcFn, target string, fieldStrings ...string) {
 	fields := make(fields)
 	fieldIds := make([]fieldId, 0, len(fieldStrings))
 
@@ -81,7 +81,8 @@ func (c *Calc) HandleReport(maybeReport any) error {
 		requests := make([]change.Request, 0, len(changes))
 
 		for fieldKey, value := range changes {
-			request := r.NewRequest(c.calcName, fieldKey, value)
+			from := string(c.process.Name())
+			request := r.NewRequest(from, fieldKey, value)
 			requests = append(requests, request)
 		}
 
@@ -120,7 +121,7 @@ func (w watcher) match(stateKey, fieldKey string) bool {
 	return w.fields[stateKey][fieldKey]
 }
 
-func (w watcher) buildArgs(p process) (result args, err error) {
+func (w watcher) buildArgs(p process) (result Args, err error) {
 	for stateKey, fieldKeyMap := range w.fields {
 		fieldKeys := slices.Collect(maps.Keys(fieldKeyMap))
 
@@ -129,7 +130,7 @@ func (w watcher) buildArgs(p process) (result args, err error) {
 			return result, err
 		}
 
-		stateArgs, ok := kv.(args)
+		stateArgs, ok := kv.(Args)
 		if !ok {
 			return result, errors.New("Failed to fetch calc args")
 		}
