@@ -56,12 +56,24 @@ func New(fields Fields) *State {
 	return &newState
 }
 
-func (s *State) KeyVals() KeyVals {
+func (s *State) AllKeyVals() KeyVals {
 	kv := make(KeyVals, len(*s))
 	for key, field := range *s {
 		kv[key] = field.Get()
 	}
 	return kv
+}
+
+func (s *State) KeyVals(keys ...string) (KeyVals, error) {
+	kv := make(KeyVals, len(keys))
+	for _, key := range keys {
+		if f, err := s.FetchField(key); err != nil {
+			return nil, err
+		} else {
+			kv[key] = f.Get()
+		}
+	}
+	return kv, nil
 }
 
 func (s *State) Entries() Entries {

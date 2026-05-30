@@ -50,9 +50,17 @@ func (s *state) HandleMessage(_ gen.PID, msg any) error {
 	}
 }
 
-func (s *state) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
-	s.Log().Debug("device.state got request: %#v", req)
-	return gen.Atom("pong"), nil
+func (s *state) HandleCall(_ gen.PID, _ gen.Ref, key any) (any, error) {
+	switch k := key.(type) {
+	case []string:
+		return s.data.KeyVals(k...)
+	case string:
+		return s.data.FetchField(k)
+	case nil:
+		return s.data.Entries(), nil
+	default:
+		return nil, errors.New("client.state: Unexpected call")
+	}
 }
 
 func (s *state) Terminate(reason error) {

@@ -23,18 +23,19 @@ type Report struct {
 	FieldUnit    string   `json:"-"`
 }
 
-func (r Request) BuildReport(oldTs int64, oldV, newV val.Val, name, unit string) Report {
-	isNew := oldTs == 0 && oldV.IsNil()
-	changed := newV.String() != oldV.String()
-	newFrom := slices.Clone(r.From)
-	return Report{isNew, changed, r.Key, newFrom, oldV, newV, oldTs, r.Timestamp, name, unit}
-}
-
-func (r Report) NewRequest() (req Request) {
+func (r Report) ReRequest() (req Request) {
 	req.Key = r.Key
 	req.Value = r.NewValue
 	req.Timestamp = r.NewTimestamp
 	req.From = slices.Clone(r.From)
+	return req
+}
+
+func (r Report) NewRequest(from, key string, val any) (req Request) {
+	req.Key = r.Key
+	req.Value = val
+	req.Timestamp = r.NewTimestamp
+	req.From = append(r.From, from)
 	return req
 }
 

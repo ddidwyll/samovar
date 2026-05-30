@@ -31,7 +31,7 @@ func (cc *clientConsumer) HandleEvent(event gen.MessageEvent) error {
 
 		switch report.LastFrom() {
 		case "device_state":
-			return cc.Send("client_state", report.NewRequest())
+			return cc.Send("client_state", report.ReRequest())
 		case "client_state":
 			return cc.Send("client_feed", report)
 		default:
