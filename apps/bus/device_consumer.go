@@ -27,14 +27,13 @@ func (dc *deviceConsumer) HandleEvent(event gen.MessageEvent) error {
 		dc.Log().Debug("bus.deviceConsumer new change.Request: %+v", request)
 		return dc.Send("device_raw_state", request)
 	case change.Report:
-		dc.Log().Debug("bus.deviceConsumer receive change.Report: %+v", m)
+		dc.Log().Debug("bus.deviceConsumer receive change.Report: %s.%s", m.LastFrom(), m.Key)
 		switch m.LastFrom() {
 		case "device_state":
 			return dc.Send("device_change_log", m)
 		case "device_raw_state":
 			dc.Send("device_state", m.ReRequest())
-			dc.Call("device_calc", m)
-			return nil
+			return dc.Send(gen.Atom("device_calc"), m)
 		default:
 			return nil
 		}

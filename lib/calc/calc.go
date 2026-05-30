@@ -2,6 +2,7 @@ package calc
 
 import (
 	"samovar/lib/change"
+	"samovar/lib/state"
 	"samovar/lib/val"
 
 	"ergo.services/ergo/gen"
@@ -23,16 +24,15 @@ type fieldId struct {
 
 type changes map[string]map[string]value
 
-type Args map[string]value
+type Args = state.KeyVals
 type calcFn func(Args) (value, error)
 
 type fields map[string]map[string]bool
 
 type watcher struct {
-	fieldIds []fieldId
-	fields   fields
-	target   fieldId
-	calc     calcFn
+	fields fields
+	target fieldId
+	calc   calcFn
 }
 
 type process interface {
@@ -46,24 +46,22 @@ type Config struct {
 	process  process
 }
 
-func NewCalc(p process) *Config {
+func NewConfig(p process) *Config {
 	return &Config{make([]watcher, 0), p}
 }
 
 func (c *Config) Watch(fn calcFn, target string, fieldStrings ...string) {
 	fields := make(fields)
-	fieldIds := make([]fieldId, 0, len(fieldStrings))
 
 	for _, fieldIdStr := range fieldStrings {
 		fid := fid(fieldIdStr)
 		if fields[fid.stateKey] == nil {
-  		fields[fid.stateKey] = make(map[string]bool)
+			fields[fid.stateKey] = make(map[string]bool)
 		}
 		fields[fid.stateKey][fid.fieldKey] = true
-		fieldIds = append(fieldIds, fid)
 	}
 
-	watcher := watcher{fieldIds, fields, fid(target), fn}
+	watcher := watcher{fields, fid(target), fn}
 
 	c.watchers = append(c.watchers, watcher)
 }
@@ -97,7 +95,8 @@ func (c *Config) HandleReport(maybeReport any) error {
 	return nil
 }
 
-func (c *Config) performWatchers(r report) (results changes, err error) {
+func (c *Config) performWatchers(r report) (changes, error) {
+	results := make(changes)
 	stateKey := r.LastFrom()
 
 	for _, watcher := range c.watchers {
@@ -105,7 +104,12 @@ func (c *Config) performWatchers(r report) (results changes, err error) {
 			continue
 		}
 
-		results[watcher.target.stateKey] = make(map[string]value)
+		stateKey := watcher.target.stateKey
+		fieldKey := watcher.target.fieldKey
+
+		if results[stateKey] == nil {
+			results[stateKey] = make(map[string]value)
+		}
 
 		args, err := watcher.buildArgs(c.process)
 		if err != nil {
@@ -115,7 +119,9 @@ func (c *Config) performWatchers(r report) (results changes, err error) {
 		if value, err := watcher.calc(args); err != nil {
 			return results, err
 		} else {
-			results[watcher.target.stateKey][watcher.target.fieldKey] = value
+			if !value.IsNil() {
+				results[stateKey][fieldKey] = value
+			}
 		}
 	}
 
@@ -126,7 +132,9 @@ func (w watcher) match(stateKey, fieldKey string) bool {
 	return w.fields[stateKey][fieldKey]
 }
 
-func (w watcher) buildArgs(p process) (result Args, err error) {
+func (w watcher) buildArgs(p process) (Args, error) {
+	result := make(Args)
+
 	for stateKey, fieldKeyMap := range w.fields {
 		fieldKeys := slices.Collect(maps.Keys(fieldKeyMap))
 
@@ -137,7 +145,8 @@ func (w watcher) buildArgs(p process) (result Args, err error) {
 
 		stateArgs, ok := kv.(Args)
 		if !ok {
-			return result, errors.New("Failed to fetch calc args")
+			e := fmt.Sprintf("calc.buildArgs.stateArgs: %s, %#kv", ok, kv)
+			return result, errors.New(e)
 		}
 
 		for key, val := range stateArgs {

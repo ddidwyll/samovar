@@ -32,7 +32,7 @@ func (r Report) ReRequest() (req Request) {
 }
 
 func (r Report) NewRequest(from, key string, val any) (req Request) {
-	req.Key = r.Key
+	req.Key = key
 	req.Value = val
 	req.Timestamp = r.NewTimestamp
 	req.From = append(r.From, from)

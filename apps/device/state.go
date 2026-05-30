@@ -26,8 +26,9 @@ func (s *state) Init(_ ...any) error {
 		st.FieldParams{"t_mid", 'f', "t middle", "°C"},
 		st.FieldParams{"t_btm", 'f', "t bottom", "°C"},
 		st.FieldParams{"power", 'i', "power", "W"},
-		st.FieldParams{"press", 'i', "press", "mm"},
-		st.FieldParams{"collect", 'i', "collect", "%"},
+		st.FieldParams{"power_diff", 'i', "power diff", "%"},
+		st.FieldParams{"collect", 's', "collect", "%"},
+		st.FieldParams{"press", 'f', "press", "mm"},
 	})
 
 	s.Log().Debug("device.state started (%s)", s.Name())
@@ -45,45 +46,44 @@ func (s *state) HandleMessage(_ gen.PID, msg any) error {
 		default:
 			return nil
 		}
+	case []change.Request:
+		return s.updateState(req)
 	default:
 		err := fmt.Sprintf("device.state unexpected message: %#v", msg)
 		return errors.New(err)
 	}
 }
 
-func (s *state) HandleCall(_ gen.PID, _ gen.Ref, key any) (any, error) {
-	switch k := key.(type) {
-	case []string:
-		return s.data.KeyVals(k...)
-	case string:
-		return s.data.FetchField(k)
-	case nil:
-		return s.data.Entries(), nil
-	default:
-		return nil, errors.New("client.state: Unexpected call")
-	}
+func (s *state) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
+	return s.data.HandleReq(req)
 }
 
 func (s *state) Terminate(reason error) {
 	s.Log().Debug("device.state terminated: %s", reason)
 }
 
-func (s *state) updateState(req change.Request) error {
-	s.Log().Debug("device.state change req: %#v", req)
-	report, err := s.data.Change(req)
+func (s *state) updateState(reqs []change.Request) error {
+	s.Log().Debug("device.state change requests: %#v", reqs)
 
-	if err == nil && report.Changed {
-		report = report.AddFrom("device_state")
-		err = s.Send("device_producer", report)
-		s.Log().Debug(report.MakeLogString("device.state"))
+	if reports, err := s.data.BulkChange(reqs); err != nil {
+		return err
+	} else {
+		for _, report := range reports {
+			report = report.AddFrom("device_state")
+			if err = s.Send("device_producer", report); err != nil {
+				return err
+			} else {
+				s.Log().Debug(report.MakeLogString("device.state"))
+			}
+		}
 	}
 
-	return err
+	return nil
 }
 
 func (s *state) applyFromRaw(req change.Request) error {
 	if req, mapped := mapFromRaw(req); mapped {
-		return s.updateState(req)
+		return s.updateState([]change.Request{req})
 	}
 	return nil
 }

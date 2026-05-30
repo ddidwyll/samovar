@@ -25,7 +25,9 @@ var stateFields = st.Fields{
 	st.FieldParams{"t_mid", 'f', "t middle", "°C"},
 	st.FieldParams{"t_btm", 'f', "t bottom", "°C"},
 	st.FieldParams{"power", 'i', "power", "W"},
-	st.FieldParams{"collect", 'i', "collect", "%"},
+	st.FieldParams{"power_diff", 'i', "power diff", "%"},
+	st.FieldParams{"collect", 's', "collect", "%"},
+	st.FieldParams{"press", 'f', "press", "mm"},
 }
 
 func (s *state) Init(_ ...any) error {
@@ -39,8 +41,10 @@ func (s *state) HandleMessage(_ gen.PID, msg any) error {
 	s.Log().Debug("client.state received message: %#v", msg)
 
 	switch v := msg.(type) {
-	case change.Request:
+	case []change.Request:
 		return s.updateState(v)
+	case change.Request:
+		return s.updateState([]change.Request{v})
 	default:
 		err := fmt.Sprintf("client.state unexpected message: %#v", msg)
 		return errors.New(err)
@@ -48,34 +52,27 @@ func (s *state) HandleMessage(_ gen.PID, msg any) error {
 	return nil
 }
 
-func (s *state) HandleCall(_ gen.PID, _ gen.Ref, key any) (any, error) {
-	switch k := key.(type) {
-	case []string:
-		return s.data.KeyVals(k...)
-	case string:
-		return s.data.FetchField(k)
-	case nil:
-		return s.data.Entries(), nil
-	default:
-		return nil, errors.New("client.state: Unexpected call")
-	}
+func (s *state) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
+	return s.data.HandleReq(req)
 }
 
 func (s *state) Terminate(reason error) {
 	s.Log().Debug("client.state terminated: %s", reason)
 }
 
-func (s *state) updateState(req change.Request) error {
-	s.Log().Debug("client.state change req: %#v", req)
-	report, err := s.data.Change(req)
+func (s *state) updateState(reqs []change.Request) error {
+	s.Log().Debug("client.state change requests: %#v", reqs)
 
-	if err == nil && report.Changed {
-		report = report.AddFrom("client_state")
-
-		if err = s.Send("client_producer", report); err == nil {
-			s.Log().Info(report.MakeLogString("client.state"))
-		} else {
-			return err
+	if reports, err := s.data.BulkChange(reqs); err != nil {
+		return err
+	} else {
+		for _, report := range reports {
+			report = report.AddFrom("client_state")
+			if err = s.Send("client_producer", report); err != nil {
+				return err
+			} else {
+				s.Log().Info(report.MakeLogString("client.state"))
+			}
 		}
 	}
 

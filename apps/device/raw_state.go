@@ -69,6 +69,10 @@ func (rs *rawState) HandleMessage(_ gen.PID, msg any) error {
 	}
 }
 
+func (rs *rawState) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
+	return rs.data.HandleReq(req)
+}
+
 func (rs *rawState) updateState(req change.Request) error {
 	rs.Log().Debug("device.rawState change req: %#v", req)
 	report, err := rs.data.Change(req)

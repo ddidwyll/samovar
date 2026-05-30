@@ -130,6 +130,35 @@ func (s *State) Change(req change.Request) (rep change.Report, err error) {
 	}
 }
 
+func (s *State) BulkChange(reqs []change.Request) ([]change.Report, error) {
+	reports := make([]change.Report, 0, len(reqs))
+
+	for _, req := range reqs {
+		if rep, err := s.Change(req); err != nil {
+			return reports, err
+		} else {
+			if rep.Changed {
+				reports = append(reports, rep)
+			}
+		}
+	}
+
+	return reports, nil
+}
+
+func (s *State) HandleReq(req any) (any, error) {
+	switch k := req.(type) {
+	case []string:
+		return s.KeyVals(k...)
+	case string:
+		return s.FetchField(k)
+	case nil:
+		return s.Entries(), nil
+	default:
+		return nil, errors.New("Unexpected state request")
+	}
+}
+
 func (kv *KeyVals) ToJson() []byte {
 	json, _ := json.Marshal(kv)
 	return json

@@ -67,7 +67,7 @@ func (s *store) startWebServer(args any) error {
 		return err
 	}
 
-	s.Log().Info("client.store: web server started [//%s:%d/]", webOptions.Host, webOptions.Port)
+	s.Log().Debug("client.store: web server started [//%s:%d/]", webOptions.Host, webOptions.Port)
 	return nil
 }
 

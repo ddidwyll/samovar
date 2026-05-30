@@ -15,6 +15,7 @@
     font-weight: normal;
     padding: 10px 20px;
     border: solid 2px #aaa;
+    min-width: 150px;
   }
   th {
     text-align: start;

@@ -30,20 +30,22 @@ type Val interface {
 	String() string
 	IsNil() bool
 	IsNum() bool
-}
-
-type Num interface {
-	Val
+	IsInt() bool
+	IsFlt() bool
 	ToFlt() float64
 	ToInt() int64
 }
 
 func (v Int) ToInt() int64 { return v.i }
 func (v Flt) ToInt() int64 { return v.i / 100 }
+func (v Str) ToInt() int64 { panic("Val.str_to_int") }
+func (v Nil) ToInt() int64 { panic("Val.nil_to_int") }
 func (v Flt) AsInt() int64 { return v.i }
 
 func (v Int) ToFlt() float64 { return float64(v.i) }
 func (v Flt) ToFlt() float64 { return float64(v.i / 100) }
+func (v Str) ToFlt() float64 { panic("Val.str_to_flt") }
+func (v Nil) ToFlt() float64 { panic("Val.nil_to_flt") }
 
 func (v Int) String() string { return v.s }
 func (v Flt) String() string { return v.s }
@@ -59,6 +61,16 @@ func (v Int) IsNum() bool { return true }
 func (v Flt) IsNum() bool { return true }
 func (v Str) IsNum() bool { return false }
 func (v Nil) IsNum() bool { return false }
+
+func (v Int) IsInt() bool { return true }
+func (v Flt) IsInt() bool { return false }
+func (v Str) IsInt() bool { return false }
+func (v Nil) IsInt() bool { return false }
+
+func (v Int) IsFlt() bool { return false }
+func (v Flt) IsFlt() bool { return true }
+func (v Str) IsFlt() bool { return false }
+func (v Nil) IsFlt() bool { return false }
 
 func FltAsFlt(f float64) Val {
 	i := int64(math.Round(f * 100))
