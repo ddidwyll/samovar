@@ -41,21 +41,24 @@ type process interface {
 	Name() gen.Atom
 }
 
-type Calc struct {
+type Config struct {
 	watchers []watcher
 	process  process
 }
 
-func NewCalc(p process) *Calc {
-	return &Calc{make([]watcher, 0), p}
+func NewCalc(p process) *Config {
+	return &Config{make([]watcher, 0), p}
 }
 
-func (c *Calc) Watch(fn calcFn, target string, fieldStrings ...string) {
+func (c *Config) Watch(fn calcFn, target string, fieldStrings ...string) {
 	fields := make(fields)
 	fieldIds := make([]fieldId, 0, len(fieldStrings))
 
 	for _, fieldIdStr := range fieldStrings {
 		fid := fid(fieldIdStr)
+		if fields[fid.stateKey] == nil {
+  		fields[fid.stateKey] = make(map[string]bool)
+		}
 		fields[fid.stateKey][fid.fieldKey] = true
 		fieldIds = append(fieldIds, fid)
 	}
@@ -65,7 +68,7 @@ func (c *Calc) Watch(fn calcFn, target string, fieldStrings ...string) {
 	c.watchers = append(c.watchers, watcher)
 }
 
-func (c *Calc) HandleReport(maybeReport any) error {
+func (c *Config) HandleReport(maybeReport any) error {
 	r, ok := maybeReport.(report)
 	if !ok {
 		err := fmt.Sprintf("Invalid change report: %v", maybeReport)
@@ -94,13 +97,15 @@ func (c *Calc) HandleReport(maybeReport any) error {
 	return nil
 }
 
-func (c *Calc) performWatchers(r report) (results changes, err error) {
+func (c *Config) performWatchers(r report) (results changes, err error) {
 	stateKey := r.LastFrom()
 
 	for _, watcher := range c.watchers {
 		if !watcher.match(stateKey, r.Key) {
 			continue
 		}
+
+		results[watcher.target.stateKey] = make(map[string]value)
 
 		args, err := watcher.buildArgs(c.process)
 		if err != nil {

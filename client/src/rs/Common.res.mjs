@@ -5,7 +5,7 @@ import * as Stdlib_JsExn from "@rescript/runtime/lib/es6/Stdlib_JsExn.js";
 import * as Stdlib_Option from "@rescript/runtime/lib/es6/Stdlib_Option.js";
 
 function make(msg, fromOpt) {
-  let from = fromOpt !== undefined ? fromOpt : "Undefined";
+  let from = fromOpt !== undefined ? fromOpt : "Manual";
   return {
     msg: msg,
     from: from

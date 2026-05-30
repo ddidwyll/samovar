@@ -128,11 +128,10 @@ module State = {
   }
 
   let setStatus = (state, status: [#ok | #err(Err.t)]): t => {
-    let (ack, err) =
-      switch status {
-      | #ok => (#ok, None)
-      | #err(e) => (#err, Err.string(e)->Some)
-      }
+    let (ack, err) = switch status {
+    | #ok => (#ok, None)
+    | #err(e) => (#err, Err.string(e)->Some)
+    }
 
     state.status.ack = ack
     state.status.err = err
@@ -145,7 +144,7 @@ module State = {
   }
 
   let default = (~fields=[]) => {
-    fields: fields,
+    fields,
     values: Dict.make(),
     status: {ack: #ok, err: None},
   }

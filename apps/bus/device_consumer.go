@@ -32,7 +32,9 @@ func (dc *deviceConsumer) HandleEvent(event gen.MessageEvent) error {
 		case "device_state":
 			return dc.Send("device_change_log", m)
 		case "device_raw_state":
-			return dc.Send("device_state", m.ReRequest())
+			dc.Send("device_state", m.ReRequest())
+			dc.Call("device_calc", m)
+			return nil
 		default:
 			return nil
 		}

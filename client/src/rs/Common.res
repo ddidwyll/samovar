@@ -1,12 +1,12 @@
 module Err = {
-  type from = Exn | Json | Undefined
+  type from = Exn | Json | Manual
 
   type t = {
     msg: string,
     from: from,
   }
 
-  let make = (msg, ~from=Undefined): t => {msg, from}
+  let make = (msg, ~from=Manual): t => {msg, from}
 
   let buildDefault = (defaultErr): string => {
     defaultErr->Option.getOr("Unexpexted")

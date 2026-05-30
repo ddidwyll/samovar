@@ -1,7 +1,7 @@
 package device
 
 import (
-	cc "samovar/lib/calc"
+	clc "samovar/lib/calc"
 	"samovar/lib/val"
 
 	"ergo.services/ergo/act"
@@ -12,7 +12,7 @@ import (
 
 type calc struct {
 	act.Actor
-	calc *cc.Calc
+	calc *clc.Config
 }
 
 func newCalc() gen.ProcessBehavior {
@@ -20,7 +20,7 @@ func newCalc() gen.ProcessBehavior {
 }
 
 func (c *calc) Init(_ ...any) error {
-	c.calc = cc.NewCalc(c)
+	c.calc = clc.NewCalc(c)
 
 	c.calc.Watch(
 		defaultCalnFn,
@@ -31,7 +31,11 @@ func (c *calc) Init(_ ...any) error {
 	return nil
 }
 
-func defaultCalnFn(args cc.Args) (val.Val, error) {
+func defaultCalnFn(args clc.Args) (val.Val, error) {
 	fmt.Println("%v", args)
 	return val.Nil{}, nil
+}
+
+func (c *calc) HandleCall(_ gen.PID, _ gen.Ref, changeReport any) (any, error) {
+	return nil, c.calc.HandleReport(changeReport)
 }
