@@ -7,9 +7,9 @@ import * as Stdlib_Array from "@rescript/runtime/lib/es6/Stdlib_Array.js";
 import * as Store from "svelte/store";
 import * as Stdlib_Option from "@rescript/runtime/lib/es6/Stdlib_Option.js";
 
-let getFieldUrl = "http://localhost:4000/store/fields";
+let getFieldUrl = "http://192.168.111.217:4000/store/fields";
 
-let feedSourceUrl = "http://localhost:4000/store/feed";
+let feedSourceUrl = "http://192.168.111.217:4000/store/feed";
 
 function parseField(json) {
   return Stdlib_Option.flatMap(Stdlib_JSON.Decode.object(json), obj => {

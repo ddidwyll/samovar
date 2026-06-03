@@ -1,5 +1,5 @@
-let getFieldUrl = "http://localhost:4000/store/fields"
-let feedSourceUrl = "http://localhost:4000/store/feed"
+let getFieldUrl = "http://192.168.111.217:4000/store/fields"
+let feedSourceUrl = "http://192.168.111.217:4000/store/feed"
 
 type errorHandler = Err.t => unit
 
