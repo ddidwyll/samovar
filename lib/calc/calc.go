@@ -15,17 +15,17 @@ import (
 )
 
 type report = change.Report
-type value = val.Val
+type Value = val.Val
 
 type fieldId struct {
 	stateKey string
 	fieldKey string
 }
 
-type changes map[string]map[string]value
+type changes map[string]map[string]Value
 
 type Args = state.KeyVals
-type calcFn func(Args) (value, error)
+type calcFn func(Args) (Value, error)
 
 type fields map[string]map[string]bool
 
@@ -95,6 +95,24 @@ func (c *Config) HandleReport(maybeReport any) error {
 	return nil
 }
 
+func Error(err string) (Value, error) {
+	return val.Nil{}, errors.New(err)
+}
+
+func Skip() (Value, error) {
+	return val.Nil{}, nil
+}
+
+func TryAsIs(args Args) (Value, error) {
+	if len(args) != 1 {
+		return Error("Invalid calc arguments")
+	}
+	for _, val := range args {
+		return val, nil
+	}
+	return Skip()
+}
+
 func (c *Config) performWatchers(r report) (changes, error) {
 	results := make(changes)
 	stateKey := r.LastFrom()
@@ -108,7 +126,7 @@ func (c *Config) performWatchers(r report) (changes, error) {
 		fieldKey := watcher.target.fieldKey
 
 		if results[stateKey] == nil {
-			results[stateKey] = make(map[string]value)
+			results[stateKey] = make(map[string]Value)
 		}
 
 		args, err := watcher.buildArgs(c.process)
@@ -133,28 +151,28 @@ func (w watcher) match(stateKey, fieldKey string) bool {
 }
 
 func (w watcher) buildArgs(p process) (Args, error) {
-	result := make(Args)
+	args := make(Args)
 
 	for stateKey, fieldKeyMap := range w.fields {
 		fieldKeys := slices.Collect(maps.Keys(fieldKeyMap))
 
 		kv, err := p.Call(gen.Atom(stateKey), fieldKeys)
 		if err != nil {
-			return result, err
+			return args, err
 		}
 
 		stateArgs, ok := kv.(Args)
 		if !ok {
 			e := fmt.Sprintf("calc.buildArgs.stateArgs: %s, %#kv", ok, kv)
-			return result, errors.New(e)
+			return args, errors.New(e)
 		}
 
 		for key, val := range stateArgs {
 			argKey := fidFrom(stateKey, key).String()
-			result[argKey] = val
+			args[argKey] = val
 		}
 	}
-	return result, nil
+	return args, nil
 }
 
 func fid(str string) fieldId {

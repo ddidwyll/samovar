@@ -38,20 +38,16 @@ func (s *state) Init(_ ...any) error {
 func (s *state) HandleMessage(_ gen.PID, msg any) error {
 	s.Log().Debug("device.state received message: %#v", msg)
 
-	switch req := msg.(type) {
+	switch r := msg.(type) {
 	case change.Request:
-		switch req.LastFrom() {
-		case "device_raw_state":
-			return s.applyFromRaw(req)
-		default:
-			return nil
-		}
+		s.Log().Warning("device.state received change request from %s", r.LastFrom())
 	case []change.Request:
-		return s.updateState(req)
+		return s.updateState(r)
 	default:
 		err := fmt.Sprintf("device.state unexpected message: %#v", msg)
 		return errors.New(err)
 	}
+	return nil
 }
 
 func (s *state) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
@@ -78,12 +74,5 @@ func (s *state) updateState(reqs []change.Request) error {
 		}
 	}
 
-	return nil
-}
-
-func (s *state) applyFromRaw(req change.Request) error {
-	if req, mapped := mapFromRaw(req); mapped {
-		return s.updateState([]change.Request{req})
-	}
 	return nil
 }

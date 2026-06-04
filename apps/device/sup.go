@@ -29,6 +29,10 @@ func (s *sup) Init(_ ...any) (spec act.SupervisorSpec, err error) {
 			Factory: newState,
 		},
 		{
+			Name:    "device_desired_state",
+			Factory: newDesiredState,
+		},
+		{
 			Name:    "device_calc",
 			Factory: newCalc,
 		},
