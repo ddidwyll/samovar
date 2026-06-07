@@ -2,6 +2,7 @@ package bus
 
 import (
 	"samovar/lib/change"
+	"samovar/lib/inter"
 	"samovar/lib/stage"
 
 	"ergo.services/ergo/gen"
@@ -17,6 +18,7 @@ func newClientConsumer() gen.ProcessBehavior {
 }
 
 func (cc *clientConsumer) Init(_ ...any) error {
+	inter.RegisterActor(cc, "([bus.client.consumer])")
 	cc.Log().Debug("bus.clientConsumer started (%s)", cc.Name())
 
 	return cc.LinkEvents(
@@ -31,9 +33,11 @@ func (cc *clientConsumer) HandleEvent(event gen.MessageEvent) error {
 
 		switch report.LastFrom() {
 		case "device_state":
-			return cc.Send("client_calc", report)
+			inter.Trigger(cc, event.Event.Name, "device_producer")
+			return inter.Send(cc, report, "report", "client_calc")
 		case "client_state":
-			return cc.Send("client_feed", report)
+			inter.Trigger(cc, event.Event.Name, "client_producer")
+			return inter.Send(cc, report, "report", "client_feed")
 		default:
 			return nil
 		}

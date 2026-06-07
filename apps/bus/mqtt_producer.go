@@ -2,6 +2,7 @@ package bus
 
 import (
 	"samovar/common/models"
+	"samovar/lib/inter"
 	"samovar/lib/stage"
 
 	"ergo.services/ergo/gen"
@@ -15,6 +16,7 @@ type mqttProducer struct{ stage.Producer }
 func newMqttProducer() gen.ProcessBehavior { return &mqttProducer{} }
 
 func (p *mqttProducer) Init(_ ...any) error {
+	inter.RegisterActor(p, "(bus.mqtt.producer)")
 	p.Log().Debug("bus.mqttProducer started (%s)", p.Name())
 	return p.RegisterEvents("mqtt_new_message")
 }

@@ -17,7 +17,7 @@ func newCalc() gen.ProcessBehavior {
 }
 
 func (c *calc) Init(_ ...any) error {
-	c.config = clc.NewConfig(c)
+	c.config = clc.NewConfig(c, "{device.calc}")
 
 	c.config.Watch(
 		clc.TryAsIs,

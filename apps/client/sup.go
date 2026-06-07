@@ -29,6 +29,10 @@ func (s *sup) Init(args ...any) (spec act.SupervisorSpec, err error) {
 			Name:    "client_feed",
 			Factory: newFeed,
 		},
+		{
+			Name:    "client_calc",
+			Factory: newCalc,
+		},
 	}
 
 	return spec, err

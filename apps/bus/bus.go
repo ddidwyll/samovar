@@ -4,7 +4,7 @@ import "ergo.services/ergo/gen"
 
 type bus struct{}
 
-func CreateBusApp() gen.ApplicationBehavior {
+func CreateApp() gen.ApplicationBehavior {
 	return &bus{}
 }
 

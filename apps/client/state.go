@@ -2,6 +2,7 @@ package client
 
 import (
 	"samovar/lib/change"
+	"samovar/lib/inter"
 	st "samovar/lib/state"
 
 	"ergo.services/ergo/act"
@@ -31,6 +32,7 @@ var stateFields = st.Fields{
 }
 
 func (s *state) Init(_ ...any) error {
+	inter.RegisterActor(s, "[(client.state)]")
 	s.data = st.New(stateFields)
 
 	s.Log().Debug("client.state started (%s)", s.Name())
@@ -68,7 +70,7 @@ func (s *state) updateState(reqs []change.Request) error {
 	} else {
 		for _, report := range reports {
 			report = report.AddFrom("client_state")
-			if err = s.Send("client_producer", report); err != nil {
+			if err = inter.Send(s, report, "report", "client_producer"); err != nil {
 				return err
 			} else {
 				s.Log().Info(report.MakeLogString("client.state"))
@@ -80,7 +82,7 @@ func (s *state) updateState(reqs []change.Request) error {
 }
 
 func stateEntries(p gen.Process) (st.Entries, error) {
-	if kv, err := p.Call(gen.Atom("client_state"), nil); err != nil {
+	if kv, err := inter.Call(p, nil, "state", "client_state"); err != nil {
 		return nil, err
 	} else {
 		if result, ok := kv.(st.Entries); !ok {

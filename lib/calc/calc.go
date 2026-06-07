@@ -2,10 +2,9 @@ package calc
 
 import (
 	"samovar/lib/change"
+	"samovar/lib/inter"
 	"samovar/lib/state"
 	"samovar/lib/val"
-
-	"ergo.services/ergo/gen"
 
 	"errors"
 	"fmt"
@@ -35,18 +34,15 @@ type watcher struct {
 	calc   calcFn
 }
 
-type process interface {
-	Call(to any, message any) (any, error)
-	Send(to any, message any) error
-	Name() gen.Atom
-}
+type process = inter.Actor
 
 type Config struct {
 	watchers []watcher
 	process  process
 }
 
-func NewConfig(p process) *Config {
+func NewConfig(p process, name string) *Config {
+	inter.RegisterActor(p, name)
 	return &Config{make([]watcher, 0), p}
 }
 
@@ -87,7 +83,7 @@ func (c *Config) HandleReport(maybeReport any) error {
 			requests = append(requests, request)
 		}
 
-		if err = c.process.Send(gen.Atom(stateKey), requests); err != nil {
+		if err = inter.Send(c.process, requests, "requests", stateKey); err != nil {
 			return err
 		}
 	}
@@ -156,7 +152,7 @@ func (w watcher) buildArgs(p process) (Args, error) {
 	for stateKey, fieldKeyMap := range w.fields {
 		fieldKeys := slices.Collect(maps.Keys(fieldKeyMap))
 
-		kv, err := p.Call(gen.Atom(stateKey), fieldKeys)
+		kv, err := inter.Call(p, fieldKeys, "fields", stateKey)
 		if err != nil {
 			return args, err
 		}

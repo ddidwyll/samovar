@@ -2,6 +2,7 @@ package device
 
 import (
 	"samovar/lib/change"
+	"samovar/lib/inter"
 	st "samovar/lib/state"
 
 	"ergo.services/ergo/act"
@@ -21,6 +22,8 @@ func newState() gen.ProcessBehavior {
 }
 
 func (s *state) Init(_ ...any) error {
+	inter.RegisterActor(s, "[(device.state)]")
+
 	s.data = st.New(st.Fields{
 		st.FieldParams{"t_top", 'f', "t top", "°C"},
 		st.FieldParams{"t_mid", 'f', "t middle", "°C"},
@@ -66,7 +69,7 @@ func (s *state) updateState(reqs []change.Request) error {
 	} else {
 		for _, report := range reports {
 			report = report.AddFrom("device_state")
-			if err = s.Send("device_producer", report); err != nil {
+			if err = inter.Send(s, report, "report", "device_producer"); err != nil {
 				return err
 			} else {
 				s.Log().Debug(report.MakeLogString("device.state"))

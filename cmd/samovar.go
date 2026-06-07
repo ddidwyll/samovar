@@ -8,6 +8,7 @@ import (
 	"samovar/apps/client"
 	"samovar/apps/device"
 	"samovar/apps/mqtt"
+	"samovar/apps/telemetry"
 
 	// "ergo.services/application/observer"
 	"ergo.services/ergo"
@@ -32,10 +33,11 @@ func main() {
 	flag.Parse()
 
 	options.Applications = []gen.ApplicationBehavior{
-		bus.CreateBusApp(),
-		client.CreateClientApp(),
-		mqtt.CreateMqttApp(),
-		device.CreateDeviceApp(),
+		telemetry.CreateApp(),
+		bus.CreateApp(),
+		client.CreateApp(),
+		mqtt.CreateApp(),
+		device.CreateApp(),
 	}
 
 	// disable default logger to get rid of multiple logging to the os.Stdout

@@ -4,7 +4,7 @@ import "ergo.services/ergo/gen"
 
 type client struct{}
 
-func CreateClientApp() gen.ApplicationBehavior { return &client{} }
+func CreateApp() gen.ApplicationBehavior { return &client{} }
 
 func (app *client) Load(node gen.Node, args ...any) (spec gen.ApplicationSpec, err error) {
 	cfg, err := loadConfig()

@@ -2,6 +2,7 @@ package bus
 
 import (
 	"samovar/lib/change"
+	"samovar/lib/inter"
 	"samovar/lib/stage"
 
 	"ergo.services/ergo/gen"
@@ -15,6 +16,7 @@ type clientProducer struct{ stage.Producer }
 func newClientProducer() gen.ProcessBehavior { return &clientProducer{} }
 
 func (p *clientProducer) Init(_ ...any) error {
+	inter.RegisterActor(p, "(bus.client.producer)")
 	p.Log().Debug("bus.clientProducer started (%s)", p.Name())
 
 	return p.RegisterEvents("client_state_changed")

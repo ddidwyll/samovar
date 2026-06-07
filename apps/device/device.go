@@ -4,7 +4,7 @@ import "ergo.services/ergo/gen"
 
 type device struct{}
 
-func CreateDeviceApp() gen.ApplicationBehavior {
+func CreateApp() gen.ApplicationBehavior {
 	return &device{}
 }
 
