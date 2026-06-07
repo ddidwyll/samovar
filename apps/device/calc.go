@@ -19,46 +19,20 @@ func newCalc() gen.ProcessBehavior {
 func (c *calc) Init(_ ...any) error {
 	c.config = clc.NewConfig(c, "{device.calc}")
 
-	c.config.Watch(
-		clc.TryAsIs,
-		"device_state.t_top",
-		"device_raw_state.term_d",
-	)
-
-	c.config.Watch(
-		clc.TryAsIs,
-		"device_state.t_mid",
-		"device_raw_state.term_c",
-	)
-
-	c.config.Watch(
-		clc.TryAsIs,
-		"device_state.t_btm",
-		"device_raw_state.term_k",
-	)
-
-	c.config.Watch(
-		clc.TryAsIs,
-		"device_state.press",
-		"device_raw_state.press_a",
-	)
-
-	c.config.Watch(
-		clc.TryAsIs,
-		"device_state.power",
-		"device_raw_state.power_m",
-	)
+	c.config.WatchAs("device_raw_state.term_d", "device_state.t_top")
+	c.config.WatchAs("device_raw_state.term_c", "device_state.t_mid")
+	c.config.WatchAs("device_raw_state.term_k", "device_state.t_btm")
+	c.config.WatchAs("device_raw_state.press_a", "device_state.press")
+	c.config.WatchAs("device_raw_state.power_m", "device_state.power")
 
 	c.config.Watch(
 		calcPowerDiff,
-		"device_state.power_diff",
 		"device_raw_state.power_m",
 		"device_raw_state.power",
 	)
 
 	c.config.Watch(
 		calcCollect,
-		"device_state.collect",
 		"device_raw_state.otbor",
 		"device_raw_state.flag_otb",
 		"device_raw_state.sek_otb",

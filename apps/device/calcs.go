@@ -7,26 +7,27 @@ import (
 	"fmt"
 )
 
-func calcPowerDiff(args clc.Args) (clc.Value, error) {
+func calcPowerDiff(args clc.Args, apply clc.ApplyFn) {
 	power_fact := args["device_raw_state.power"]
 	power_plan := args["device_raw_state.power_m"]
 
 	if !power_fact.IsInt() || !power_plan.IsInt() {
-		return clc.Skip()
+		return
 	}
 
 	plan := power_plan.ToInt()
 	fact := power_fact.ToInt()
 	diff := (plan - fact) * 100 / plan
-	return val.IntAsInt(diff), nil
+
+	apply("device_state.power_diff", val.IntAsInt(diff))
 }
 
-func calcCollect(args clc.Args) (clc.Value, error) {
+func calcCollect(args clc.Args, apply clc.ApplyFn) {
 	f, s := 0.0, "OFF"
 
 	otbor := args["device_raw_state.otbor"]
 	if !otbor.IsInt() {
-		return clc.Skip()
+		return
 	}
 
 	calcPeriod := func() float64 {
@@ -51,7 +52,12 @@ func calcCollect(args clc.Args) (clc.Value, error) {
 		f, s = otbor.ToFlt(), "Body"
 	}
 
-	numStr := val.FltAsFlt(f).String()
-	valStr := fmt.Sprintf("%s_%s", s, numStr)
-	return val.StrAsStr(valStr)
+	collectValue := val.FltAsFlt(f)
+	collectMode, _ := val.StrAsStr(s)
+	collectStr := fmt.Sprintf("%s_%s", collectMode, collectValue)
+	collect, _ := val.StrAsStr(collectStr)
+
+	apply("device_state.collect_value", collectValue)
+	apply("device_state.collect_mode", collectMode)
+	apply("device_state.collect", collect)
 }

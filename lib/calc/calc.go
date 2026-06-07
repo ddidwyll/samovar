@@ -24,13 +24,15 @@ type fieldId struct {
 type changes map[string]map[string]Value
 
 type Args = state.KeyVals
-type calcFn func(Args) (Value, error)
+type Results = Args
+
+type ApplyFn func(string, Value)
+type calcFn func(Args, ApplyFn)
 
 type fields map[string]map[string]bool
 
 type watcher struct {
 	fields fields
-	target fieldId
 	calc   calcFn
 }
 
@@ -46,7 +48,16 @@ func NewConfig(p process, name string) *Config {
 	return &Config{make([]watcher, 0), p}
 }
 
-func (c *Config) Watch(fn calcFn, target string, fieldStrings ...string) {
+func (c *Config) WatchAs(field, asField string) {
+	fn := func(args Args, apply ApplyFn) {
+		for _, value := range args {
+			apply(asField, value)
+		}
+	}
+	c.Watch(fn, []string{field}...)
+}
+
+func (c *Config) Watch(fn calcFn, fieldStrings ...string) {
 	fields := make(fields)
 
 	for _, fieldIdStr := range fieldStrings {
@@ -57,7 +68,7 @@ func (c *Config) Watch(fn calcFn, target string, fieldStrings ...string) {
 		fields[fid.stateKey][fid.fieldKey] = true
 	}
 
-	watcher := watcher{fields, fid(target), fn}
+	watcher := watcher{fields, fn}
 
 	c.watchers = append(c.watchers, watcher)
 }
@@ -91,26 +102,8 @@ func (c *Config) HandleReport(maybeReport any) error {
 	return nil
 }
 
-func Error(err string) (Value, error) {
-	return val.Nil{}, errors.New(err)
-}
-
-func Skip() (Value, error) {
-	return val.Nil{}, nil
-}
-
-func TryAsIs(args Args) (Value, error) {
-	if len(args) != 1 {
-		return Error("Invalid calc arguments")
-	}
-	for _, val := range args {
-		return val, nil
-	}
-	return Skip()
-}
-
 func (c *Config) performWatchers(r report) (changes, error) {
-	results := make(changes)
+	allResults := make(changes)
 	stateKey := r.LastFrom()
 
 	for _, watcher := range c.watchers {
@@ -118,28 +111,32 @@ func (c *Config) performWatchers(r report) (changes, error) {
 			continue
 		}
 
-		stateKey := watcher.target.stateKey
-		fieldKey := watcher.target.fieldKey
-
-		if results[stateKey] == nil {
-			results[stateKey] = make(map[string]Value)
-		}
-
 		args, err := watcher.buildArgs(c.process)
 		if err != nil {
-			return results, err
+			return allResults, err
 		}
 
-		if value, err := watcher.calc(args); err != nil {
-			return results, err
-		} else {
-			if !value.IsNil() {
-				results[stateKey][fieldKey] = value
+		results := make(Results)
+		applyFn := func(field string, value Value) {
+			results[field] = value
+		}
+		watcher.calc(args, applyFn)
+
+		for fieldIdStr, value := range results {
+			if value.IsNil() {
+				continue
 			}
+			target := fid(fieldIdStr)
+			sk := target.stateKey
+			fk := target.fieldKey
+			if allResults[sk] == nil {
+				allResults[sk] = make(Results)
+			}
+			allResults[sk][fk] = value
 		}
 	}
 
-	return results, nil
+	return allResults, nil
 }
 
 func (w watcher) match(stateKey, fieldKey string) bool {

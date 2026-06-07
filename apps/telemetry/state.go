@@ -53,7 +53,8 @@ func (s *state) HandleMessage(_ gen.PID, msg any) error {
 		_, fromExists := s.actors[r.from]
 
 		if !toExists || !fromExists {
-			return errors.New("Invalid telemetry actor relation")
+			err := fmt.Sprintf("Invalid telemetry actor relation: %s>%s>%s", r.from, r.action, r.to)
+			return errors.New(err)
 		} else {
 			if current, has := s.relations[r]; has {
 				s.relations[r] = current + 1

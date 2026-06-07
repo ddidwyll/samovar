@@ -19,11 +19,7 @@ func newCalc() gen.ProcessBehavior {
 func (c *calc) Init(_ ...any) error {
 	c.config = clc.NewConfig(c, "{client.calc}")
 
-	c.config.Watch(
-		clc.TryAsIs,
-		"device_state.t_top",
-		"client_state.t_top",
-	)
+	c.config.WatchAs("device_state.t_top", "client_state.t_top")
 
 	return nil
 }

@@ -2,6 +2,7 @@ package client
 
 import (
 	"samovar/lib/change"
+	"samovar/lib/inter"
 
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
@@ -26,6 +27,7 @@ func newFeed() gen.ProcessBehavior {
 }
 
 func (f *feed) Init(_ ...any) (err error) {
+	inter.RegisterActor(f, "[client.store.feed]")
 	f.Log().Debug("client.feed started (%s)", f.Name())
 	return
 }

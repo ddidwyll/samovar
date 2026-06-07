@@ -31,6 +31,8 @@ func (s *state) Init(_ ...any) error {
 		st.FieldParams{"power", 'i', "power", "W"},
 		st.FieldParams{"power_diff", 'i', "power diff", "%"},
 		st.FieldParams{"collect", 's', "collect", "%"},
+		st.FieldParams{"collect_value", 'f', "collect value", "%"},
+		st.FieldParams{"collect_mode", 's', "collect mode", ""},
 		st.FieldParams{"press", 'f', "press", "mm"},
 	})
 
@@ -72,7 +74,7 @@ func (s *state) updateState(reqs []change.Request) error {
 			if err = inter.Send(s, report, "report", "device_producer"); err != nil {
 				return err
 			} else {
-				s.Log().Debug(report.MakeLogString("device.state"))
+				s.Log().Info(report.MakeLogString("device.state"))
 			}
 		}
 	}
