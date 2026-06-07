@@ -5,6 +5,7 @@ import (
 	"ergo.services/ergo/gen"
 
 	"errors"
+	"strings"
 	"fmt"
 )
 
@@ -79,11 +80,24 @@ func (s *state) HandleCall(_ gen.PID, _ gen.Ref, _ any) (any, error) {
 		if !toExists || !fromExists {
 			return lines, errors.New("Unexpected telemetry actor")
 		}
-		line := fmt.Sprintf("%s%s -->|%s-%s| %s%s", from, fromName, relation.action, count, to, toName)
+		arrow := "-->"
+		if strings.HasPrefix(relation.action, "request") {
+  		arrow = "<-->"
+		}
+		line := fmt.Sprintf(
+  		"%s%s %s|%s #%d| %s%s",
+  		string(from),
+  		fromName,
+  		arrow,
+  		relation.action,
+  		count,
+  		string(to),
+  		toName,
+		)
 		lines = append(lines, line)
 	}
 
-	return lines, nil
+	return strings.Join(lines, "\n"), nil
 }
 
 func RegisterActor(a Actor, name string) {
@@ -94,4 +108,10 @@ func RegisterActor(a Actor, name string) {
 
 func LogRelation(a Actor, action string, from, to gen.Atom) error {
 	return a.Send(gen.Atom("telemetry_state"), relation{from, action, to})
+}
+
+func BuildScheme(a Actor) []byte {
+  scheme, _ := a.Call(gen.Atom("telemetry_state"), nil)
+  schemeStr, _ := scheme.(string)
+  return []byte(schemeStr)
 }

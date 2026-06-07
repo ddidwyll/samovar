@@ -100,6 +100,7 @@ func (s *store) registerStoreHandler() error {
 	} else {
 		s.router.Handle("/store", storeHandler).Methods("GET", "PATCH")
 		s.router.Handle("/store/fields", storeHandler).Methods("GET")
+		s.router.Handle("/telemetry/scheme", storeHandler).Methods("GET")
 	}
 	return err
 }

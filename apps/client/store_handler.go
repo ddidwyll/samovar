@@ -1,6 +1,8 @@
 package client
 
 import (
+  "samovar/lib/inter"
+
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
 
@@ -25,6 +27,8 @@ func (sh *storeHandler) HandleGet(_ gen.PID, rw resp, r *req) error {
 	switch r.RequestURI {
 	case "/store/fields":
 		return sendJson(rw, stateFields.ToJson())
+	case "/telemetry/scheme":
+		return sendJson(rw, inter.TelemetryScheme(sh))
 	default:
 		return sendJson(rw, []byte(`{"ack":"ok"}`))
 	}
@@ -32,6 +36,12 @@ func (sh *storeHandler) HandleGet(_ gen.PID, rw resp, r *req) error {
 
 func sendJson(rw resp, data []byte) (err error) {
 	rw.Header().Set("Content-Type", "application/json")
+	_, err = rw.Write(data)
+
+	return err
+}
+
+func sendText(rw resp, data []byte) (err error) {
 	_, err = rw.Write(data)
 
 	return err

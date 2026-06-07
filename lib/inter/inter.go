@@ -36,7 +36,7 @@ func Call(a Actor, req any, what, to string) (any, error) {
 
 func Trigger(a Actor, event gen.Atom, from string) error {
 	fromAtom := gen.Atom(from)
-	action := fmt.Sprintf("trigger %s", event)
+	action := fmt.Sprintf("trigger %s", string(event))
 	// fmt.Printf("[%s] >> %s >> [%s]\n", from, action, a.Name())
 	return telemetry.LogRelation(a, action, fromAtom, a.Name())
 }
@@ -44,4 +44,8 @@ func Trigger(a Actor, event gen.Atom, from string) error {
 func RegisterActor(a Actor, name string) {
 	// fmt.Printf("<< %s | %s >>\n", a.Name(), name)
 	telemetry.RegisterActor(a, name)
+}
+
+func TelemetryScheme(a Actor) []byte {
+  return telemetry.BuildScheme(a)
 }

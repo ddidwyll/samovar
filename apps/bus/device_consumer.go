@@ -28,7 +28,7 @@ func (dc *deviceConsumer) HandleEvent(event gen.MessageEvent) error {
 		inter.Trigger(dc, event.Event.Name, "mqtt_producer")
 		request := change.NewRequest(m.Topic, m.Text, "mqtt_message", m.Timestamp)
 		dc.Log().Debug("bus.deviceConsumer new change.Request: %+v", request)
-		return dc.Send("device_raw_state", request)
+		return inter.Send(dc, request, "request", "device_raw_state")
 	case change.Report:
 		dc.Log().Debug("bus.deviceConsumer receive change.Report: %s.%s", m.LastFrom(), m.Key)
 		switch m.LastFrom() {
