@@ -1,7 +1,7 @@
 package client
 
 import (
-  "samovar/lib/inter"
+	"samovar/lib/inter"
 
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"

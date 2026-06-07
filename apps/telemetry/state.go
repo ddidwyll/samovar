@@ -5,8 +5,8 @@ import (
 	"ergo.services/ergo/gen"
 
 	"errors"
-	"strings"
 	"fmt"
+	"strings"
 )
 
 type Actor interface {
@@ -82,17 +82,17 @@ func (s *state) HandleCall(_ gen.PID, _ gen.Ref, _ any) (any, error) {
 		}
 		arrow := "-->"
 		if strings.HasPrefix(relation.action, "request") {
-  		arrow = "<-->"
+			arrow = "<-->"
 		}
 		line := fmt.Sprintf(
-  		"%s%s %s|%s #%d| %s%s",
-  		string(from),
-  		fromName,
-  		arrow,
-  		relation.action,
-  		count,
-  		string(to),
-  		toName,
+			"%s%s %s|%s #%d| %s%s",
+			string(from),
+			fromName,
+			arrow,
+			relation.action,
+			count,
+			string(to),
+			toName,
 		)
 		lines = append(lines, line)
 	}
@@ -111,7 +111,7 @@ func LogRelation(a Actor, action string, from, to gen.Atom) error {
 }
 
 func BuildScheme(a Actor) []byte {
-  scheme, _ := a.Call(gen.Atom("telemetry_state"), nil)
-  schemeStr, _ := scheme.(string)
-  return []byte(schemeStr)
+	scheme, _ := a.Call(gen.Atom("telemetry_state"), nil)
+	schemeStr, _ := scheme.(string)
+	return []byte(schemeStr)
 }

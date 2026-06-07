@@ -47,5 +47,5 @@ func RegisterActor(a Actor, name string) {
 }
 
 func TelemetryScheme(a Actor) []byte {
-  return telemetry.BuildScheme(a)
+	return telemetry.BuildScheme(a)
 }
