@@ -73,7 +73,7 @@ func (s *state) updateState(reqs []change.Request) error {
 			if err = inter.Send(s, report, "report", "client_producer"); err != nil {
 				return err
 			} else {
-				s.Log().Info(report.MakeLogString("client.state"))
+				s.Log().Debug(report.MakeLogString("client.state"))
 			}
 		}
 	}

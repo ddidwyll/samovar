@@ -74,7 +74,7 @@ func (s *state) updateState(reqs []change.Request) error {
 			if err = inter.Send(s, report, "report", "device_producer"); err != nil {
 				return err
 			} else {
-				s.Log().Info(report.MakeLogString("device.state"))
+				s.Log().Debug(report.MakeLogString("device.state"))
 			}
 		}
 	}

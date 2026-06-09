@@ -2,6 +2,7 @@ package device
 
 import (
 	st "samovar/lib/state"
+	"samovar/lib/inter"
 
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
@@ -17,6 +18,8 @@ func newDesiredState() gen.ProcessBehavior {
 }
 
 func (ds *desiredState) Init(_ ...any) error {
+  inter.RegisterActor(ds, "[(device.desired_state)]")
+
 	ds.data = st.New(st.Fields{
 		st.FieldParams{"collect_type", 's', "collect type", ""},
 		st.FieldParams{"collect_value", 'i', "collect value", "%"},
