@@ -72,13 +72,12 @@ func (r Report) MakeLogString(prefix string) string {
 		)
 	} else {
 		return fmt.Sprintf(
-			"%s [%s\t]:\t%s -> %s\t\t%s\t%s",
+			"%s [%s\t]:\t%s -> %s\t\t%s",
 			prefix,
 			field,
 			r.OldValue,
 			r.NewValue,
 			r.FormatTime(),
-			r.LastFrom(),
 		)
 	}
 }
