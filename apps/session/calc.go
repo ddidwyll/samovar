@@ -8,6 +8,7 @@ import (
 	"ergo.services/ergo/gen"
 
 	"errors"
+	"fmt"
 )
 
 type calc struct {
@@ -22,7 +23,7 @@ func newCalc() gen.ProcessBehavior {
 func (c *calc) Init(args ...any) error {
 	c.config = clc.NewConfig(c, "{session.calc}")
 
-	return nil
+	return c.prepareDevices(args...)
 }
 
 func (c *calc) prepareDevices(args ...any) error {
@@ -36,7 +37,7 @@ func (c *calc) prepareDevices(args ...any) error {
 		devices = append(devices, device.Id)
 	}
 
-  devicesVal, _ := val.ArrAsArr(devices)
+	devicesVal, _ := val.ArrAsArr(devices)
 	err := c.config.SendRequest("session_state", "devices", devicesVal)
 	if err != nil {
 		return err
@@ -54,6 +55,8 @@ func (c *calc) prepareDevices(args ...any) error {
 	}
 
 	c.config.Watch(calcDevice, "session_state.device_id")
+
+	return nil
 }
 
 func (c *calc) HandleMessage(_ gen.PID, changeReport any) error {

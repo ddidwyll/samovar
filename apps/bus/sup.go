@@ -29,12 +29,20 @@ func (s *sup) Init(_ ...any) (spec act.SupervisorSpec, err error) {
 			Factory: newClientProducer,
 		},
 		{
+			Name:    "session_producer",
+			Factory: newSessionProducer,
+		},
+		{
 			Name:    "device_consumer",
 			Factory: newDeviceConsumer,
 		},
 		{
 			Name:    "client_consumer",
 			Factory: newClientConsumer,
+		},
+		{
+			Name:    "session_consumer",
+			Factory: newSessionConsumer,
 		},
 	}
 

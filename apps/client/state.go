@@ -29,6 +29,8 @@ var stateFields = st.Fields{
 	st.FieldParams{"power_diff", 'i', "power diff", "%"},
 	st.FieldParams{"collect", 's', "collect", "%"},
 	st.FieldParams{"press", 'f', "press", "mm"},
+	st.FieldParams{"device_id", 's', "device id", ""},
+	st.FieldParams{"error", 's', "error", ""},
 }
 
 func (s *state) Init(_ ...any) error {

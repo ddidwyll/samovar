@@ -21,7 +21,7 @@ type config struct {
 
 func loadConfig() (*config, error) {
 	c := &config{}
-	c.SetConfigName("client")
+	c.SetConfigName("session")
 	cfg.Load(c)
 	return c, c.validate()
 }
@@ -57,11 +57,11 @@ func (d device) validate() error {
 	return errors.New(fmt.Sprintf("Session config error: %s", err))
 }
 
-func (c *config) findById(deviceId string) (device, error) {
+func (c *config) findById(deviceId string) (d device, err error) {
 	for _, device := range c.Devices {
 		if device.Id == deviceId {
 			return device, nil
 		}
 	}
-	return nil, errors.New("device not found")
+	return d, errors.New("device not found")
 }

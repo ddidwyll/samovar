@@ -28,7 +28,7 @@ func (p *clientProducer) HandleMessage(_ gen.PID, msg any) error {
 		case "client_state":
 			return p.FireEvent("client_state_changed", report)
 		default:
-			err := fmt.Sprintf("bus.deviceProducer unexpected change.Report: %s", report.LastFrom())
+			err := fmt.Sprintf("bus.clientProducer unexpected change.Report: %s", report.LastFrom())
 			return errors.New(err)
 		}
 	} else {

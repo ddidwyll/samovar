@@ -24,6 +24,7 @@ func (cc *clientConsumer) Init(_ ...any) error {
 	return cc.LinkEvents(
 		"device_state_changed",
 		"client_state_changed",
+		"session_state_changed",
 	)
 }
 
@@ -34,6 +35,9 @@ func (cc *clientConsumer) HandleEvent(event gen.MessageEvent) error {
 		switch report.LastFrom() {
 		case "device_state":
 			inter.Trigger(cc, event.Event.Name, "device_producer")
+			return inter.Send(cc, report, "report", "client_calc")
+		case "session_state":
+			inter.Trigger(cc, event.Event.Name, "session_producer")
 			return inter.Send(cc, report, "report", "client_calc")
 		case "client_state":
 			inter.Trigger(cc, event.Event.Name, "client_producer")

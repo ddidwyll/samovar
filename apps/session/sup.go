@@ -21,6 +21,11 @@ func (s *sup) Init(args ...any) (spec act.SupervisorSpec, err error) {
 			Factory: newState,
 			Args:    args,
 		},
+		{
+			Name:    "session_calc",
+			Factory: newCalc,
+			Args:    args,
+		},
 	}
 
 	return spec, err

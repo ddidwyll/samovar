@@ -4,7 +4,7 @@ import (
 	"samovar/lib/change"
 	"samovar/lib/inter"
 	"samovar/lib/state"
-	"samovar/lib/val"
+	// "samovar/lib/val"
 
 	"errors"
 	"fmt"
@@ -15,7 +15,7 @@ import (
 )
 
 type report = change.Report
-type Value = val.Val
+type Value = any
 
 type fieldId struct {
 	stateKey string
@@ -23,7 +23,7 @@ type fieldId struct {
 }
 
 type Args = state.KeyVals
-type Results = Args
+type Results = map[string]Value
 
 type changes map[string]Results
 
@@ -154,9 +154,9 @@ func (c *Config) performWatchers(r report) (changes, error) {
 		watcher.calc(args, applyFn)
 
 		for fieldIdStr, value := range results {
-			if value.IsNil() {
-				continue
-			}
+			// if value.IsNil() {
+			// 	continue
+			// }
 			target := fid(fieldIdStr)
 			sk := target.stateKey
 			fk := target.fieldKey
