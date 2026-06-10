@@ -8,6 +8,7 @@ import (
 	"samovar/apps/client"
 	"samovar/apps/device"
 	"samovar/apps/mqtt"
+	"samovar/apps/session"
 	"samovar/apps/telemetry"
 
 	// "ergo.services/application/observer"
@@ -35,6 +36,7 @@ func main() {
 	options.Applications = []gen.ApplicationBehavior{
 		telemetry.CreateApp(),
 		bus.CreateApp(),
+		session.CreateApp(),
 		client.CreateApp(),
 		mqtt.CreateApp(),
 		device.CreateApp(),
