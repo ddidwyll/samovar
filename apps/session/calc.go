@@ -8,7 +8,6 @@ import (
 	"ergo.services/ergo/gen"
 
 	"errors"
-	"fmt"
 )
 
 type calc struct {

@@ -66,11 +66,11 @@ func (s *state) updateState(reqs []change.Request) error {
 	} else {
 		for _, report := range reports {
 			report = report.AddFrom("session_state")
-			if err = inter.Send(s, report, "report", "session_producer"); err != nil {
+			err = inter.Send(s, report, "report", "session_producer")
+			if err != nil {
 				return err
 			}
 		}
-		s.Log().Debug(report.MakeLogString("session.state"))
 	}
 
 	return nil

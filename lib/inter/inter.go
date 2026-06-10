@@ -18,7 +18,7 @@ func Send(a Actor, msg any, what, to string) error {
 	} else {
 		action := fmt.Sprintf("send %s", what)
 		// 	fmt.Printf("[%s] >> %s >> [%s]\n", a.Name(), action, to)
-		return telemetry.LogRelation(a, action, a.Name(), toAtom)
+		return logError(telemetry.LogRelation(a, action, a.Name(), toAtom))
 	}
 }
 
@@ -30,7 +30,7 @@ func Call(a Actor, req any, what, to string) (any, error) {
 	} else {
 		action := fmt.Sprintf("request %s", what)
 		// 	fmt.Printf("[%s] >> %s >> [%s]\n", a.Name(), action, to)
-		return reply, telemetry.LogRelation(a, action, a.Name(), toAtom)
+		return reply, logError(telemetry.LogRelation(a, action, a.Name(), toAtom))
 	}
 }
 
@@ -38,7 +38,7 @@ func Trigger(a Actor, event gen.Atom, from string) error {
 	fromAtom := gen.Atom(from)
 	action := fmt.Sprintf("trigger %s", string(event))
 	// fmt.Printf("[%s] >> %s >> [%s]\n", from, action, a.Name())
-	return telemetry.LogRelation(a, action, fromAtom, a.Name())
+	return logError(telemetry.LogRelation(a, action, fromAtom, a.Name()))
 }
 
 func RegisterActor(a Actor, name string) {
@@ -48,4 +48,11 @@ func RegisterActor(a Actor, name string) {
 
 func TelemetryScheme(a Actor) []byte {
 	return telemetry.BuildScheme(a)
+}
+
+func logError(err error) error {
+	if err != nil {
+		fmt.Printf("!!! Intercom unexpected error: %s\n", err)
+	}
+	return err
 }
