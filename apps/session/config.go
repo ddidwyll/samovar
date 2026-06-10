@@ -9,7 +9,6 @@ import (
 
 type device struct {
 	Id         string `json:"id"`
-	Name       string `json:"name"`
 	HeatLoss   int64  `json:"heat_loss"`
 	MaxPower   int64  `json:"max_power"`
 	MaxCollect int64  `json:"max_collect"`
@@ -45,8 +44,6 @@ func (d device) validate() error {
 	switch {
 	case d.Id == "":
 		err = "id is required"
-	case d.Name == "":
-		err = "name is required"
 	case d.HeatLoss <= 0:
 		err = "heat_loss is required"
 	case d.MaxPower <= 0:
@@ -60,7 +57,7 @@ func (d device) validate() error {
 	return errors.New(fmt.Sprintf("Session config error: %s", err))
 }
 
-func (c *config) findById(deviceId) (device, error) {
+func (c *config) findById(deviceId string) (device, error) {
 	for _, device := range c.Devices {
 		if device.Id == deviceId {
 			return device, nil

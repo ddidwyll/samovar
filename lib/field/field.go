@@ -41,6 +41,8 @@ func (f *Field) Cast(a any) (v val.Val, err error) {
 		v, err = f.castFlt(a)
 	case 's':
 		v, err = f.castStr(a)
+	case 'a':
+		v, err = f.castArr(a)
 	default:
 		v = val.Nil{}
 		err = errors.New("invalid field type")
@@ -135,11 +137,43 @@ func (f *Field) castStr(a any) (v val.Val, err error) {
 		v = val.FltAsStr(c)
 	case string:
 		v, err = val.StrAsStr(c)
+	case []string:
+		v, err = val.ArrAsStr(c)
 	case val.Int:
 		v, err = val.StrAsStr(c.String())
 	case val.Flt:
 		v, err = val.StrAsStr(c.String())
 	case val.Str:
+		v = c
+	case val.Arr:
+		v, err = val.StrAsStr(c.String())
+	default:
+		v = val.Nil{}
+		err = errors.New("failed to cast field")
+	}
+
+	return v, err
+}
+
+func (f *Field) castArr(a any) (v val.Val, err error) {
+	switch c := a.(type) {
+	case int:
+		v = val.IntAsArr(int64(c))
+	case int64:
+		v = val.IntAsArr(c)
+	case float64:
+		v = val.FltAsArr(c)
+	case string:
+		v, err = val.StrAsArr(c)
+	case []string:
+		v, err = val.ArrAsArr(c)
+	case val.Int:
+		v, err = val.StrAsArr(c.String())
+	case val.Flt:
+		v, err = val.StrAsArr(c.String())
+	case val.Str:
+		v, err = val.StrAsArr(c.String())
+	case val.Arr:
 		v = c
 	default:
 		v = val.Nil{}

@@ -11,6 +11,7 @@ import (
 	"maps"
 	"slices"
 	"strings"
+	"time"
 )
 
 type report = change.Report
@@ -21,10 +22,10 @@ type fieldId struct {
 	fieldKey string
 }
 
-type changes map[string]map[string]Value
-
 type Args = state.KeyVals
 type Results = Args
+
+type changes map[string]Results
 
 type ApplyFn func(string, Value)
 type calcFn func(Args, ApplyFn)
@@ -85,21 +86,51 @@ func (c *Config) HandleReport(maybeReport any) error {
 		return err
 	}
 
-	for stateKey, changes := range changes {
-		requests := make([]change.Request, 0, len(changes))
-
-		for fieldKey, value := range changes {
-			from := string(c.process.Name())
-			request := r.NewRequest(from, fieldKey, value)
-			requests = append(requests, request)
-		}
-
-		if err = inter.Send(c.process, requests, "requests", stateKey); err != nil {
+	for stateKey, results := range changes {
+		if err := c.sendRequestsWithReport(stateKey, results, r); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func (c *Config) SendRequest(stateKey, fieldKey string, value Value) error {
+	results := make(Results, 1)
+	results[fieldKey] = value
+	return c.SendRequests(stateKey, results)
+}
+
+func (c *Config) SendRequests(stateKey string, results Results) error {
+	ts := time.Now().UnixMicro()
+
+	requests := make([]change.Request, 0, len(results))
+
+	for fieldKey, value := range results {
+		requests = append(requests, c.BuildRequest(fieldKey, value, ts))
+	}
+
+	return inter.Send(c.process, requests, "requests", stateKey)
+}
+
+func (c *Config) sendRequestsWithReport(stateKey string, results Results, r report) error {
+	requests := make([]change.Request, 0, len(results))
+
+	for fieldKey, value := range results {
+		requests = append(requests, c.buildRequestFromReport(fieldKey, value, r))
+	}
+
+	return inter.Send(c.process, requests, "requests", stateKey)
+}
+
+func (c *Config) buildRequestFromReport(fieldKey string, value Value, r report) change.Request {
+	from := string(c.process.Name())
+	return r.NewRequest(from, fieldKey, value)
+}
+
+func (c *Config) BuildRequest(fieldKey string, value Value, ts int64) change.Request {
+	from := string(c.process.Name())
+	return change.NewRequest(fieldKey, value, from, ts)
 }
 
 func (c *Config) performWatchers(r report) (changes, error) {
