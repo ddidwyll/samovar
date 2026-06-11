@@ -29,8 +29,10 @@ var stateFields = st.Fields{
 	st.FieldParams{"power_diff", 'i', "power diff", "%"},
 	st.FieldParams{"collect", 's', "collect", "%"},
 	st.FieldParams{"press", 'f', "press", "mm"},
+	st.FieldParams{"devices", 'a', "devices", ""},
 	st.FieldParams{"device_id", 's', "device id", ""},
 	st.FieldParams{"error", 's', "error", ""},
+	st.FieldParams{"started", 's', "started", ""},
 }
 
 func (s *state) Init(_ ...any) error {
@@ -67,20 +69,11 @@ func (s *state) Terminate(reason error) {
 func (s *state) updateState(reqs []change.Request) error {
 	s.Log().Debug("client.state change requests: %#v", reqs)
 
-	if reports, err := s.data.BulkChange(reqs); err != nil {
+	if reports, err := s.data.BulkChange(reqs, "client_state"); err != nil {
 		return err
 	} else {
-		for _, report := range reports {
-			report = report.AddFrom("client_state")
-			if err = inter.Send(s, report, "report", "client_producer"); err != nil {
-				return err
-			} else {
-				s.Log().Debug(report.MakeLogString("client.state"))
-			}
-		}
+		return inter.Send(s, reports, "reports", "client_producer"); err != nil {
 	}
-
-	return nil
 }
 
 func stateEntries(p gen.Process) (st.Entries, error) {

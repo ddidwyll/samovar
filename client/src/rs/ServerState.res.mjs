@@ -7,9 +7,11 @@ import * as Stdlib_Array from "@rescript/runtime/lib/es6/Stdlib_Array.js";
 import * as Store from "svelte/store";
 import * as Stdlib_Option from "@rescript/runtime/lib/es6/Stdlib_Option.js";
 
-let getFieldUrl = "http://192.168.111.217:4000/store/fields";
+let patchStoreUrl = "/store";
 
-let feedSourceUrl = "http://192.168.111.217:4000/store/feed";
+let getFieldUrl = "/store/fields";
+
+let feedSourceUrl = "/store/feed";
 
 function parseField(json) {
   return Stdlib_Option.flatMap(Stdlib_JSON.Decode.object(json), obj => {
@@ -224,9 +226,20 @@ async function make$1() {
 
 let store = await make$1();
 
+async function patch(key, value, onError, onSuccess) {
+  let result = await Api.Patch.request(patchStoreUrl, key, value);
+  if (result.TAG === "Ok") {
+    let result$1 = result._0;
+    return Stdlib_Option.forEach(onSuccess, cb => cb(result$1));
+  }
+  let err = result._0;
+  return Stdlib_Option.forEach(onError, cb => cb(err));
+}
+
 let Store$1;
 
 export {
+  patchStoreUrl,
   getFieldUrl,
   feedSourceUrl,
   Fields,
@@ -236,5 +249,6 @@ export {
   Store$1 as Store,
   make$1 as make,
   store,
+  patch,
 }
 /* store Not a pure module */

@@ -17,7 +17,6 @@ func Send(a Actor, msg any, what, to string) error {
 		return err
 	} else {
 		action := fmt.Sprintf("send %s", what)
-		// 	fmt.Printf("[%s] >> %s >> [%s]\n", a.Name(), action, to)
 		return logError(telemetry.LogRelation(a, action, a.Name(), toAtom))
 	}
 }
@@ -29,20 +28,16 @@ func Call(a Actor, req any, what, to string) (any, error) {
 		return reply, err
 	} else {
 		action := fmt.Sprintf("request %s", what)
-		// 	fmt.Printf("[%s] >> %s >> [%s]\n", a.Name(), action, to)
 		return reply, logError(telemetry.LogRelation(a, action, a.Name(), toAtom))
 	}
 }
 
-func Trigger(a Actor, event gen.Atom, from string) error {
-	fromAtom := gen.Atom(from)
+func Trigger(a Actor, event, producer gen.Atom) error {
 	action := fmt.Sprintf("trigger %s", string(event))
-	// fmt.Printf("[%s] >> %s >> [%s]\n", from, action, a.Name())
-	return logError(telemetry.LogRelation(a, action, fromAtom, a.Name()))
+	return logError(telemetry.LogRelation(a, action, producer, a.Name()))
 }
 
 func RegisterActor(a Actor, name string) {
-	// fmt.Printf("<< %s | %s >>\n", a.Name(), name)
 	telemetry.RegisterActor(a, name)
 }
 

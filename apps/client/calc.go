@@ -27,7 +27,9 @@ func (c *calc) Init(_ ...any) error {
 	c.config.WatchAs("device_state.collect", "client_state.collect")
 	c.config.WatchAs("device_state.press", "client_state.press")
 	c.config.WatchAs("session_state.error", "client_state.error")
+	c.config.WatchAs("session_state.started", "client_state.started")
 	c.config.WatchAs("session_state.device_id", "client_state.device_id")
+	c.config.WatchAs("session_state.devices", "client_state.devices")
 
 	return nil
 }

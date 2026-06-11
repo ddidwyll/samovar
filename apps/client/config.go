@@ -9,8 +9,9 @@ import (
 
 type config struct {
 	cfg.Config
-	Host string `json:"host"`
-	Port int64  `json:"port"`
+	Host    string `json:"host"`
+	Port    int64  `json:"port"`
+	DevPort int64  `json:"dev_port"`
 }
 
 func loadConfig() (*config, error) {

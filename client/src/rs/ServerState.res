@@ -1,5 +1,6 @@
-let getFieldUrl = "http://192.168.111.217:4000/store/fields"
-let feedSourceUrl = "http://192.168.111.217:4000/store/feed"
+let patchStoreUrl = "/store"
+let getFieldUrl = "/store/fields"
+let feedSourceUrl = "/store/feed"
 
 type errorHandler = Err.t => unit
 
@@ -178,3 +179,12 @@ let make = async (): store => {
 }
 
 let store = await make()
+
+let patch = async (key, value, ~onError=?, ~onSuccess=?): unit => {
+  let apply = (data, optCb) => Option.forEach(optCb, cb => cb(data))
+
+  switch await Api.Patch.request(patchStoreUrl, key, value) {
+  | Ok(result) => result->apply(onSuccess)
+  | Error(err) => err->apply(onError)
+  }
+}

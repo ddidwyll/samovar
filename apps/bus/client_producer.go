@@ -19,7 +19,7 @@ func (p *clientProducer) Init(_ ...any) error {
 	inter.RegisterActor(p, "(bus.client.producer)")
 	p.Log().Debug("bus.clientProducer started (%s)", p.Name())
 
-	return p.RegisterEvents("client_state_changed")
+	return p.RegisterEvents("client_state_changed", "client_desired_state_changed")
 }
 
 func (p *clientProducer) HandleMessage(_ gen.PID, msg any) error {
@@ -27,6 +27,8 @@ func (p *clientProducer) HandleMessage(_ gen.PID, msg any) error {
 		switch report.LastFrom() {
 		case "client_state":
 			return p.FireEvent("client_state_changed", report)
+		case "client_desired_state":
+			return p.FireEvent("client_desired_state_changed", report)
 		default:
 			err := fmt.Sprintf("bus.clientProducer unexpected change.Report: %s", report.LastFrom())
 			return errors.New(err)

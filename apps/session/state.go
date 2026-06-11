@@ -24,6 +24,7 @@ func newState() gen.ProcessBehavior {
 var stateFields = st.Fields{
 	st.FieldParams{"device_id", 's', "device id", ""},
 	st.FieldParams{"devices", 'a', "devices", ""},
+	st.FieldParams{"started", 's', "started", ""},
 	st.FieldParams{"error", 's', "error", ""},
 	st.FieldParams{"heat_loss", 'i', "heat loss", "%"},
 	st.FieldParams{"max_power", 'i', "max power", "W"},

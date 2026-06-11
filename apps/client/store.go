@@ -24,6 +24,12 @@ type store struct {
 }
 
 func (s *store) Init(args ...any) (opts act.PoolOptions, err error) {
+	cfg, ok := args[0].(*config)
+	if !ok {
+		s.Log().Error("invalid config: %#v", args)
+		return opts, errors.New("client.store: invalid client config")
+	}
+
 	s.initRouter()
 
 	if err = s.registerStoreHandler(); err != nil {
@@ -36,7 +42,7 @@ func (s *store) Init(args ...any) (opts act.PoolOptions, err error) {
 
 	s.registerStatic()
 
-	if err = s.startWebServer(args[0]); err != nil {
+	if err = s.startWebServer(cfg); err != nil {
 		return opts, err
 	}
 
@@ -44,13 +50,7 @@ func (s *store) Init(args ...any) (opts act.PoolOptions, err error) {
 	return opts, nil
 }
 
-func (s *store) startWebServer(args any) error {
-	cfg, ok := args.(*config)
-	if !ok {
-		s.Log().Error("invalid config: %#v", args)
-		return errors.New("client.store: invalid client config")
-	}
-
+func (s *store) startWebServer(cfg *config) error {
 	var webOptions meta.WebServerOptions
 	webOptions.Port = uint16(cfg.Port)
 	webOptions.Host = cfg.Host
@@ -98,7 +98,7 @@ func (s *store) registerStoreHandler() error {
 	if err != nil {
 		s.Log().Error("client.store: failed to register store handler %s", err)
 	} else {
-		s.router.Handle("/store", storeHandler).Methods("GET", "PATCH")
+		s.router.Handle("/store", storeHandler).Methods("PATCH")
 		s.router.Handle("/store/fields", storeHandler).Methods("GET")
 		s.router.Handle("/telemetry/scheme", storeHandler).Methods("GET")
 	}
@@ -124,8 +124,9 @@ func middleware(h http.Handler) http.Handler {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		if r.Method == "OPTIONS" {
-			w.Header().Set("Access-Control-Allow-Methods", "GET, PUT, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, PATCH, OPTIONS")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
 			w.WriteHeader(http.StatusOK)
 			return
 		}

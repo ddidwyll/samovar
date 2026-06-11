@@ -2,7 +2,6 @@ package session
 
 import (
 	clc "samovar/lib/calc"
-	"samovar/lib/val"
 
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
@@ -36,8 +35,8 @@ func (c *calc) prepareDevices(args ...any) error {
 		devices = append(devices, device.Id)
 	}
 
-	devicesVal, _ := val.ArrAsArr(devices)
-	err := c.config.SendRequest("session_state", "devices", devicesVal)
+	changes := map[string]any{"devices": devices, "started": "no"}
+	err := c.config.SendRequests("session_state", changes)
 	if err != nil {
 		return err
 	}
@@ -45,8 +44,10 @@ func (c *calc) prepareDevices(args ...any) error {
 	calcDevice := func(args clc.Args, apply clc.ApplyFn) {
 		dId := args["session_state.device_id"].String()
 		if device, err := cfg.findById(dId); err != nil {
+			apply("session_state.started", "no")
 			apply("session_state.error", "invalid device id")
 		} else {
+			apply("session_state.started", "yes")
 			apply("session_state.heat_loss", device.HeatLoss)
 			apply("session_state.max_power", device.MaxPower)
 			apply("session_state.max_collect", device.MaxCollect)

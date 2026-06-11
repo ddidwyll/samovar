@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 )
 
 type State map[string]*field.Field
@@ -27,6 +28,9 @@ type FieldParams struct {
 }
 
 type Fields []FieldParams
+
+type request = change.Request
+type report = change.Report
 
 func New(fields Fields) *State {
 	newState := make(State)
@@ -121,7 +125,7 @@ func (s *State) Set(k string, v any) error {
 	}
 }
 
-func (s *State) Change(req change.Request) (rep change.Report, err error) {
+func (s *State) Change(req request) (rep report, err error) {
 	if field, has := (*s)[req.Key]; has {
 		return field.Change(req)
 	} else {
@@ -130,15 +134,25 @@ func (s *State) Change(req change.Request) (rep change.Report, err error) {
 	}
 }
 
-func (s *State) BulkChange(reqs []change.Request) ([]change.Report, error) {
-	reports := make([]change.Report, 0, len(reqs))
+func (s *State) BulkChangeFromMap(kv map[string]any, from, lastFrom string) ([]report, error) {
+	ts := time.Now().UnixMicro()
+	reqs := make([]request, 0, len(kv))
+	for k, v := range kv {
+		req := change.NewRequest(k, v, from, ts)
+		reqs = append(reqs, req)
+	}
+	return s.BulkChange(reqs, lastFrom)
+}
+
+func (s *State) BulkChange(reqs []request, lastFrom string) ([]report, error) {
+	reports := make([]report, 0, len(reqs))
 
 	for _, req := range reqs {
 		if rep, err := s.Change(req); err != nil {
 			return reports, err
 		} else {
 			if rep.Changed {
-				reports = append(reports, rep)
+				reports = append(reports, rep.AddFrom(lastFrom))
 			}
 		}
 	}

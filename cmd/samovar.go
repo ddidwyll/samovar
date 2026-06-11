@@ -36,10 +36,10 @@ func main() {
 	options.Applications = []gen.ApplicationBehavior{
 		telemetry.CreateApp(),
 		bus.CreateApp(),
-		session.CreateApp(),
 		client.CreateApp(),
-		mqtt.CreateApp(),
+		session.CreateApp(),
 		device.CreateApp(),
+		mqtt.CreateApp(),
 	}
 
 	// disable default logger to get rid of multiple logging to the os.Stdout
