@@ -27,22 +27,22 @@ func (c *Consumer) InitConsumer(name string) {
 	c.routes = make(consumerRoutes)
 }
 
-func (c *Consumer) AddRoute(event, producer gen.Atom, recipient string) {
-	if err := c.Subscribe(event); err == nil {
+func (c *Consumer) AddReportRoute(event, producer gen.Atom, recipient string) {
+	if err := c.SubscribeToEvent(event); err == nil {
 		c.routes[event] = consumerRoute{recipient, producer}
 	} else {
 		panic(err)
 	}
 }
 
-func (c *Consumer) Subscribe(e gen.Atom) error {
+func (c *Consumer) SubscribeToEvent(e gen.Atom) error {
 	nodeName := c.Node().Name()
 	event := gen.Event{e, nodeName}
 	_, err := c.LinkEvent(event)
 	return err
 }
 
-func (c *Consumer) HandleReports(e gen.MessageEvent) error {
+func (c *Consumer) HandleChangeReports(e gen.MessageEvent) error {
 	eventName := e.Event.Name
 	switch r := e.Message.(type) {
 	case []change.Report:

@@ -15,12 +15,12 @@ func newSessionConsumer() gen.ProcessBehavior {
 func (sc *sessionConsumer) Init(_ ...any) error {
 	sc.InitConsumer("([bus.session.consumer])")
 
-	sc.AddRoute(
+	sc.AddReportRoute(
 		"device_state_changed",
 		"device_producer",
 		"session_calc",
 	)
-	sc.AddRoute(
+	sc.AddReportRoute(
 		"session_state_changed",
 		"session_producer",
 		"session_calc",
@@ -31,5 +31,5 @@ func (sc *sessionConsumer) Init(_ ...any) error {
 }
 
 func (sc *sessionConsumer) HandleEvent(event gen.MessageEvent) error {
-	return sc.HandleReports(event)
+	return sc.HandleChangeReports(event)
 }

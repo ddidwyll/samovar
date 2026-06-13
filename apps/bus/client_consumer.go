@@ -15,19 +15,19 @@ func newClientConsumer() gen.ProcessBehavior {
 func (cc *clientConsumer) Init(_ ...any) error {
 	cc.InitConsumer("([bus.client.consumer])")
 
-	cc.AddRoute(
+	cc.AddReportRoute(
 		"device_state_changed",
 		"device_producer",
 		"client_calc",
 	)
 
-	cc.AddRoute(
+	cc.AddReportRoute(
 		"session_state_changed",
 		"session_producer",
 		"client_calc",
 	)
 
-	cc.AddRoute(
+	cc.AddReportRoute(
 		"client_state_changed",
 		"client_producer",
 		"client_feed",
@@ -37,5 +37,5 @@ func (cc *clientConsumer) Init(_ ...any) error {
 }
 
 func (cc *clientConsumer) HandleEvent(event gen.MessageEvent) error {
-	return cc.HandleReports(event)
+	return cc.HandleChangeReports(event)
 }
