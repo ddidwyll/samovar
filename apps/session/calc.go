@@ -3,23 +3,19 @@ package session
 import (
 	clc "samovar/lib/calc"
 
-	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
 
 	"errors"
 )
 
-type calc struct {
-	act.Actor
-	config *clc.Config
-}
+type calc struct {clc.CalcActor}
 
 func newCalc() gen.ProcessBehavior {
 	return &calc{}
 }
 
 func (c *calc) Init(args ...any) error {
-	c.config = clc.NewConfig(c, "{session.calc}")
+	c.InitCalc("{session.calc}")
 
 	return c.prepareDevices(args...)
 }
@@ -36,7 +32,7 @@ func (c *calc) prepareDevices(args ...any) error {
 	}
 
 	changes := map[string]any{"devices": devices, "started": "no"}
-	err := c.config.SendRequests("session_state", changes)
+	err := c.SendRequests("session_state", changes)
 	if err != nil {
 		return err
 	}
@@ -54,11 +50,11 @@ func (c *calc) prepareDevices(args ...any) error {
 		}
 	}
 
-	c.config.Watch(calcDevice, "session_state.device_id")
+	c.Watch(calcDevice, "session_state.device_id")
 
 	return nil
 }
 
-func (c *calc) HandleMessage(_ gen.PID, changeReport any) error {
-	return c.config.HandleReport(changeReport)
+func (c *calc) HandleMessage(_ gen.PID, msg any) error {
+	return c.HandleChangeReports(msg)
 }

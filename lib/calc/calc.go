@@ -4,7 +4,8 @@ import (
 	"samovar/lib/change"
 	"samovar/lib/inter"
 	"samovar/lib/state"
-	// "samovar/lib/val"
+
+	"ergo.services/ergo/act"
 
 	"errors"
 	"fmt"
@@ -37,28 +38,26 @@ type watcher struct {
 	calc   calcFn
 }
 
-type process = inter.Actor
-
-type Config struct {
+type CalcActor struct {
+  act.Actor
 	watchers []watcher
-	process  process
 }
 
-func NewConfig(p process, name string) *Config {
-	inter.RegisterActor(p, name)
-	return &Config{make([]watcher, 0), p}
+func (ca *CalcActor) InitCalc(name string) {
+	inter.RegisterActor(ca, name)
+  ca.watchers = make([]watcher, 0)
 }
 
-func (c *Config) WatchAs(field, asField string) {
+func (ca *CalcActor) WatchAs(field, asField string) {
 	fn := func(args Args, apply ApplyFn) {
 		for _, value := range args {
 			apply(asField, value)
 		}
 	}
-	c.Watch(fn, []string{field}...)
+	ca.Watch(fn, []string{field}...)
 }
 
-func (c *Config) Watch(fn calcFn, fieldStrings ...string) {
+func (ca *CalcActor) Watch(fn calcFn, fieldStrings ...string) {
 	fields := make(fields)
 
 	for _, fieldIdStr := range fieldStrings {
@@ -71,23 +70,23 @@ func (c *Config) Watch(fn calcFn, fieldStrings ...string) {
 
 	watcher := watcher{fields, fn}
 
-	c.watchers = append(c.watchers, watcher)
+	ca.watchers = append(ca.watchers, watcher)
 }
 
-func (c *Config) HandleReport(maybeReport any) error {
-	r, ok := maybeReport.(report)
+func (ca *CalcActor) HandleChangeReports(msg any) error {
+	r, ok := msg.(report)
 	if !ok {
-		err := fmt.Sprintf("Invalid change report: %v", maybeReport)
+		err := fmt.Sprintf("Invalid change report: %v", msg)
 		return errors.New(err)
 	}
 
-	changes, err := c.performWatchers(r)
+	changes, err := ca.performWatchers(r)
 	if err != nil {
 		return err
 	}
 
 	for stateKey, results := range changes {
-		if err := c.sendRequestsWithReport(stateKey, results, r); err != nil {
+		if err := ca.sendRequestsWithReport(stateKey, results, r); err != nil {
 			return err
 		}
 	}
@@ -95,54 +94,54 @@ func (c *Config) HandleReport(maybeReport any) error {
 	return nil
 }
 
-func (c *Config) SendRequest(stateKey, fieldKey string, value Value) error {
+func (ca *CalcActor) SendRequest(stateKey, fieldKey string, value Value) error {
 	results := make(Results, 1)
 	results[fieldKey] = value
-	return c.SendRequests(stateKey, results)
+	return ca.SendRequests(stateKey, results)
 }
 
-func (c *Config) SendRequests(stateKey string, results Results) error {
+func (ca *CalcActor) SendRequests(stateKey string, results Results) error {
 	ts := time.Now().UnixMicro()
 
 	requests := make([]change.Request, 0, len(results))
 
 	for fieldKey, value := range results {
-		requests = append(requests, c.BuildRequest(fieldKey, value, ts))
+		requests = append(requests, ca.BuildRequest(fieldKey, value, ts))
 	}
 
-	return inter.Send(c.process, requests, "requests", stateKey)
+	return inter.Send(ca, requests, "requests", stateKey)
 }
 
-func (c *Config) sendRequestsWithReport(stateKey string, results Results, r report) error {
+func (ca *CalcActor) sendRequestsWithReport(stateKey string, results Results, r report) error {
 	requests := make([]change.Request, 0, len(results))
 
 	for fieldKey, value := range results {
-		requests = append(requests, c.buildRequestFromReport(fieldKey, value, r))
+		requests = append(requests, ca.buildRequestFromReport(fieldKey, value, r))
 	}
 
-	return inter.Send(c.process, requests, "requests", stateKey)
+	return inter.Send(ca, requests, "requests", stateKey)
 }
 
-func (c *Config) buildRequestFromReport(fieldKey string, value Value, r report) change.Request {
-	from := string(c.process.Name())
+func (ca *CalcActor) buildRequestFromReport(fieldKey string, value Value, r report) change.Request {
+	from := string(ca.Name())
 	return r.NewRequest(from, fieldKey, value)
 }
 
-func (c *Config) BuildRequest(fieldKey string, value Value, ts int64) change.Request {
-	from := string(c.process.Name())
+func (ca *CalcActor) BuildRequest(fieldKey string, value Value, ts int64) change.Request {
+	from := string(ca.Name())
 	return change.NewRequest(fieldKey, value, from, ts)
 }
 
-func (c *Config) performWatchers(r report) (changes, error) {
+func (ca *CalcActor) performWatchers(r report) (changes, error) {
 	allResults := make(changes)
 	stateKey := r.LastFrom()
 
-	for _, watcher := range c.watchers {
+	for _, watcher := range ca.watchers {
 		if !watcher.match(stateKey, r.Key) {
 			continue
 		}
 
-		args, err := watcher.buildArgs(c.process)
+		args, err := ca.buildArgs(watcher)
 		if err != nil {
 			return allResults, err
 		}
@@ -154,9 +153,6 @@ func (c *Config) performWatchers(r report) (changes, error) {
 		watcher.calc(args, applyFn)
 
 		for fieldIdStr, value := range results {
-			// if value.IsNil() {
-			// 	continue
-			// }
 			target := fid(fieldIdStr)
 			sk := target.stateKey
 			fk := target.fieldKey
@@ -170,17 +166,13 @@ func (c *Config) performWatchers(r report) (changes, error) {
 	return allResults, nil
 }
 
-func (w watcher) match(stateKey, fieldKey string) bool {
-	return w.fields[stateKey][fieldKey]
-}
-
-func (w watcher) buildArgs(p process) (Args, error) {
+func (ca *CalcActor) buildArgs(w watcher) (Args, error) {
 	args := make(Args)
 
 	for stateKey, fieldKeyMap := range w.fields {
 		fieldKeys := slices.Collect(maps.Keys(fieldKeyMap))
 
-		kv, err := inter.Call(p, fieldKeys, "fields", stateKey)
+		kv, err := inter.Call(ca, fieldKeys, "fields", stateKey)
 		if err != nil {
 			return args, err
 		}
@@ -197,6 +189,10 @@ func (w watcher) buildArgs(p process) (Args, error) {
 		}
 	}
 	return args, nil
+}
+
+func (w watcher) match(stateKey, fieldKey string) bool {
+	return w.fields[stateKey][fieldKey]
 }
 
 func fid(str string) fieldId {
