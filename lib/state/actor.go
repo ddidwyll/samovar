@@ -8,6 +8,7 @@ import (
 
 	"errors"
 	"time"
+	"fmt"
 )
 
 type StateActor struct {
@@ -37,7 +38,7 @@ func (sa *StateActor) BulkChange(reqs []request) ([]report, error) {
 	return reports, nil
 }
 
-func (sa *StateActor) BulkChangeFromMap(kv map[string]any, from, producer string) error {
+func (sa *StateActor) BulkChangeFromMap(kv map[string]string, from, producer string) error {
 	ts := time.Now().UnixMicro()
 	reqs := make([]request, 0, len(kv))
 	for k, v := range kv {
@@ -63,7 +64,8 @@ func (sa *StateActor) HandleChangeRequests(req any, producer string) error {
 			return inter.Send(sa, reports, "reports", producer)
 		}
 	default:
-		return errors.New("Unexpected state change request")
+  	err := fmt.Sprintf("Unexpected state change request: %#v", req)
+		return errors.New(err)
 	}
 }
 

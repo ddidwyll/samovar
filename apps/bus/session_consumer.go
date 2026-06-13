@@ -25,6 +25,11 @@ func (sc *sessionConsumer) Init(_ ...any) error {
 		"session_producer",
 		"session_calc",
 	)
+	sc.AddReportRoute(
+		"client_desired_state_changed",
+		"session_producer",
+		"session_calc",
+	)
 
 	sc.Log().Debug("bus.sessionConsumer started (%s)", sc.Name())
 	return nil

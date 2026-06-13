@@ -1,6 +1,7 @@
 package device
 
 import (
+  "samovar/lib/inter"
 	"samovar/lib/change"
 	"samovar/lib/i"
 
@@ -24,7 +25,7 @@ func newChangeLog() gen.ProcessBehavior {
 }
 
 func (l *changeLog) Init(_ ...any) error {
-	l.Log().Debug("device.changeLog started (%s)", l.Name())
+  inter.RegisterActor(l, "[device.change_log]")
 	return l.prepareFile()
 }
 

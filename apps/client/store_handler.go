@@ -26,6 +26,7 @@ type resp = http.ResponseWriter
 type req = http.Request
 
 func (sh *storeHandler) Init(_ ...any) error {
+  inter.RegisterActor(sh, "[client.store.handler]")
 	sh.Log().Debug("client.store_handler started")
 	return nil
 }
@@ -50,13 +51,20 @@ func (sh *storeHandler) HandlePatch(_ gen.PID, rw resp, r *req) error {
 	if err := json.NewDecoder(r.Body).Decode(&patch); err != nil {
 		return sendJsonError(rw, err)
 	}
+	defer r.Body.Close()
 
-	fmt.Printf("PATCH: %#v", patch)
+	if res, err := inter.Call(sh, patch, "patch", "client_desired_state"); err != nil {
+  	fmt.Printf("store.HandlePatch.Call: %#v, %#v\n", err, res)
 
-	return sendJson(rw, []byte(`{"ack":"error"}`))
+  	return sendJson(rw, []byte(`{"ack":"error"}`))
+  } else {
+  	fmt.Printf("store.HandlePatch.Call: %#v, %#v\n", err, res)
+
+  	return sendJson(rw, []byte(`{"ack":"ok"}`))
+  }
 }
 
-func sendJsonError(rw resp, err error) error {
+func sendJsonError(rw http.ResponseWriter, err error) error {
 	rw.Header().Set("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusBadRequest)
 	errStr := fmt.Sprintf("Server error: %s", err)
@@ -66,8 +74,9 @@ func sendJsonError(rw resp, err error) error {
 	return err
 }
 
-func sendJson(rw resp, data []byte) (err error) {
+func sendJson(rw http.ResponseWriter, data []byte) (err error) {
 	rw.Header().Set("Content-Type", "application/json")
+	rw.WriteHeader(http.StatusOK)
 	_, err = rw.Write(data)
 
 	return err

@@ -20,13 +20,11 @@ func (cc *clientConsumer) Init(_ ...any) error {
 		"device_producer",
 		"client_calc",
 	)
-
 	cc.AddReportRoute(
 		"session_state_changed",
 		"session_producer",
 		"client_calc",
 	)
-
 	cc.AddReportRoute(
 		"client_state_changed",
 		"client_producer",

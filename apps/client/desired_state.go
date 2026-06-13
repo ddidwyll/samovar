@@ -9,8 +9,7 @@ import (
 type desiredState struct{ st.StateActor }
 
 var desiredStateFields = st.Fields{
-	st.FieldParams{"collect_type", 's', "collect type", ""},
-	st.FieldParams{"collect_value", 'i', "collect value", "%"},
+	st.FieldParams{"device_id", 's', "device id", ""},
 }
 
 func newDesiredState() gen.ProcessBehavior {
@@ -27,8 +26,8 @@ func (ds *desiredState) HandleMessage(_ gen.PID, req any) error {
 }
 
 func (ds *desiredState) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
-	if kv, ok := req.(map[string]any); ok {
-		return nil, ds.BulkChangeFromMap(kv, "client_store_patch", "client_producer")
+	if kv, ok := req.(map[string]string); ok {
+		return "", ds.BulkChangeFromMap(kv, "client_store_patch", "client_producer")
 	} else {
 		return ds.HandleDataRequest(req)
 	}

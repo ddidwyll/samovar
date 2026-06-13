@@ -21,6 +21,10 @@ func (s *sup) Init(args ...any) (spec act.SupervisorSpec, err error) {
 			Factory: newState,
 		},
 		{
+			Name:    "client_desired_state",
+			Factory: newDesiredState,
+		},
+		{
 			Name:    "client_store",
 			Factory: newStore,
 			Args:    args,
