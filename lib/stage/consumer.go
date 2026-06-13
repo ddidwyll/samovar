@@ -10,26 +10,26 @@ import (
 	"errors"
 )
 
-type route struct {
+type consumerRoute struct {
 	recipient string
 	producer  gen.Atom
 }
 
-type routes map[gen.Atom]route
+type consumerRoutes map[gen.Atom]consumerRoute
 
 type Consumer struct {
 	act.Actor
-	routes routes
+	routes consumerRoutes
 }
 
 func (c *Consumer) InitConsumer(name string) {
 	inter.RegisterActor(c, name)
-	c.routes = make(routes)
+	c.routes = make(consumerRoutes)
 }
 
 func (c *Consumer) AddRoute(event, producer gen.Atom, recipient string) {
 	if err := c.Subscribe(event); err == nil {
-		c.routes[event] = route{recipient, producer}
+		c.routes[event] = consumerRoute{recipient, producer}
 	} else {
 		panic(err)
 	}
@@ -46,15 +46,15 @@ func (c *Consumer) HandleReports(e gen.MessageEvent) error {
 	eventName := e.Event.Name
 	switch r := e.Message.(type) {
 	case []change.Report:
-		return c.routeReports(eventName, r)
+		return c.routeReports(eventName, r...)
 	case change.Report:
-		return c.routeReports(eventName, []change.Report{r})
+		return c.routeReports(eventName, r)
 	default:
 		return errors.New("Unexpected consumer event")
 	}
 }
 
-func (c *Consumer) routeReports(event gen.Atom, reports []change.Report) error {
+func (c *Consumer) routeReports(event gen.Atom, reports ...change.Report) error {
 	for _, report := range reports {
 		if route, exists := c.routes[event]; !exists {
 			return errors.New("Unexpected consumer event")

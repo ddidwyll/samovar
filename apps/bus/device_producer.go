@@ -1,45 +1,32 @@
 package bus
 
 import (
-	"samovar/lib/change"
-	"samovar/lib/inter"
 	"samovar/lib/stage"
 
 	"ergo.services/ergo/gen"
-
-	"errors"
-	"fmt"
 )
 
 type deviceProducer struct{ stage.Producer }
 
-func newDeviceProducer() gen.ProcessBehavior { return &deviceProducer{} }
+func newDeviceProducer() gen.ProcessBehavior {
+	return &deviceProducer{}
+}
 
 func (p *deviceProducer) Init(_ ...any) error {
-	inter.RegisterActor(p, "(bus.device.producer)")
-	p.Log().Debug("bus.deviceProducer started (%s)", p.Name())
+	p.InitProducer("(bus.device.producer)")
 
-	return p.RegisterEvents(
+	p.AddReportRoute(
+		"device_raw_state",
 		"device_raw_state_changed",
+	)
+	p.AddReportRoute(
+		"device_state",
 		"device_state_changed",
 	)
+
+	return nil
 }
 
 func (p *deviceProducer) HandleMessage(_ gen.PID, msg any) error {
-	if report, ok := msg.(change.Report); ok {
-		p.Log().Debug("bus.deviceProducer received change.Report: %v", report)
-
-		switch report.LastFrom() {
-		case "device_raw_state":
-			return p.FireEvent("device_raw_state_changed", report)
-		case "device_state":
-			return p.FireEvent("device_state_changed", report)
-		default:
-			err := fmt.Sprintf("bus.deviceProducer unexpected change.Report: %s", report.LastFrom())
-			return errors.New(err)
-		}
-	} else {
-		err := fmt.Sprintf("bus.deviceProducer unexpected message: %#v", msg)
-		return errors.New(err)
-	}
+	return p.HandleChangeReports(msg)
 }
