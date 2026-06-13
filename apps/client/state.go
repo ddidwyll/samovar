@@ -1,21 +1,15 @@
 package client
 
 import (
-	"samovar/lib/change"
 	"samovar/lib/inter"
 	st "samovar/lib/state"
 
-	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
 
 	"errors"
-	"fmt"
 )
 
-type state struct {
-	act.Actor
-	data *st.State
-}
+type state struct{ st.StateActor }
 
 func newState() gen.ProcessBehavior {
 	return &state{}
@@ -36,44 +30,20 @@ var stateFields = st.Fields{
 }
 
 func (s *state) Init(_ ...any) error {
-	inter.RegisterActor(s, "[(client.state)]")
-	s.data = st.New(stateFields)
-
-	s.Log().Debug("client.state started (%s)", s.Name())
+	s.InitState("[(client.state)]", stateFields)
 	return nil
 }
 
-func (s *state) HandleMessage(_ gen.PID, msg any) error {
-	s.Log().Debug("client.state received message: %#v", msg)
-
-	switch r := msg.(type) {
-	case []change.Request:
-		return s.updateState(r...)
-	case change.Request:
-		return s.updateState(r)
-	default:
-		err := fmt.Sprintf("client.state unexpected message: %#v", msg)
-		return errors.New(err)
-	}
-	return nil
+func (s *state) HandleMessage(_ gen.PID, req any) error {
+	return s.HandleChangeRequests(req, "client_producer")
 }
 
 func (s *state) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
-	return s.data.HandleDataRequest(req)
+	return s.HandleDataRequest(req)
 }
 
 func (s *state) Terminate(reason error) {
 	s.Log().Debug("client.state terminated: %s", reason)
-}
-
-func (s *state) updateState(reqs ...change.Request) error {
-	s.Log().Debug("client.state change requests: %#v", reqs)
-
-	if reports, err := s.data.BulkChange(reqs, "client_state"); err != nil {
-		return err
-	} else {
-		return inter.Send(s, reports, "reports", "client_producer")
-	}
 }
 
 func stateEntries(p gen.Process) (st.Entries, error) {

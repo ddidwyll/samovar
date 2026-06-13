@@ -1,16 +1,16 @@
 package device
 
 import (
-	"samovar/lib/inter"
 	st "samovar/lib/state"
 
-	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
 )
 
-type desiredState struct {
-	act.Actor
-	data *st.State
+type desiredState struct{ st.StateActor }
+
+var desiredStateFields = st.Fields{
+	st.FieldParams{"collect_type", 's', "collect type", ""},
+	st.FieldParams{"collect_value", 'i', "collect value", "%"},
 }
 
 func newDesiredState() gen.ProcessBehavior {
@@ -18,13 +18,14 @@ func newDesiredState() gen.ProcessBehavior {
 }
 
 func (ds *desiredState) Init(_ ...any) error {
-	inter.RegisterActor(ds, "[(device.desired_state)]")
-
-	ds.data = st.New(st.Fields{
-		st.FieldParams{"collect_type", 's', "collect type", ""},
-		st.FieldParams{"collect_value", 'i', "collect value", "%"},
-	})
-
-	ds.Log().Debug("device.desiredState started (%s)", ds.Name())
+	ds.InitState("[(device.desired_state)]", desiredStateFields)
 	return nil
+}
+
+func (ds *desiredState) HandleMessage(_ gen.PID, req any) error {
+	return ds.HandleChangeRequests(req, "desired_producer")
+}
+
+func (ds *desiredState) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
+	return ds.HandleDataRequest(req)
 }

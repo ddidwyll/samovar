@@ -1,18 +1,12 @@
 package session
 
 import (
-	"samovar/lib/change"
-	"samovar/lib/inter"
 	st "samovar/lib/state"
 
-	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
 )
 
-type state struct {
-	act.Actor
-	data *st.State
-}
+type state struct{ st.StateActor }
 
 func newState() gen.ProcessBehavior {
 	return &state{}
@@ -29,19 +23,16 @@ var stateFields = st.Fields{
 }
 
 func (s *state) Init(_ ...any) error {
-	inter.RegisterActor(s, "[(session.state)]")
-
-	s.data = st.InitState(stateFields)
-
+	s.InitState("[(session.state)]", stateFields)
 	return nil
 }
 
 func (s *state) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
-	return s.data.HandleDataRequest(req)
+	return s.HandleDataRequest(req)
 }
 
 func (s *state) HandleMessage(_ gen.PID, req any) error {
-  return s.data.HandleChangeRequests(req, "session_state", "session_producer")
+	return s.HandleChangeRequests(req, "session_producer")
 }
 
 func (s *state) Terminate(reason error) {

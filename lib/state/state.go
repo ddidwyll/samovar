@@ -4,12 +4,10 @@ import (
 	"samovar/lib/change"
 	"samovar/lib/field"
 	"samovar/lib/val"
-	"samovar/lib/inter"
 
 	"encoding/json"
 	"errors"
 	"fmt"
-	"time"
 )
 
 type State map[string]*field.Field
@@ -35,7 +33,7 @@ type report = change.Report
 
 type reporter func(...report) error
 
-func InitState(fields Fields) *State {
+func BuildState(fields Fields) *State {
 	newState := make(State)
 
 	for _, params := range fields {
@@ -134,65 +132,6 @@ func (s *State) Change(req request) (rep report, err error) {
 	} else {
 		err := fmt.Sprintf("field [%s] not found", req.Key)
 		return rep, errors.New(err)
-	}
-}
-
-func (s *State) BulkChangeFromMap(kv map[string]any, from, lastFrom string) ([]report, error) {
-	ts := time.Now().UnixMicro()
-	reqs := make([]request, 0, len(kv))
-	for k, v := range kv {
-		req := change.NewRequest(k, v, from, ts)
-		reqs = append(reqs, req)
-	}
-	return s.BulkChange(reqs, lastFrom)
-}
-
-func (s *State) BulkChange(reqs []request, lastFrom string) ([]report, error) {
-	reports := make([]report, 0, len(reqs))
-
-	for _, req := range reqs {
-		if rep, err := s.Change(req); err != nil {
-			return reports, err
-		} else {
-			if rep.Changed {
-				reports = append(reports, rep.AddFrom(lastFrom))
-			}
-		}
-	}
-
-	return reports, nil
-}
-
-func (s *State) HandleChangeRequests(req any, lastFrom, producer string) error {
-	switch r := req.(type) {
-	case request:
-		if report, err := s.Change(r); err != nil {
-			return err
-		} else {
-			return inter.Send(s, report.AddFrom(lastFrom), "report", producer)
-		}
-	case []request:
-		if reports, err := s.BulkChange(r, lastFrom); err != nil {
-			return err
-		} else {
-			return inter.Send(s, reports, "reports", producer)
-		}
-	default:
-		return errors.New("Unexpected state change request")
-	}
-
-}
-
-func (s *State) HandleDataRequest(req any) (any, error) {
-	switch k := req.(type) {
-	case []string:
-		return s.KeyVals(k...)
-	case string:
-		return s.FetchField(k)
-	case nil:
-		return s.Entries(), nil
-	default:
-		return nil, errors.New("Unexpected state data request")
 	}
 }
 
