@@ -25,19 +25,17 @@ func (ds *desiredState) Init(_ ...any) error {
 		st.FieldParams{"collect_value", 'i', "collect value", "%"},
 	})
 
-	ds.Log().Debug("client.desiredState started (%s)", ds.Name())
 	return nil
 }
 
 func (s *state) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
-	switch r := req.(type) {
-	case map[string]any:
+	if r, ok := req.(map[string]any); ok {
 		if reports, err := s.data.BulkChangeFromMap(r, "client_desired_state"); err == nil {
 			return inter.Send(s, reports, "reports", "client_producer")
 		} else {
 			return nil, err
 		}
-	default:
-		return nil, errors.New("client.desiredState: unexpected patch format")
+	} else {
+		return s.data.HandleDataRequest(req)
 	}
 }

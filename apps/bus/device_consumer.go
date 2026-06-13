@@ -18,14 +18,14 @@ func (dc *deviceConsumer) Init(_ ...any) error {
 	dc.Subscribe("mqtt_new_message")
 
 	dc.AddRoute(
-  	"device_raw_state_changed",
-  	"device_producer",
-  	"device_calc",
+		"device_raw_state_changed",
+		"device_producer",
+		"device_calc",
 	)
 	dc.AddRoute(
-  	"device_state_changed",
-  	"device_producer",
-  	"device_change_log",
+		"device_state_changed",
+		"device_producer",
+		"device_change_log",
 	)
 
 	return nil
@@ -38,6 +38,6 @@ func (dc *deviceConsumer) HandleEvent(event gen.MessageEvent) error {
 		dc.Log().Debug("bus.deviceConsumer new change.Request: %+v", request)
 		return inter.Send(dc, request, "request", "device_raw_state")
 	} else {
-  	return dc.HandleReports(event)
+		return dc.HandleReports(event)
 	}
 }

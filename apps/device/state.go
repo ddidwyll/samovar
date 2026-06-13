@@ -7,9 +7,6 @@ import (
 
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
-
-	"errors"
-	"fmt"
 )
 
 type state struct {
@@ -40,44 +37,13 @@ func (s *state) Init(_ ...any) error {
 	return nil
 }
 
-func (s *state) HandleMessage(_ gen.PID, msg any) error {
-	s.Log().Debug("device.state received message: %#v", msg)
-
-	switch r := msg.(type) {
-	case change.Request:
-		s.Log().Warning("device.state received change request from %s", r.LastFrom())
-	case []change.Request:
-		return s.updateState(r)
-	default:
-		err := fmt.Sprintf("device.state unexpected message: %#v", msg)
-		return errors.New(err)
-	}
-	return nil
+func (s *state) HandleMessage(_ gen.PID, req any) error {
+  reporter := func(reports ...change.Report) error {
+    return inter.Send(s, reports, "reports", "device_producer")
+  }
+  return s.data.HandleChangeRequests(req, "device_state", reporter)
 }
 
 func (s *state) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
-	return s.data.HandleReq(req)
-}
-
-func (s *state) Terminate(reason error) {
-	s.Log().Debug("device.state terminated: %s", reason)
-}
-
-func (s *state) updateState(reqs []change.Request) error {
-	s.Log().Debug("device.state change requests: %#v", reqs)
-
-	if reports, err := s.data.BulkChange(reqs); err != nil {
-		return err
-	} else {
-		for _, report := range reports {
-			report = report.AddFrom("device_state")
-			if err = inter.Send(s, report, "report", "device_producer"); err != nil {
-				return err
-			} else {
-				s.Log().Debug(report.MakeLogString("device.state"))
-			}
-		}
-	}
-
-	return nil
+	return s.data.HandleDataRequest(req)
 }

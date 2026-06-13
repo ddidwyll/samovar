@@ -73,7 +73,7 @@ func (rs *rawState) HandleMessage(_ gen.PID, msg any) error {
 }
 
 func (rs *rawState) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
-	return rs.data.HandleReq(req)
+	return rs.data.HandleDataRequest(req)
 }
 
 func (rs *rawState) updateState(req change.Request) error {

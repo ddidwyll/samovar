@@ -31,5 +31,5 @@ func (sc *sessionConsumer) Init(_ ...any) error {
 }
 
 func (sc *sessionConsumer) HandleEvent(event gen.MessageEvent) error {
-  return sc.HandleReports(event)
+	return sc.HandleReports(event)
 }

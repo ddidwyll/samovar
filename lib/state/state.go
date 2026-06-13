@@ -4,6 +4,7 @@ import (
 	"samovar/lib/change"
 	"samovar/lib/field"
 	"samovar/lib/val"
+	"samovar/lib/inter"
 
 	"encoding/json"
 	"errors"
@@ -32,7 +33,9 @@ type Fields []FieldParams
 type request = change.Request
 type report = change.Report
 
-func New(fields Fields) *State {
+type reporter func(...report) error
+
+func InitState(fields Fields) *State {
 	newState := make(State)
 
 	for _, params := range fields {
@@ -160,7 +163,27 @@ func (s *State) BulkChange(reqs []request, lastFrom string) ([]report, error) {
 	return reports, nil
 }
 
-func (s *State) HandleReq(req any) (any, error) {
+func (s *State) HandleChangeRequests(req any, lastFrom, producer string) error {
+	switch r := req.(type) {
+	case request:
+		if report, err := s.Change(r); err != nil {
+			return err
+		} else {
+			return inter.Send(s, report.AddFrom(lastFrom), "report", producer)
+		}
+	case []request:
+		if reports, err := s.BulkChange(r, lastFrom); err != nil {
+			return err
+		} else {
+			return inter.Send(s, reports, "reports", producer)
+		}
+	default:
+		return errors.New("Unexpected state change request")
+	}
+
+}
+
+func (s *State) HandleDataRequest(req any) (any, error) {
 	switch k := req.(type) {
 	case []string:
 		return s.KeyVals(k...)
@@ -169,7 +192,7 @@ func (s *State) HandleReq(req any) (any, error) {
 	case nil:
 		return s.Entries(), nil
 	default:
-		return nil, errors.New("Unexpected state request")
+		return nil, errors.New("Unexpected state data request")
 	}
 }
 

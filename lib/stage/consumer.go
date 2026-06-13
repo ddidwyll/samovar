@@ -43,27 +43,27 @@ func (c *Consumer) Subscribe(e gen.Atom) error {
 }
 
 func (c *Consumer) HandleReports(e gen.MessageEvent) error {
-  eventName := e.Event.Name
-  switch r := e.Message.(type) {
-  case []change.Report:
-    return c.routeReports(eventName, r)
-  case change.Report:
-    return c.routeReports(eventName, []change.Report{r})
-  default:
-    return errors.New("Unexpected consumer event")
-  }
+	eventName := e.Event.Name
+	switch r := e.Message.(type) {
+	case []change.Report:
+		return c.routeReports(eventName, r)
+	case change.Report:
+		return c.routeReports(eventName, []change.Report{r})
+	default:
+		return errors.New("Unexpected consumer event")
+	}
 }
 
 func (c *Consumer) routeReports(event gen.Atom, reports []change.Report) error {
-  for _, report := range reports {
-    if route, exists := c.routes[event]; !exists {
-      return errors.New("Unexpected consumer event")
-    } else {
-      inter.Trigger(c, event, route.producer)
-      if err := inter.Send(c, report, "report", route.recipient); err != nil {
-        return err
-      }
-    }
-  }
-  return nil
+	for _, report := range reports {
+		if route, exists := c.routes[event]; !exists {
+			return errors.New("Unexpected consumer event")
+		} else {
+			inter.Trigger(c, event, route.producer)
+			if err := inter.Send(c, report, "report", route.recipient); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

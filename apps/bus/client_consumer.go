@@ -21,13 +21,13 @@ func (cc *clientConsumer) Init(_ ...any) error {
 		"client_calc",
 	)
 
-  cc.AddRoute(
+	cc.AddRoute(
 		"session_state_changed",
 		"session_producer",
 		"client_calc",
 	)
 
-  cc.AddRoute(
+	cc.AddRoute(
 		"client_state_changed",
 		"client_producer",
 		"client_feed",
@@ -37,5 +37,5 @@ func (cc *clientConsumer) Init(_ ...any) error {
 }
 
 func (cc *clientConsumer) HandleEvent(event gen.MessageEvent) error {
-  return cc.HandleReports(event)
+	return cc.HandleReports(event)
 }
