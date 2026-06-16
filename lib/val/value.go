@@ -73,20 +73,20 @@ func (v Str) IsNil() bool { return v.s == "" }
 func (v Arr) IsNil() bool { return v.s == "" }
 func (v Nil) IsNil() bool { return true }
 
-func (v Int) IsNum() bool { return true }
-func (v Flt) IsNum() bool { return true }
+func (v Int) IsNum() bool { return !v.IsNil() }
+func (v Flt) IsNum() bool { return !v.IsNil() }
 func (v Str) IsNum() bool { return false }
 func (v Arr) IsNum() bool { return false }
 func (v Nil) IsNum() bool { return false }
 
-func (v Int) IsInt() bool { return true }
+func (v Int) IsInt() bool { return !v.IsNil() }
 func (v Flt) IsInt() bool { return false }
 func (v Str) IsInt() bool { return false }
 func (v Arr) IsInt() bool { return false }
 func (v Nil) IsInt() bool { return false }
 
 func (v Int) IsFlt() bool { return false }
-func (v Flt) IsFlt() bool { return true }
+func (v Flt) IsFlt() bool { return !v.IsNil() }
 func (v Str) IsFlt() bool { return false }
 func (v Arr) IsFlt() bool { return false }
 func (v Nil) IsFlt() bool { return false }

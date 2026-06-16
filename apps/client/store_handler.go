@@ -26,7 +26,7 @@ type resp = http.ResponseWriter
 type req = http.Request
 
 func (sh *storeHandler) Init(_ ...any) error {
-  inter.RegisterActor(sh, "[client.store.handler]")
+	inter.RegisterActor(sh, "[client.store.handler]")
 	sh.Log().Debug("client.store_handler started")
 	return nil
 }
@@ -54,14 +54,14 @@ func (sh *storeHandler) HandlePatch(_ gen.PID, rw resp, r *req) error {
 	defer r.Body.Close()
 
 	if res, err := inter.Call(sh, patch, "patch", "client_desired_state"); err != nil {
-  	fmt.Printf("store.HandlePatch.Call: %#v, %#v\n", err, res)
+		fmt.Printf("store.HandlePatch.Call: %#v, %#v\n", err, res)
 
-  	return sendJson(rw, []byte(`{"ack":"error"}`))
-  } else {
-  	fmt.Printf("store.HandlePatch.Call: %#v, %#v\n", err, res)
+		return sendJson(rw, []byte(`{"ack":"error"}`))
+	} else {
+		fmt.Printf("store.HandlePatch.Call: %#v, %#v\n", err, res)
 
-  	return sendJson(rw, []byte(`{"ack":"ok"}`))
-  }
+		return sendJson(rw, []byte(`{"ack":"ok"}`))
+	}
 }
 
 func sendJsonError(rw http.ResponseWriter, err error) error {

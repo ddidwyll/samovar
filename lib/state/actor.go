@@ -7,8 +7,8 @@ import (
 	"ergo.services/ergo/act"
 
 	"errors"
-	"time"
 	"fmt"
+	"time"
 )
 
 type StateActor struct {
@@ -64,7 +64,7 @@ func (sa *StateActor) HandleChangeRequests(req any, producer string) error {
 			return inter.Send(sa, reports, "reports", producer)
 		}
 	default:
-  	err := fmt.Sprintf("Unexpected state change request: %#v", req)
+		err := fmt.Sprintf("Unexpected state change request: %#v", req)
 		return errors.New(err)
 	}
 }

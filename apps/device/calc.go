@@ -6,7 +6,7 @@ import (
 	"ergo.services/ergo/gen"
 )
 
-type calc struct {clc.CalcActor}
+type calc struct{ clc.CalcActor }
 
 func newCalc() gen.ProcessBehavior {
 	return &calc{}

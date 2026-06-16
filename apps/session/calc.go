@@ -8,7 +8,7 @@ import (
 	"errors"
 )
 
-type calc struct {clc.CalcActor}
+type calc struct{ clc.CalcActor }
 
 func newCalc() gen.ProcessBehavior {
 	return &calc{}
@@ -50,15 +50,15 @@ func (c *calc) prepareDevices(args ...any) error {
 		}
 	}
 
-  changeDeviceId := func(args clc.Args, apply clc.ApplyFn) {
-    desiredDeviceId := args["client_desired_state.device_id"]
+	changeDeviceId := func(args clc.Args, apply clc.ApplyFn) {
+		desiredDeviceId := args["client_desired_state.device_id"]
 
-    if desiredDeviceId.IsNil() {
-      return
-    }
+		if desiredDeviceId.IsNil() {
+			return
+		}
 
-    apply("session_state.device_id", desiredDeviceId)
-  }
+		apply("session_state.device_id", desiredDeviceId)
+	}
 
 	c.Watch(calcDevice, "session_state.device_id")
 	c.Watch(changeDeviceId, "client_desired_state.device_id")

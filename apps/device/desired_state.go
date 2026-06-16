@@ -9,8 +9,9 @@ import (
 type desiredState struct{ st.StateActor }
 
 var desiredStateFields = st.Fields{
-	st.FieldParams{"collect_type", 's', "collect type", ""},
-	st.FieldParams{"collect_value", 'i', "collect value", "%"},
+	st.FieldParams{"power", 'i', "power", "W"},
+	// st.FieldParams{"collect_type", 's', "collect type", ""},
+	// st.FieldParams{"collect_value", 'i', "collect value", "%"},
 }
 
 func newDesiredState() gen.ProcessBehavior {
@@ -23,7 +24,7 @@ func (ds *desiredState) Init(_ ...any) error {
 }
 
 func (ds *desiredState) HandleMessage(_ gen.PID, req any) error {
-	return ds.HandleChangeRequests(req, "desired_producer")
+	return ds.HandleChangeRequests(req, "device_producer")
 }
 
 func (ds *desiredState) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {

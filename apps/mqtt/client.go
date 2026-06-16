@@ -5,6 +5,7 @@ import (
 
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
+	natiu "github.com/soypat/natiu-mqtt"
 
 	"errors"
 )

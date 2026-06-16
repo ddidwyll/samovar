@@ -11,7 +11,9 @@ import (
 
 type deviceConsumer struct{ stage.Consumer }
 
-func newDeviceConsumer() gen.ProcessBehavior { return &deviceConsumer{} }
+func newDeviceConsumer() gen.ProcessBehavior {
+	return &deviceConsumer{}
+}
 
 func (dc *deviceConsumer) Init(_ ...any) error {
 	dc.InitConsumer("([bus.device.consumer])")

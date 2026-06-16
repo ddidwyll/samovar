@@ -39,13 +39,13 @@ type watcher struct {
 }
 
 type CalcActor struct {
-  act.Actor
+	act.Actor
 	watchers []watcher
 }
 
 func (ca *CalcActor) InitCalc(name string) {
 	inter.RegisterActor(ca, name)
-  ca.watchers = make([]watcher, 0)
+	ca.watchers = make([]watcher, 0)
 }
 
 func (ca *CalcActor) WatchAs(field, asField string) {

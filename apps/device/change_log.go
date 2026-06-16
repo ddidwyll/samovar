@@ -1,9 +1,9 @@
 package device
 
 import (
-  "samovar/lib/inter"
 	"samovar/lib/change"
 	"samovar/lib/i"
+	"samovar/lib/inter"
 
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
@@ -25,7 +25,7 @@ func newChangeLog() gen.ProcessBehavior {
 }
 
 func (l *changeLog) Init(_ ...any) error {
-  inter.RegisterActor(l, "[device.change_log]")
+	inter.RegisterActor(l, "[device.change_log]")
 	return l.prepareFile()
 }
 
