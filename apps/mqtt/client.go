@@ -10,12 +10,12 @@ import (
 	"errors"
 )
 
-type server struct{ act.Actor }
+type client struct{ act.Actor }
 
-func newServer() gen.ProcessBehavior { return &server{} }
+func newClient() gen.ProcessBehavior { return &client{} }
 
-func (s *server) Init(args ...any) error {
-	inter.RegisterActor(s, "[mqtt.server]")
+func (s *client) Init(args ...any) error {
+	inter.RegisterActor(s, "[mqtt.client]")
 
 	cfg, ok := args[0].(*config)
 
@@ -29,12 +29,12 @@ func (s *server) Init(args ...any) error {
 		return err
 	}
 
-	s.Log().Debug("mqtt.server started (%s)", s.Name())
+	s.Log().Debug("mqtt.client started (%s)", s.Name())
 
 	return nil
 }
 
-func (s *server) HandleMessage(_ gen.PID, msg any) error {
-	s.Log().Debug("mqtt.server receive message: %#v", msg)
+func (s *client) HandleMessage(_ gen.PID, msg any) error {
+	s.Log().Debug("mqtt.client receive message: %#v", msg)
 	return inter.Send(s, msg, "message", "mqtt_producer")
 }
