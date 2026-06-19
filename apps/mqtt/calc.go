@@ -1,7 +1,9 @@
 package mqtt
 
 import (
+	"samovar/common/models"
 	clc "samovar/lib/calc"
+	"samovar/lib/inter"
 	"samovar/lib/val"
 
 	"ergo.services/ergo/gen"
@@ -16,17 +18,30 @@ func newCalc() gen.ProcessBehavior {
 func (c *calc) Init(_ ...any) error {
 	c.InitCalc("{mqtt.calc}")
 
-	c.Watch(translateToMqtt, "device_desired_state.power")
+	c.SetApplyFn(c.publish)
+
+	c.Watch(
+		sendToMqtt,
+		"device_desired_state.power",
+	)
 
 	return nil
 }
 
-func mqttPublish(topic string, value string) 
+func (c *calc) publish(key string, value any) {
+	v, ok := value.(val.Val)
+	if !ok {
+		panic("Unexpected mqtt calc result")
+	}
+	msg := models.NewMqttMessage([]byte(key), []byte(v.String()))
+	if err := inter.Send(c, msg, "message", "mqtt_client"); err != nil {
+		panic(err)
+	}
+}
 
-func translateToMqtt(args clc.Args, apply clc.ApplyFn) {
+func sendToMqtt(args clc.Args, apply clc.ApplyFn) {
 	power := args["device_desired_state.power"]
-
-	if !power.IsInt() {
-		return
+	if power.IsInt() {
+		apply("power_m_new", power)
 	}
 }

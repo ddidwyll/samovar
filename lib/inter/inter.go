@@ -14,7 +14,7 @@ func Send(a Actor, msg any, what, to string) error {
 	toAtom := gen.Atom(to)
 
 	if err := a.Send(toAtom, msg); err != nil {
-		return err
+		return logError(err)
 	} else {
 		action := fmt.Sprintf("send %s", what)
 		return logError(telemetry.LogRelation(a, action, a.Name(), toAtom))
@@ -25,7 +25,7 @@ func Call(a Actor, req any, what, to string) (any, error) {
 	toAtom := gen.Atom(to)
 
 	if reply, err := a.Call(toAtom, req); err != nil {
-		return reply, err
+		return reply, logError(err)
 	} else {
 		action := fmt.Sprintf("request %s", what)
 		return reply, logError(telemetry.LogRelation(a, action, a.Name(), toAtom))

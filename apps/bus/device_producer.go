@@ -20,6 +20,10 @@ func (p *deviceProducer) Init(_ ...any) error {
 		"device_raw_state_changed",
 	)
 	p.AddReportRoute(
+		"device_desired_state",
+		"device_desired_state_changed",
+	)
+	p.AddReportRoute(
 		"device_state",
 		"device_state_changed",
 	)

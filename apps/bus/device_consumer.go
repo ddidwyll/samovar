@@ -24,6 +24,11 @@ func (dc *deviceConsumer) Init(_ ...any) error {
 		"device_producer",
 		"device_calc",
 	)
+	// dc.AddReportRoute(
+	// 	"device_desired_state_changed",
+	// 	"device_producer",
+	// 	"device_calc",
+	// )
 	dc.AddReportRoute(
 		"device_state_changed",
 		"device_producer",

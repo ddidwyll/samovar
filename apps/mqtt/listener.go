@@ -1,112 +1,97 @@
 package mqtt
 
 import (
+	"ergo.services/ergo/gen"
+
+	natiu "github.com/soypat/natiu-mqtt"
+
 	"context"
 	"errors"
-	"io"
-	"net"
 	"time"
-
-	"samovar/common/models"
-
-	"ergo.services/ergo/gen"
-	natiu "github.com/soypat/natiu-mqtt"
 )
 
 type listener struct {
 	gen.MetaProcess
-	config *config
 	client *natiu.Client
-	vconn  *natiu.VariablesConnect
-	vsub   *natiu.VariablesSubscribe
 }
 
-func newListener(cfg *config) gen.MetaBehavior {
-	var vconn natiu.VariablesConnect
-	var vsub natiu.VariablesSubscribe
-
-	return &listener{vconn: &vconn, vsub: &vsub, config: cfg}
+func newListener(nc *natiu.Client) gen.MetaBehavior {
+	return &listener{client: nc}
 }
 
 func (l *listener) Init(process gen.MetaProcess) error {
 	l.MetaProcess = process
-	l.createClient()
-	l.Log().Debug("mqtt.listener started (%v)", l.config)
 	return nil
 }
 
 func (l *listener) Start() error {
-	if err := l.connect(); err != nil {
-		l.Log().Error("mqtt.listener connect error: %s", err)
-		return err
-	}
-
-	if err := l.subscribe(); err != nil {
-		l.Log().Error("mqtt.listener subscribe error: %s", err)
-		return err
-	}
-
 	for {
-		err := l.withTimeout(func(ctx context.Context) error {
-			return l.client.Ping(ctx)
-		})
-		if err == nil && !l.client.IsConnected() {
-			err = errors.New("mqtt.listener error: not connected")
-		}
-		if err != nil {
-			l.Log().Error("mqtt.listener error: %s", err)
-			return err
-		}
-		time.Sleep(time.Second)
+		// err := l.withTimeout(func(ctx context.Context) error {
+		// 	return l.client.Ping(ctx)
+		// })
+		// if err == nil && !l.client.IsConnected() {
+		// 	err = errors.New("not connected")
+		// }
+		// if err != nil {
+		// 	l.Log().Error("mqtt.listener error: %s", err)
+		// 	return err
+		// }
+		// if !l.client.IsConnected() {
+		// 	return errors.New("not connected")
+		// } else {
+		// l.Log().Info("connected")
+		// }
+		l.Send(l.Parent(), "ping")
+		// err := l.client.StartPing()
+  	// ok := l.client.AwaitingPingresp()
+  	// if err == nil && ok {
+  	if true {
+  	  l.client.HandleNext()
+  		time.Sleep(100 * time.Millisecond)
+  	} else {
+    	return errors.New("mqtt connection failed")
+  	}
+	// for {
+ //  	err := l.client.HandleNext()
+	// 	l.Send(l.Parent(), "ping")
+	// 	if err != nil {
+	// 		l.Log().Error("mqtt.listener error: %s", err)
+	// 		return err
+	// 	}
+	// 	time.Sleep(time.Second)
+	// }
+	// 	// err := l.withTimeout(func(ctx context.Context) error {
+	// 	// 	return l.client.Ping(ctx)
+	// 	// })
+	// 	// if err != nil {
+	// 	// 	l.Log().Error("mqtt.listener error: %s", err)
+	// 	// 	return err
+	// 	// } else {
+ //  // 		l.Send(l.Parent(), "ping")
+ //  // 		time.Sleep(time.Second)
+	// 	// }
+	// // }
 	}
 }
 
-func (l *listener) createClient() {
-	onPub := func(_ natiu.Header, vpub natiu.VariablesPublish, r io.Reader) error {
-		if text, err := io.ReadAll(r); err == nil {
-			msg := models.NewMqttMessage(vpub.TopicName, text)
-			l.Send(l.Parent(), msg)
-			return nil
-		} else {
-			return err
-		}
-	}
+func (l *listener) withTimeout(f func(context.Context) error) error {
+	timeout := 1 * time.Second
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 
-	l.client = natiu.NewClient(natiu.ClientConfig{OnPub: onPub})
+	err := f(ctx)
+	cancel()
+	return err
 }
 
-func (l *listener) connect() error {
-	url := l.config.url()
-	conn, err := net.Dial("tcp", url)
-
-	if err != nil {
-		return err
-	}
-
-	clientID := l.config.clientID()
-	l.vconn.SetDefaultMQTT(clientID)
-
-	return l.withTimeout(func(ctx context.Context) error {
-		return l.client.Connect(ctx, conn, l.vconn)
-	})
-}
-
-func (l *listener) subscribe() error {
-	topic := l.config.topic()
-	topicFilter := natiu.SubscribeRequest{topic, natiu.QoS2}
-	l.vsub.TopicFilters = []natiu.SubscribeRequest{topicFilter}
-	l.vsub.PacketIdentifier = 1
-
-	return l.withTimeout(func(ctx context.Context) error {
-		return l.client.Subscribe(ctx, *l.vsub)
-	})
+func (l *listener) Terminate(reason error) {
+	l.Log().Debug("mqtt.listener terminated (%s)", reason)
 }
 
 func (l *listener) HandleCall(_ gen.PID, _ gen.Ref, request any) (any, error) {
 	l.Log().Debug("mqtt.listener receive call request: %v", request)
 	return nil, nil
-}
 
+}
 func (l *listener) HandleMessage(_ gen.PID, msg any) error {
 	l.Log().Debug("mqtt.listener receive message: %s", msg)
 	return nil
@@ -115,16 +100,4 @@ func (l *listener) HandleMessage(_ gen.PID, msg any) error {
 func (l *listener) HandleInspect(_ gen.PID, items ...string) map[string]string {
 	l.Log().Debug("mqtt.listener receive inspect request: %v", items)
 	return nil
-}
-
-func (l *listener) Terminate(reason error) {
-	l.Log().Debug("mqtt.listener terminated (%s)", reason)
-}
-
-func (l *listener) withTimeout(f func(context.Context) error) error {
-	timeout := l.config.Timeout * time.Second
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	err := f(ctx)
-	cancel()
-	return err
 }

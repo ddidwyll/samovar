@@ -47,6 +47,7 @@ func (c *calc) prepareDevices(args ...any) error {
 			apply("session_state.heat_loss", device.HeatLoss)
 			apply("session_state.max_power", device.MaxPower)
 			apply("session_state.max_collect", device.MaxCollect)
+			apply("session_desired_state.power", device.MaxPower)
 		}
 	}
 

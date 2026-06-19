@@ -19,7 +19,10 @@ func (s *sup) Init(args ...any) (spec act.SupervisorSpec, err error) {
 		{
 			Name:    "session_state",
 			Factory: newState,
-			Args:    args,
+		},
+		{
+			Name:    "session_desired_state",
+			Factory: newDesiredState,
 		},
 		{
 			Name:    "session_calc",

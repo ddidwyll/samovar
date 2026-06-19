@@ -22,6 +22,7 @@ func (p *mqttProducer) Init(_ ...any) error {
 }
 
 func (p *mqttProducer) HandleMessage(_ gen.PID, msg any) error {
+	p.Log().Info("mqtt.producer: %v", msg)
 	switch message := msg.(type) {
 	case models.MqttMessage:
 		return p.FireEvent("mqtt_new_message", message)

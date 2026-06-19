@@ -19,6 +19,10 @@ func (p *sessionProducer) Init(_ ...any) error {
 		"session_state",
 		"session_state_changed",
 	)
+	p.AddReportRoute(
+		"session_desired_state",
+		"session_desired_state_changed",
+	)
 
 	return nil
 }

@@ -41,11 +41,16 @@ type watcher struct {
 type CalcActor struct {
 	act.Actor
 	watchers []watcher
+	applyFn  ApplyFn
 }
 
 func (ca *CalcActor) InitCalc(name string) {
 	inter.RegisterActor(ca, name)
 	ca.watchers = make([]watcher, 0)
+}
+
+func (ca *CalcActor) SetApplyFn(fn ApplyFn) {
+	ca.applyFn = fn
 }
 
 func (ca *CalcActor) WatchAs(field, asField string) {
@@ -147,10 +152,15 @@ func (ca *CalcActor) performWatchers(r report) (changes, error) {
 		}
 
 		results := make(Results)
-		applyFn := func(field string, value Value) {
-			results[field] = value
+
+		if ca.applyFn != nil {
+			watcher.calc(args, ca.applyFn)
+		} else {
+			applyFn := func(field string, value Value) {
+				results[field] = value
+			}
+			watcher.calc(args, applyFn)
 		}
-		watcher.calc(args, applyFn)
 
 		for fieldIdStr, value := range results {
 			target := fid(fieldIdStr)
