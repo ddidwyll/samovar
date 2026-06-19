@@ -21,7 +21,7 @@ func (c *calc) Init(_ ...any) error {
 	c.SetApplyFn(c.publish)
 
 	c.Watch(
-		mqttPublish,
+		changePower,
 		"device_desired_state.power",
 		"device_raw_state.power_m",
 	)
@@ -35,14 +35,15 @@ func (c *calc) publish(key string, value any) {
 		panic("Unexpected mqtt calc result")
 	}
 	msg := models.NewMqttMessage([]byte(key), []byte(v.String()))
-	if err := inter.Send(c, msg, "message", "mqtt_client"); err != nil {
+	if _, err := inter.Call(c, msg, "message", "mqtt_client"); err != nil {
 		panic(err)
 	}
 }
 
-func mqttPublish(args clc.Args, publish clc.ApplyFn) {
+func changePower(args clc.Args, change clc.ApplyFn) {
 	power := args["device_desired_state.power"]
-	if power.IsInt() {
-		publish("power_m_new", power)
+	current_power := args["device_raw_state.power_m"]
+	if power.IsInt() && !current_power.Eq(power) {
+		change("power_m_new", power)
 	}
 }

@@ -35,7 +35,10 @@ func (c *calc) Init(_ ...any) error {
 		"device_raw_state.min_otb",
 	)
 
-	c.WatchAs("session_desired_state.power", "device_desired_state.power")
+	c.WatchAs(
+		"session_desired_state.power",
+		"device_desired_state.power",
+	)
 
 	return nil
 }

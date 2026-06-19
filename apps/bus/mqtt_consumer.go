@@ -17,13 +17,11 @@ func (mc *mqttConsumer) Init(_ ...any) error {
 
 	mc.AddReportRoute(
 		"device_desired_state_changed",
-		"mqtt_producer",
 		"mqtt_calc",
 	)
 
 	mc.AddReportRoute(
 		"device_raw_state_changed",
-		"mqtt_producer",
 		"mqtt_calc",
 	)
 

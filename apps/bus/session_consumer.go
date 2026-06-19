@@ -17,17 +17,14 @@ func (sc *sessionConsumer) Init(_ ...any) error {
 
 	sc.AddReportRoute(
 		"device_state_changed",
-		"device_producer",
 		"session_calc",
 	)
 	sc.AddReportRoute(
 		"session_state_changed",
-		"session_producer",
 		"session_calc",
 	)
 	sc.AddReportRoute(
 		"client_desired_state_changed",
-		"session_producer",
 		"session_calc",
 	)
 

@@ -32,6 +32,8 @@ type Nil struct{}
 
 type Val interface {
 	json.Marshaler
+	T() rune
+	Eq(Val) bool
 	String() string
 	IsNil() bool
 	IsNum() bool
@@ -41,6 +43,12 @@ type Val interface {
 	ToInt() int64
 	ToArr() []string
 }
+
+func (v Int) T() rune { return 'i' }
+func (v Flt) T() rune { return 'f' }
+func (v Str) T() rune { return 's' }
+func (v Nil) T() rune { return 'n' }
+func (v Arr) T() rune { return 'a' }
 
 func (v Int) ToInt() int64 { return v.i }
 func (v Flt) ToInt() int64 { return v.i / 100 }
@@ -90,6 +98,12 @@ func (v Flt) IsFlt() bool { return !v.IsNil() }
 func (v Str) IsFlt() bool { return false }
 func (v Arr) IsFlt() bool { return false }
 func (v Nil) IsFlt() bool { return false }
+
+func (a Int) Eq(b Val) bool { return Eq(a, b) }
+func (a Flt) Eq(b Val) bool { return Eq(a, b) }
+func (a Str) Eq(b Val) bool { return Eq(a, b) }
+func (a Arr) Eq(b Val) bool { return Eq(a, b) }
+func (a Nil) Eq(b Val) bool { return Eq(a, b) }
 
 func FltAsFlt(f float64) Val {
 	i := int64(math.Round(f * 100))
@@ -217,4 +231,8 @@ func (v Arr) MarshalJSON() ([]byte, error) {
 
 func (v Nil) MarshalJSON() ([]byte, error) {
 	return json.Marshal(nil)
+}
+
+func Eq(a Val, b Val) bool {
+  return a.T() == b.T() && a.String() == b.String()
 }

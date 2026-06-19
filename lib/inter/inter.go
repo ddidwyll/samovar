@@ -6,6 +6,7 @@ import (
 	"ergo.services/ergo/gen"
 
 	"fmt"
+	"strings"
 )
 
 type Actor = telemetry.Actor
@@ -32,9 +33,12 @@ func Call(a Actor, req any, what, to string) (any, error) {
 	}
 }
 
-func Trigger(a Actor, event, producer gen.Atom) error {
-	action := fmt.Sprintf("trigger %s", string(event))
-	return logError(telemetry.LogRelation(a, action, producer, a.Name()))
+func Trigger(a Actor, e gen.Atom) error {
+	event := string(e)
+	namespace := strings.Split(event, "_")[0]
+	from := fmt.Sprintf("%s_producer", namespace)
+	action := fmt.Sprintf("trigger %s", event)
+	return logError(telemetry.LogRelation(a, action, gen.Atom(from), a.Name()))
 }
 
 func RegisterActor(a Actor, name string) {

@@ -53,5 +53,6 @@ func (c *client) HandleMessage(_ gen.PID, msg any) error {
 }
 
 func (c *client) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
-
+	c.Log().Info("mqtt.client receive request: %#v", req)
+	return "", nil
 }
