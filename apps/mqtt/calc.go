@@ -47,3 +47,8 @@ func changePower(args clc.Args, change clc.ApplyFn) {
 		change("power_m_new", power)
 	}
 }
+
+func (c *calc) HandleMessage(_ gen.PID, msg any) error {
+	c.Log().Info("mqtt.calc.HandleMessage.msg: %v", msg)
+	return c.HandleChangeReports(msg)
+}

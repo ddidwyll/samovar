@@ -34,7 +34,6 @@ func (sh *storeHandler) Init(_ ...any) error {
 func (sh *storeHandler) HandleGet(_ gen.PID, rw resp, r *req) error {
 	switch r.RequestURI {
 	case "/store":
-		fmt.Printf("Request: %#v", *r)
 		return sendJson(rw, []byte(`{"ack":"error"}`))
 	case "/store/fields":
 		return sendJson(rw, stateFields.ToJson())
@@ -53,13 +52,9 @@ func (sh *storeHandler) HandlePatch(_ gen.PID, rw resp, r *req) error {
 	}
 	defer r.Body.Close()
 
-	if res, err := inter.Call(sh, patch, "patch", "client_desired_state"); err != nil {
-		fmt.Printf("store.HandlePatch.Call: %#v, %#v\n", err, res)
-
+	if _, err := inter.Call(sh, patch, "patch", "client_desired_state"); err != nil {
 		return sendJson(rw, []byte(`{"ack":"error"}`))
 	} else {
-		fmt.Printf("store.HandlePatch.Call: %#v, %#v\n", err, res)
-
 		return sendJson(rw, []byte(`{"ack":"ok"}`))
 	}
 }

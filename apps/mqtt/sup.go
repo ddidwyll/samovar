@@ -17,6 +17,10 @@ func (s *sup) Init(args ...any) (spec act.SupervisorSpec, err error) {
 
 	spec.Children = []act.SupervisorChildSpec{
 		{
+			Name:    "mqtt_calc",
+			Factory: newCalc,
+		},
+		{
 			Name:    "mqtt_client",
 			Factory: newClient,
 			Args:    args,

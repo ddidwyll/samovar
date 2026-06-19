@@ -32,5 +32,6 @@ func (p *deviceProducer) Init(_ ...any) error {
 }
 
 func (p *deviceProducer) HandleMessage(_ gen.PID, msg any) error {
+	p.Log().Debug("bus.deviceProducer.HandleMessage.msg: %v", msg)
 	return p.HandleChangeReports(msg)
 }

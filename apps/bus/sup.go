@@ -33,6 +33,10 @@ func (s *sup) Init(_ ...any) (spec act.SupervisorSpec, err error) {
 			Factory: newSessionProducer,
 		},
 		{
+			Name:    "mqtt_consumer",
+			Factory: newMqttConsumer,
+		},
+		{
 			Name:    "device_consumer",
 			Factory: newDeviceConsumer,
 		},

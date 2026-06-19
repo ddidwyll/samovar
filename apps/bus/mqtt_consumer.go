@@ -29,6 +29,6 @@ func (mc *mqttConsumer) Init(_ ...any) error {
 }
 
 func (mc *mqttConsumer) HandleEvent(event gen.MessageEvent) error {
-	mc.Log().Info("mqtt.consumer: %v", event)
+	mc.Log().Debug("bus.mqttConsumer.HandleEvent.event: %v", event)
 	return mc.HandleChangeReports(event)
 }
