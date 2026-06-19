@@ -21,8 +21,9 @@ func (c *calc) Init(_ ...any) error {
 	c.SetApplyFn(c.publish)
 
 	c.Watch(
-		sendToMqtt,
+		mqttPublish,
 		"device_desired_state.power",
+		"device_raw_state.power_m",
 	)
 
 	return nil
@@ -39,9 +40,9 @@ func (c *calc) publish(key string, value any) {
 	}
 }
 
-func sendToMqtt(args clc.Args, apply clc.ApplyFn) {
+func mqttPublish(args clc.Args, publish clc.ApplyFn) {
 	power := args["device_desired_state.power"]
 	if power.IsInt() {
-		apply("power_m_new", power)
+		publish("power_m_new", power)
 	}
 }

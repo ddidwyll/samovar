@@ -2,21 +2,24 @@ package mqtt
 
 import (
 	"ergo.services/ergo/gen"
+	"samovar/common/models"
 
 	natiu "github.com/soypat/natiu-mqtt"
 
 	"context"
-	"errors"
+	"io"
+	"net"
 	"time"
 )
 
 type listener struct {
 	gen.MetaProcess
+	config *config
 	client *natiu.Client
 }
 
-func newListener(nc *natiu.Client) gen.MetaBehavior {
-	return &listener{client: nc}
+func newListener(cfg *config) gen.MetaBehavior {
+	return &listener{config: cfg}
 }
 
 func (l *listener) Init(process gen.MetaProcess) error {
@@ -24,63 +27,78 @@ func (l *listener) Init(process gen.MetaProcess) error {
 	return nil
 }
 
-func (l *listener) Start() error {
+func (l *listener) Start() (err error) {
+	l.createClient()
+	if err = l.connect(); err != nil {
+		return err
+	}
+	if err = l.subscribe(); err != nil {
+		return err
+	}
 	for {
-		// err := l.withTimeout(func(ctx context.Context) error {
-		// 	return l.client.Ping(ctx)
-		// })
-		// if err == nil && !l.client.IsConnected() {
-		// 	err = errors.New("not connected")
-		// }
-		// if err != nil {
-		// 	l.Log().Error("mqtt.listener error: %s", err)
-		// 	return err
-		// }
-		// if !l.client.IsConnected() {
-		// 	return errors.New("not connected")
-		// } else {
-		// l.Log().Info("connected")
-		// }
-		l.Send(l.Parent(), "ping")
-		// err := l.client.StartPing()
-  	// ok := l.client.AwaitingPingresp()
-  	// if err == nil && ok {
-  	if true {
-  	  l.client.HandleNext()
-  		time.Sleep(100 * time.Millisecond)
-  	} else {
-    	return errors.New("mqtt connection failed")
-  	}
-	// for {
- //  	err := l.client.HandleNext()
-	// 	l.Send(l.Parent(), "ping")
-	// 	if err != nil {
-	// 		l.Log().Error("mqtt.listener error: %s", err)
-	// 		return err
-	// 	}
-	// 	time.Sleep(time.Second)
-	// }
-	// 	// err := l.withTimeout(func(ctx context.Context) error {
-	// 	// 	return l.client.Ping(ctx)
-	// 	// })
-	// 	// if err != nil {
-	// 	// 	l.Log().Error("mqtt.listener error: %s", err)
-	// 	// 	return err
-	// 	// } else {
- //  // 		l.Send(l.Parent(), "ping")
- //  // 		time.Sleep(time.Second)
-	// 	// }
-	// // }
+		err = l.withTimeout(func(ctx context.Context) error {
+			return l.client.Ping(ctx)
+		})
+		if err != nil {
+			l.Log().Error("mqtt.listener error: %s", err)
+			return err
+		} else {
+			time.Sleep(time.Second)
+		}
 	}
 }
 
-func (l *listener) withTimeout(f func(context.Context) error) error {
-	timeout := 1 * time.Second
+func (l *listener) createClient() {
+	onPub := func(_ natiu.Header, vpub natiu.VariablesPublish, r io.Reader) error {
+		if text, err := io.ReadAll(r); err == nil {
+			msg := models.NewMqttMessage(vpub.TopicName, text)
+			return l.Send(l.Parent(), msg)
+		} else {
+			return err
+		}
+	}
+
+	cfg := natiu.ClientConfig{OnPub: onPub}
+	l.client = natiu.NewClient(cfg)
+}
+
+func (l *listener) connect() error {
+	var vconn natiu.VariablesConnect
+
+	url := l.config.url()
+	conn, err := net.Dial("tcp", url)
+
+	if err != nil {
+		return err
+	}
+
+	clientID := l.config.clientID()
+	vconn.SetDefaultMQTT(clientID)
+
+	return l.withTimeout(func(ctx context.Context) error {
+		return l.client.Connect(ctx, conn, &vconn)
+	})
+}
+
+func (l *listener) subscribe() error {
+	var vsub natiu.VariablesSubscribe
+
+	topic := l.config.topic()
+	topicFilter := natiu.SubscribeRequest{topic, natiu.QoS2}
+	vsub.TopicFilters = []natiu.SubscribeRequest{topicFilter}
+	vsub.PacketIdentifier = 1
+
+	return l.withTimeout(func(ctx context.Context) error {
+		return l.client.Subscribe(ctx, vsub)
+	})
+}
+
+func (l *listener) withTimeout(fn func(context.Context) error) error {
+	timeout := l.config.Timeout * time.Second
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 
-	err := f(ctx)
-	cancel()
-	return err
+	defer cancel()
+	return fn(ctx)
 }
 
 func (l *listener) Terminate(reason error) {

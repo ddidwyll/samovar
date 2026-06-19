@@ -21,9 +21,16 @@ func (mc *mqttConsumer) Init(_ ...any) error {
 		"mqtt_calc",
 	)
 
+	mc.AddReportRoute(
+		"device_raw_state_changed",
+		"mqtt_producer",
+		"mqtt_calc",
+	)
+
 	return nil
 }
 
 func (mc *mqttConsumer) HandleEvent(event gen.MessageEvent) error {
+	mc.Log().Info("mqtt.consumer: %v", event)
 	return mc.HandleChangeReports(event)
 }
