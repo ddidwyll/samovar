@@ -24,7 +24,7 @@ func (ds *desiredState) Init(_ ...any) error {
 }
 
 func (ds *desiredState) HandleMessage(_ gen.PID, msg any) error {
-  ds.Log().Info("device.desiredState.HandleMessage.msg: %v", msg)
+  ds.Log().Debug("device.desiredState.HandleMessage.msg: %v", msg)
 	return ds.HandleChangeRequests(msg, "device_producer")
 }
 

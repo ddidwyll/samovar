@@ -1,8 +1,9 @@
 package mqtt
 
 import (
-	"ergo.services/ergo/gen"
 	"samovar/common/models"
+
+	"ergo.services/ergo/gen"
 
 	natiu "github.com/soypat/natiu-mqtt"
 
@@ -102,20 +103,20 @@ func (l *listener) withTimeout(fn func(context.Context) error) error {
 }
 
 func (l *listener) Terminate(reason error) {
-	l.Log().Debug("mqtt.listener terminated (%s)", reason)
+	l.Log().Debug("mqtt.listener.Terminate.reason: %s", reason)
 }
 
-func (l *listener) HandleCall(_ gen.PID, _ gen.Ref, request any) (any, error) {
-	l.Log().Debug("mqtt.listener receive call request: %v", request)
-	return nil, nil
+func (l *listener) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
+	l.Log().Debug("mqtt.listener.HandleCall.req: %v", req)
+	return l.client, nil
 
 }
 func (l *listener) HandleMessage(_ gen.PID, msg any) error {
-	l.Log().Debug("mqtt.listener receive message: %s", msg)
+	l.Log().Debug("mqtt.listener.HandleMessage.msg: %s", msg)
 	return nil
 }
 
 func (l *listener) HandleInspect(_ gen.PID, items ...string) map[string]string {
-	l.Log().Debug("mqtt.listener receive inspect request: %v", items)
+	l.Log().Debug("mqtt.listener.HandleInspect.items: %v", items)
 	return nil
 }

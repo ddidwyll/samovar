@@ -37,6 +37,8 @@ var rawStateFields = st.Fields{
 	st.FieldParams{"count_vent", 's', "count_vent", "?"},
 	st.FieldParams{"term_vent", 'f', "term_vent", "?"},
 	st.FieldParams{"term_v", 's', "term_v", "?"},
+
+	st.FieldParams{"power_m_new", 's', "_", ""},
 }
 
 func newRawState() gen.ProcessBehavior {

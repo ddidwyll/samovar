@@ -84,6 +84,6 @@ func sendText(rw resp, data []byte) (err error) {
 }
 
 // func (sh *storeHandler) HandleMessage(_ gen.PID, msg any) error {
-//   sh.Log().Info("client.storeHandler received message: %#v", msg)
+//   sh.Log().Debug("client.storeHandler received message: %#v", msg)
 //   return nil
 // }
