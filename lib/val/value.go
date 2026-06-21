@@ -234,5 +234,5 @@ func (v Nil) MarshalJSON() ([]byte, error) {
 }
 
 func Eq(a Val, b Val) bool {
-  return a.T() == b.T() && a.String() == b.String()
+	return a.T() == b.T() && a.String() == b.String()
 }

@@ -54,7 +54,7 @@ func (c *calc) prepareDevices(args ...any) error {
 	changeDeviceId := func(args clc.Args, apply clc.ApplyFn) {
 		desiredDeviceId := args["client_desired_state.device_id"]
 		if !desiredDeviceId.IsNil() {
-  		apply("session_state.device_id", desiredDeviceId)
+			apply("session_state.device_id", desiredDeviceId)
 		}
 	}
 

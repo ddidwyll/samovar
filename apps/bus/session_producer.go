@@ -28,6 +28,6 @@ func (p *sessionProducer) Init(_ ...any) error {
 }
 
 func (p *sessionProducer) HandleMessage(_ gen.PID, msg any) error {
-  p.Log().Debug("bus.sessionProducer.HandleMessage.msg: %v", msg)
+	p.Log().Debug("bus.sessionProducer.HandleMessage.msg: %v", msg)
 	return p.HandleChangeReports(msg)
 }
