@@ -25,8 +25,8 @@ func (s *state) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
 	return s.HandleDataRequest(req)
 }
 
-func (s *state) HandleMessage(_ gen.PID, req any) error {
-	return s.HandleChangeRequests(req, "script_producer")
+func (s *state) HandleMessage(_ gen.PID, msg any) error {
+	return s.HandleChangeRequests(msg, "script_producer")
 }
 
 func (s *state) Terminate(reason error) {

@@ -8,6 +8,7 @@ import (
 	"samovar/apps/client"
 	"samovar/apps/device"
 	"samovar/apps/mqtt"
+	"samovar/apps/script"
 	"samovar/apps/session"
 	"samovar/apps/telemetry"
 
@@ -37,6 +38,7 @@ func main() {
 		telemetry.CreateApp(),
 		bus.CreateApp(),
 		client.CreateApp(),
+		script.CreateApp(),
 		session.CreateApp(),
 		device.CreateApp(),
 		mqtt.CreateApp(),

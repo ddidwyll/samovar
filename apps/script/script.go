@@ -14,7 +14,6 @@ func (app *script) Load(_ gen.Node, _ ...any) (spec gen.ApplicationSpec, err err
 		{
 			Name:    "script_sup",
 			Factory: newSup,
-			Args:    []any{cfg},
 		},
 	}
 
