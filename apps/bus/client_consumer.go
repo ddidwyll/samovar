@@ -24,6 +24,10 @@ func (cc *clientConsumer) Init(_ ...any) error {
 		"client_calc",
 	)
 	cc.AddReportRoute(
+		"script_state_changed",
+		"client_calc",
+	)
+	cc.AddReportRoute(
 		"client_state_changed",
 		"client_feed",
 	)

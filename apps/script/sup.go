@@ -20,6 +20,10 @@ func (s *sup) Init(_ ...any) (spec act.SupervisorSpec, err error) {
 			Name:    "script_state",
 			Factory: newState,
 		},
+		{
+			Name:    "script_calc",
+			Factory: newCalc,
+		},
 	}
 
 	return spec, err

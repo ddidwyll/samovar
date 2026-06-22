@@ -10,7 +10,7 @@ type desiredState struct{ st.StateActor }
 
 var desiredStateFields = st.Fields{
 	st.FieldParams{"device_id", 's', "device id", ""},
-	st.FieldParams{"script", 's', "script", ""},
+	st.FieldParams{"script_mode", 's', "script mode", ""},
 }
 
 func newDesiredState() gen.ProcessBehavior {

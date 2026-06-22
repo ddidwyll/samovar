@@ -4,6 +4,9 @@ import (
 	clc "samovar/lib/calc"
 
 	"ergo.services/ergo/gen"
+
+	"maps"
+	"slices"
 )
 
 type calc struct{ clc.CalcActor }
@@ -20,32 +23,45 @@ func newCalc() gen.ProcessBehavior {
 func (c *calc) Init(_ ...any) error {
 	c.InitCalc("{script.calc}")
 
-	c.Watch(selectScript, "client_desired_state.script")
+	c.Watch(
+		selectScript,
+		"client_desired_state.script_mode",
+	)
 
 	c.Watch(
 		performScript,
-		"script_state.current_script",
+		"script_state.script_mode",
 	)
 
-	return nil
+	return c.calcScripts()
+}
+
+func (c *calc) calcScripts() error {
+	modes := slices.Collect(maps.Keys(scripts))
+	c.Log().Info("script.calc.calcScripts.modes: %v", modes)
+	return c.SendRequest("script_state", "scripts", modes)
 }
 
 func selectScript(args args, apply applyFn) {
-	script := args["client_desired_state.script"].String()
+	script := args.MustGet("client_desired_state.script_mode").String()
 	if _, has := scripts[script]; !has {
 		script = "idle"
 	}
-	apply("script_state.current_script", script)
+	apply("script_state.script_mode", script)
 }
 
 func performScript(args args, apply applyFn) {
-	currentScript := args["script_state.current_script"].String()
+	scriptMode := args.MustGet("script_state.script_mode").String()
 	for scriptName, scriptFn := range scripts {
-		if scriptName == currentScript {
-			apply = func(key string, value any) {
+		if scriptName == scriptMode {
+			patchedApply := func(key string, value any) {
 				apply("script_state."+key, value)
 			}
-			scriptFn(args, apply)
+			scriptFn(args, patchedApply)
 		}
 	}
+}
+
+func (c *calc) HandleMessage(_ gen.PID, msg any) error {
+	return c.HandleChangeReports(msg)
 }

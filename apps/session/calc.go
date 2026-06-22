@@ -37,12 +37,14 @@ func (c *calc) prepareDevices(args ...any) error {
 		return err
 	}
 
-	calcDevice := func(args clc.Args, apply clc.ApplyFn) {
-		dId := args["session_state.device_id"].String()
+	changeDevice := func(args clc.Args, apply clc.ApplyFn) {
+		dId := args.MustGet("client_desired_state.device_id").String()
 		if device, err := cfg.findById(dId); err != nil {
+			apply("session_state.device_id", "")
 			apply("session_state.started", "no")
 			apply("session_state.error", "invalid device id")
 		} else {
+			apply("session_state.device_id", dId)
 			apply("session_state.started", "yes")
 			apply("session_state.heat_loss", device.HeatLoss)
 			apply("session_state.max_power", device.MaxPower)
@@ -51,15 +53,7 @@ func (c *calc) prepareDevices(args ...any) error {
 		}
 	}
 
-	changeDeviceId := func(args clc.Args, apply clc.ApplyFn) {
-		desiredDeviceId := args["client_desired_state.device_id"]
-		if !desiredDeviceId.IsNil() {
-			apply("session_state.device_id", desiredDeviceId)
-		}
-	}
-
-	c.Watch(calcDevice, "session_state.device_id")
-	c.Watch(changeDeviceId, "client_desired_state.device_id")
+	c.Watch(changeDevice, "client_desired_state.device_id")
 
 	return nil
 }

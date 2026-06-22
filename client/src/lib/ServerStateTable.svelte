@@ -5,6 +5,9 @@
   const patchDeviceId = (devId) => {
     patch("device_id", devId, console.error, console.log)
   }
+  const patchScriptMode = (mode) => {
+    patch("script_mode", mode, console.error, console.log)
+  }
 </script>
 
 <table>
@@ -16,6 +19,17 @@
             onclick={() => patchDeviceId(devId)}
           >
             {devId}
+          </button>
+        {/each}
+      </th>
+    </tr>
+    <tr>
+      <th colspan="2">
+        {#each ($store.values?.scripts?.split(";") || []) as mode}
+          <button
+            onclick={() => patchScriptMode(mode)}
+          >
+            {mode}
           </button>
         {/each}
       </th>

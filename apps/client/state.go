@@ -25,6 +25,8 @@ var stateFields = st.Fields{
 	st.FieldParams{"press", 'f', "press", "mm"},
 	st.FieldParams{"devices", 'a', "devices", ""},
 	st.FieldParams{"device_id", 's', "device id", ""},
+	st.FieldParams{"scripts", 'a', "scripts", ""},
+	st.FieldParams{"script_mode", 's', "script mode", ""},
 	st.FieldParams{"error", 's', "error", ""},
 	st.FieldParams{"started", 's', "started", ""},
 }
@@ -34,16 +36,18 @@ func (s *state) Init(_ ...any) error {
 	return nil
 }
 
-func (s *state) HandleMessage(_ gen.PID, req any) error {
-	return s.HandleChangeRequests(req, "client_producer")
+func (s *state) HandleMessage(_ gen.PID, msg any) error {
+	s.Log().Debug("client.state.HandleMessage.msg: %s", msg)
+	return s.HandleChangeRequests(msg, "client_producer")
 }
 
 func (s *state) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
+	s.Log().Debug("client.state.HandleCall.req: %s", req)
 	return s.HandleDataRequest(req)
 }
 
 func (s *state) Terminate(reason error) {
-	s.Log().Debug("client.state terminated: %s", reason)
+	s.Log().Debug("client.state.Terminate.reason: %s", reason)
 }
 
 func stateEntries(p gen.Process) (st.Entries, error) {

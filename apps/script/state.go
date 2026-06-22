@@ -13,7 +13,10 @@ func newState() gen.ProcessBehavior {
 }
 
 var stateFields = st.Fields{
-	st.FieldParams{"current_script", 's', "current script", ""},
+	st.FieldParams{"scripts", 'a', "scripts", ""},
+	st.FieldParams{"script_mode", 's', "script mode", ""},
+	st.FieldParams{"collect_type", 's', "collect type", ""},
+	st.FieldParams{"collect_value", 'i', "collect value", ""},
 }
 
 func (s *state) Init(_ ...any) error {

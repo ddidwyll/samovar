@@ -33,6 +33,10 @@ func (s *sup) Init(_ ...any) (spec act.SupervisorSpec, err error) {
 			Factory: newSessionProducer,
 		},
 		{
+			Name:    "script_producer",
+			Factory: newScriptProducer,
+		},
+		{
 			Name:    "mqtt_consumer",
 			Factory: newMqttConsumer,
 		},
@@ -47,6 +51,10 @@ func (s *sup) Init(_ ...any) (spec act.SupervisorSpec, err error) {
 		{
 			Name:    "session_consumer",
 			Factory: newSessionConsumer,
+		},
+		{
+			Name:    "script_consumer",
+			Factory: newScriptConsumer,
 		},
 	}
 

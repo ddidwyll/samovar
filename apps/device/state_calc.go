@@ -8,8 +8,8 @@ import (
 )
 
 func calcPowerDiff(args clc.Args, apply clc.ApplyFn) {
-	power_fact := args["device_raw_state.power"]
-	power_plan := args["device_raw_state.power_m"]
+	power_fact := args.MustGet("device_raw_state.power")
+	power_plan := args.MustGet("device_raw_state.power_m")
 
 	if !power_fact.IsInt() || !power_plan.IsInt() {
 		return
@@ -25,14 +25,14 @@ func calcPowerDiff(args clc.Args, apply clc.ApplyFn) {
 func calcCollect(args clc.Args, apply clc.ApplyFn) {
 	f, s := 0.0, "OFF"
 
-	otbor := args["device_raw_state.otbor"]
+	otbor := args.MustGet("device_raw_state.otbor")
 	if !otbor.IsInt() {
 		return
 	}
 
 	calcPeriod := func() float64 {
-		sec := args["device_raw_state.sek_otb"]
-		min := args["device_raw_state.min_otb"]
+		sec := args.MustGet("device_raw_state.sek_otb")
+		min := args.MustGet("device_raw_state.min_otb")
 
 		if !sec.IsInt() || !min.IsInt() {
 			return -1.0
@@ -41,7 +41,7 @@ func calcCollect(args clc.Args, apply clc.ApplyFn) {
 		return sec.ToFlt() * 100.0 / (min.ToFlt() * 60.0)
 	}
 
-	switch args["device_raw_state.flag_otb"].String() {
+	switch args.MustGet("device_raw_state.flag_otb").String() {
 	case "Golov":
 		f, s = otbor.ToFlt(), "HEAD"
 	case "Podgol":
