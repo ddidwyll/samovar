@@ -26,15 +26,30 @@ func (c *calc) Init(_ ...any) error {
 		"device_raw_state.power_m",
 	)
 
+	c.Watch(
+		changeCollect,
+		"device_desired_state.collect_type",
+		"device_desired_state.collect_value",
+	)
+
 	return nil
 }
 
 func (c *calc) publish(key string, value any) {
-	v, ok := value.(val.Val)
-	if !ok {
-		panic("Unexpected mqtt calc result")
-	}
-	msg := models.NewMqttMessage([]byte(key), []byte(v.String()))
+  var strVal string
+  switch v := value.(type) {
+  case val.Val:
+    strVal = v.String()
+  case string:
+    strVal = v
+  case int64:
+    strVal = string(v)
+  case float64:
+    strVal = string(v)
+  default:
+		panic("Unexpected mqtt calc value")
+  }
+	msg := models.NewMqttMessage([]byte(key), []byte(strVal))
 	if _, err := inter.Call(c, msg, "message", "mqtt_client"); err != nil {
 		panic(err)
 	}
@@ -46,6 +61,37 @@ func changePower(args clc.Args, change clc.ApplyFn) {
 	if power.IsInt() && !current_power.Eq(power) {
 		change("power_m_new", power)
 	}
+}
+
+func changeCollect(args clc.Args, change clc.ApplyFn) {
+	ctype := args["device_desired_state.collect_type"]
+	cval := args["device_desired_state.collect_value"]
+
+	if ctype.IsNil() || !cval.IsInt() {
+		return
+	}
+
+	typeS := ctype.String()
+	valI := cval.ToInt()
+	if valI <= 0 || valI >= 100 {
+		typeS = "OFF"
+	}
+	if typeS == "BODY" {
+  	change("otbor_t", valI)
+  	change("work", 7)
+  	return
+	}
+	if typeS == "HEAD" {
+  	change("otbor_g_1", valI)
+  	change("work", 9)
+  	return
+	}
+	if typeS == "RECYC" {
+  	change("otbor_g_2", valI)
+  	change("work", 10)
+  	return
+	}
+	change("work", 6)
 }
 
 func (c *calc) HandleMessage(_ gen.PID, msg any) error {

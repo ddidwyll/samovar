@@ -28,7 +28,7 @@ func (sc *sessionConsumer) Init(_ ...any) error {
 		"session_calc",
 	)
 
-	sc.Log().Debug("bus.sessionConsumer started (%s)", sc.Name())
+	sc.Log().Debug("bus.sessionConsumer.Init.name: %s", sc.Name())
 	return nil
 }
 

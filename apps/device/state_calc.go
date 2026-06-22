@@ -43,13 +43,13 @@ func calcCollect(args clc.Args, apply clc.ApplyFn) {
 
 	switch args["device_raw_state.flag_otb"].String() {
 	case "Golov":
-		f, s = otbor.ToFlt(), "Hdrp"
+		f, s = otbor.ToFlt(), "HEAD"
 	case "Podgol":
-		f, s = otbor.ToFlt(), "subH"
+		f, s = otbor.ToFlt(), "RECYC"
 	case "Gol.P":
-		f, s = calcPeriod(), "Hprd"
+		f, s = calcPeriod(), "SALVO"
 	case "Telo":
-		f, s = otbor.ToFlt(), "Body"
+		f, s = otbor.ToFlt(), "BODY"
 	}
 
 	collectValue := val.FltAsFlt(f)

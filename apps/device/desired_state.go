@@ -10,8 +10,8 @@ type desiredState struct{ st.StateActor }
 
 var desiredStateFields = st.Fields{
 	st.FieldParams{"power", 'i', "power", "W"},
-	// st.FieldParams{"collect_type", 's', "collect type", ""},
-	// st.FieldParams{"collect_value", 'i', "collect value", "%"},
+	st.FieldParams{"collect_type", 's', "collect type", ""},
+	st.FieldParams{"collect_value", 'i', "collect value", "%"},
 }
 
 func newDesiredState() gen.ProcessBehavior {
