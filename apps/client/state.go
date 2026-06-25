@@ -29,6 +29,7 @@ var stateFields = st.Fields{
 	st.FieldParams{"script_mode", 's', "script mode", ""},
 	st.FieldParams{"error", 's', "error", ""},
 	st.FieldParams{"started", 's', "started", ""},
+	st.FieldParams{"last_mqtt_tx", 's', "last mqtt tx", ""},
 }
 
 func (s *state) Init(_ ...any) error {

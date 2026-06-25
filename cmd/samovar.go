@@ -37,10 +37,10 @@ func main() {
 	options.Applications = []gen.ApplicationBehavior{
 		telemetry.CreateApp(),
 		bus.CreateApp(),
+		device.CreateApp(),
 		client.CreateApp(),
 		script.CreateApp(),
 		session.CreateApp(),
-		device.CreateApp(),
 		mqtt.CreateApp(),
 	}
 

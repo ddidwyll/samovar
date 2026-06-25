@@ -136,19 +136,19 @@ func (s *State) Change(req request) (rep report, err error) {
 }
 
 func (kv *KeyVals) Fetch(k string) (val.Val, bool) {
-  if v, exists := (*kv)[k]; exists {
-    return v, true
-  } else {
-    return val.Nil{}, false
-  }
+	if v, exists := (*kv)[k]; exists {
+		return v, true
+	} else {
+		return val.Nil{}, false
+	}
 }
 
 func (kv *KeyVals) MustGet(k string) val.Val {
-  if v, exists := kv.Fetch(k); exists {
-    return v
-  } else {
-    panic("state key [" + k + "] not found") 
-  }
+	if v, exists := kv.Fetch(k); exists {
+		return v
+	} else {
+		panic("state key [" + k + "] not found")
+	}
 }
 
 func (kv *KeyVals) ToJson() []byte {

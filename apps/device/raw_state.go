@@ -38,7 +38,13 @@ var rawStateFields = st.Fields{
 	st.FieldParams{"term_vent", 'f', "term_vent", "?"},
 	st.FieldParams{"term_v", 's', "term_v", "?"},
 
+	st.FieldParams{"last_tx", 's', "last tx", ""},
+
 	st.FieldParams{"power_m_new", 's', "_", ""},
+	st.FieldParams{"otbor_new", 'i', "_", ""},
+	st.FieldParams{"otbor_t_new", 'i', "_", ""},
+	st.FieldParams{"otbor_g_1_new", 'i', "_", ""},
+	st.FieldParams{"otbor_g_2_new", 'i', "_", ""},
 }
 
 func newRawState() gen.ProcessBehavior {

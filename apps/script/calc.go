@@ -5,6 +5,7 @@ import (
 
 	"ergo.services/ergo/gen"
 
+	"fmt"
 	"maps"
 	"slices"
 )
@@ -12,8 +13,10 @@ import (
 type calc struct{ clc.CalcActor }
 
 var scripts = scriptMap{
-	"idle":             performIdle,
-	"collect_body_emu": performCollectBodyEmu,
+	"idle":               performIdle,
+	"collect_body_emu":   performCollectBodyEmu,
+	"collect_body_emu_x": performCollectBodyEmuX,
+	"collect_body_emu_y": performCollectBodyEmuY,
 }
 
 func newCalc() gen.ProcessBehavior {
@@ -38,7 +41,7 @@ func (c *calc) Init(_ ...any) error {
 
 func (c *calc) calcScripts() error {
 	modes := slices.Collect(maps.Keys(scripts))
-	c.Log().Info("script.calc.calcScripts.modes: %v", modes)
+	c.Log().Debug("script.calc.calcScripts.modes: %v", modes)
 	return c.SendRequest("script_state", "scripts", modes)
 }
 
@@ -55,6 +58,7 @@ func performScript(args args, apply applyFn) {
 	for scriptName, scriptFn := range scripts {
 		if scriptName == scriptMode {
 			patchedApply := func(key string, value any) {
+				fmt.Printf(">>> script.calc.performScript.patchedApply: %v, %v\n", key, value)
 				apply("script_state."+key, value)
 			}
 			scriptFn(args, patchedApply)

@@ -36,23 +36,42 @@ func (l *listener) Start() (err error) {
 	if err = l.subscribe(); err != nil {
 		return err
 	}
+	restart := func(reason error) {
+		l.Log().Error("mqtt.listener.error: %s", err)
+		l.Start()
+	}
 	for {
-		err = l.withTimeout(func(ctx context.Context) error {
-			return l.client.Ping(ctx)
-		})
+		// err = l.withTimeout(func(ctx context.Context) error {
+		// 	return l.client.Ping(ctx)
+		// })
+		err = l.client.HandleNext()
 		if err != nil {
-			l.Log().Error("mqtt.listener error: %s", err)
-			return err
+			break
 		} else {
-			time.Sleep(time.Second)
+			if err = l.sendTimestamp(); err != nil {
+				return err
+			}
 		}
 	}
+	restart(err)
+	return nil
+}
+
+func (l *listener) sendTimestamp() error {
+	// time.Sleep(time.Second)
+	sendTs := func(k string, t time.Time) error {
+		ts := t.Format(time.TimeOnly)
+		msg := models.NewMqttMessage([]byte(k), []byte(ts))
+		return l.Send(l.Parent(), msg)
+	}
+	return sendTs("last_tx", l.client.LastTx())
 }
 
 func (l *listener) createClient() {
 	onPub := func(_ natiu.Header, vpub natiu.VariablesPublish, r io.Reader) error {
 		if text, err := io.ReadAll(r); err == nil {
 			msg := models.NewMqttMessage(vpub.TopicName, text)
+			l.Log().Debug("mqtt.listener.onPub.msg: %v", msg)
 			return l.Send(l.Parent(), msg)
 		} else {
 			return err
@@ -108,6 +127,7 @@ func (l *listener) Terminate(reason error) {
 
 func (l *listener) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
 	l.Log().Debug("mqtt.listener.HandleCall.req: %v", req)
+	time.Sleep(time.Second)
 	return l.client, nil
 
 }

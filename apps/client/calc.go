@@ -15,7 +15,7 @@ func newCalc() gen.ProcessBehavior {
 func (c *calc) Init(_ ...any) error {
 	c.InitCalc("{client.calc}")
 
-  // DEVICE_STATE
+	// DEVICE_STATE
 	c.WatchAs("device_state.t_top", "client_state.t_top")
 	c.WatchAs("device_state.t_mid", "client_state.t_mid")
 	c.WatchAs("device_state.t_btm", "client_state.t_btm")
@@ -23,6 +23,8 @@ func (c *calc) Init(_ ...any) error {
 	c.WatchAs("device_state.power_diff", "client_state.power_diff")
 	c.WatchAs("device_state.collect", "client_state.collect")
 	c.WatchAs("device_state.press", "client_state.press")
+	// DEVICE_RAW_STATE
+	c.WatchAs("device_raw_state.last_tx", "client_state.last_mqtt_tx")
 	// SESSION_STATE
 	c.WatchAs("session_state.error", "client_state.error")
 	c.WatchAs("session_state.started", "client_state.started")

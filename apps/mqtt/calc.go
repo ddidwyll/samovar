@@ -30,6 +30,9 @@ func (c *calc) Init(_ ...any) error {
 
 	c.Watch(
 		changeCollect,
+		"device_raw_state.last_tx",
+		"device_state.collect_type",
+		"device_state.collect_value",
 		"device_desired_state.collect_type",
 		"device_desired_state.collect_value",
 	)
@@ -44,13 +47,16 @@ func (c *calc) publish(key string, value any) {
 		strVal = v.String()
 	case string:
 		strVal = v
+	case int:
+		strVal = fmt.Sprintf("%d", v)
 	case int64:
 		strVal = fmt.Sprintf("%d", v)
 	default:
-		panic("Unexpected mqtt calc value")
+		err := fmt.Sprintf("Unexpected mqtt calc value (%T)", value)
+		panic(err)
 	}
 	msg := models.NewMqttMessage([]byte(key), []byte(strVal))
-	if _, err := inter.Call(c, msg, "message", "mqtt_client"); err != nil {
+	if err := inter.Send(c, msg, "message", "mqtt_publisher"); err != nil {
 		panic(err)
 	}
 }
@@ -64,34 +70,54 @@ func changePower(args clc.Args, change clc.ApplyFn) {
 }
 
 func changeCollect(args clc.Args, change clc.ApplyFn) {
-	ctype := args.MustGet("device_desired_state.collect_type")
-	cval := args.MustGet("device_desired_state.collect_value")
+	newType := args.MustGet("device_desired_state.collect_type")
+	newValue := args.MustGet("device_desired_state.collect_value")
 
-	if ctype.IsNil() || !cval.IsInt() {
+	if newType.IsNil() || !newValue.IsInt() {
 		return
 	}
 
-	typeS := ctype.String()
-	valI := cval.ToInt()
+	currentType := args.MustGet("device_state.collect_type").String()
+	currentValue := args.MustGet("device_state.collect_value")
+
+	typeS := newType.String()
+	valI := newValue.ToInt()
 	if valI <= 0 || valI >= 100 {
 		typeS = "OFF"
 	}
 	if typeS == "BODY" {
-		change("otbor_t", valI)
-		change("work", 7)
+		if !currentValue.Eq(newValue) {
+			change("otbor_t_new", valI)
+			change("otbor_new", valI)
+		}
+		if currentType != "BODY" {
+			change("work", 8)
+		}
 		return
 	}
 	if typeS == "HEAD" {
-		change("otbor_g_1", valI)
-		change("work", 9)
+		if !currentValue.Eq(newValue) {
+			change("otbor_g_1_new", valI)
+			change("otbor_new", valI)
+		}
+		if currentType != "HEAD" {
+			change("work", 9)
+		}
 		return
 	}
 	if typeS == "RECYC" {
-		change("otbor_g_2", valI)
-		change("work", 10)
+		if !currentValue.Eq(newValue) {
+			change("otbor_g_2_new", valI)
+			change("otbor_new", valI)
+		}
+		if currentType != "RECYC" {
+			change("work", 10)
+		}
 		return
 	}
-	change("work", 6)
+	if currentType != "OFF" {
+		change("work", 6)
+	}
 }
 
 func (c *calc) HandleMessage(_ gen.PID, msg any) error {

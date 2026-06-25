@@ -20,6 +20,11 @@ func (sc *scriptConsumer) Init(_ ...any) error {
 		"script_calc",
 	)
 
+	sc.AddReportRoute(
+		"script_state_changed",
+		"script_calc",
+	)
+
 	sc.Log().Debug("bus.scriptConsumer.Init.name: %s", sc.Name())
 	return nil
 }

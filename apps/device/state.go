@@ -15,8 +15,8 @@ var stateFields = st.Fields{
 	st.FieldParams{"power", 'i', "power", "W"},
 	st.FieldParams{"power_diff", 'i', "power diff", "%"},
 	st.FieldParams{"collect", 's', "collect", "%"},
-	st.FieldParams{"collect_value", 'f', "collect value", "%"},
-	st.FieldParams{"collect_mode", 's', "collect mode", ""},
+	st.FieldParams{"collect_value", 'i', "collect value", "%"},
+	st.FieldParams{"collect_type", 's', "collect type", ""},
 	st.FieldParams{"press", 'f', "press", "mm"},
 }
 

@@ -28,6 +28,10 @@ func (dc *deviceConsumer) Init(_ ...any) error {
 		"device_calc",
 	)
 	dc.AddReportRoute(
+		"script_state_changed",
+		"device_calc",
+	)
+	dc.AddReportRoute(
 		"device_state_changed",
 		"device_change_log",
 	)

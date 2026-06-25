@@ -16,6 +16,10 @@ func (cc *clientConsumer) Init(_ ...any) error {
 	cc.InitConsumer("([bus.client.consumer])")
 
 	cc.AddReportRoute(
+		"device_raw_state_changed",
+		"client_calc",
+	)
+	cc.AddReportRoute(
 		"device_state_changed",
 		"client_calc",
 	)

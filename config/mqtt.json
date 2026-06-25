@@ -3,5 +3,5 @@
   "port": 1883,
   "client_id": "samovar_client",
   "topic": "/samovar/#",
-  "timeout": 30
+  "timeout": 60
 }

@@ -53,11 +53,11 @@ func calcCollect(args clc.Args, apply clc.ApplyFn) {
 	}
 
 	collectValue := val.FltAsFlt(f)
-	collectMode, _ := val.StrAsStr(s)
-	collectStr := fmt.Sprintf("%s_%s", collectMode, collectValue)
+	collectType, _ := val.StrAsStr(s)
+	collectStr := fmt.Sprintf("%s_%s", collectType, collectValue)
 	collect, _ := val.StrAsStr(collectStr)
 
 	apply("device_state.collect_value", collectValue)
-	apply("device_state.collect_mode", collectMode)
+	apply("device_state.collect_type", collectType)
 	apply("device_state.collect", collect)
 }

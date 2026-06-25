@@ -21,6 +21,10 @@ func (s *sup) Init(args ...any) (spec act.SupervisorSpec, err error) {
 			Factory: newCalc,
 		},
 		{
+			Name:    "mqtt_publisher",
+			Factory: newPublisher,
+		},
+		{
 			Name:    "mqtt_client",
 			Factory: newClient,
 			Args:    args,

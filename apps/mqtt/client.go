@@ -17,6 +17,7 @@ type client struct {
 	act.Actor
 	config   *config
 	listener gen.Alias
+	packetId uint16
 }
 
 func newClient() gen.ProcessBehavior { return &client{} }
@@ -57,7 +58,7 @@ func (c *client) HandleMessage(_ gen.PID, msg any) error {
 }
 
 func (c *client) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
-	c.Log().Info("mqtt.client.HandleCall.req: %v", req)
+	c.Log().Debug("mqtt.client.HandleCall.req: %v", req)
 	msg, ok := req.(models.MqttMessage)
 	if !ok {
 		return nil, errors.New("Unexpected mqtt client change request")
@@ -74,8 +75,11 @@ func (c *client) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
 }
 
 func (c *client) publish(client *natiu.Client, msg models.MqttMessage) error {
+	c.Log().Debug("mqtt.client.publish.msg: %v", msg)
+	pid := c.packetId + 1
+	c.packetId = pid
 	topic := fmt.Sprintf("/samovar/%s", msg.Topic)
-	vars := natiu.VariablesPublish{[]byte(topic), 1}
+	vars := natiu.VariablesPublish{[]byte(topic), pid}
 	if flags, err := natiu.NewPublishFlags(0, false, false); err == nil {
 		return client.PublishPayload(flags, vars, []byte(msg.Text))
 	} else {
