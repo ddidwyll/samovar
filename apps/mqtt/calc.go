@@ -30,9 +30,9 @@ func (c *calc) Init(_ ...any) error {
 
 	c.Watch(
 		changeCollect,
-		"device_raw_state.last_tx",
+		"device_raw_state.last_ping",
+		"device_raw_state.otbor",
 		"device_state.collect_type",
-		"device_state.collect_value",
 		"device_desired_state.collect_type",
 		"device_desired_state.collect_value",
 	)
@@ -78,45 +78,42 @@ func changeCollect(args clc.Args, change clc.ApplyFn) {
 	}
 
 	currentType := args.MustGet("device_state.collect_type").String()
-	currentValue := args.MustGet("device_state.collect_value")
+	currentValue := args.MustGet("device_raw_state.otbor")
+
+	if currentType == "" || !currentValue.IsInt() {
+		return
+	}
 
 	typeS := newType.String()
 	valI := newValue.ToInt()
-	if valI <= 0 || valI >= 100 {
-		typeS = "OFF"
-	}
-	if typeS == "BODY" {
-		if !currentValue.Eq(newValue) {
-			change("otbor_t_new", valI)
-			change("otbor_new", valI)
-		}
+	// if valI <= 0 || valI >= 100 {
+	// 	typeS = "OFF"
+	// }
+	switch {
+	case typeS == "BODY":
 		if currentType != "BODY" {
 			change("work", 8)
-		}
-		return
-	}
-	if typeS == "HEAD" {
-		if !currentValue.Eq(newValue) {
-			change("otbor_g_1_new", valI)
+		} else if !currentValue.Eq(newValue) {
 			change("otbor_new", valI)
 		}
+	case typeS == "HEAD":
 		if currentType != "HEAD" {
 			change("work", 9)
-		}
-		return
-	}
-	if typeS == "RECYC" {
-		if !currentValue.Eq(newValue) {
-			change("otbor_g_2_new", valI)
+		} else if !currentValue.Eq(newValue) {
 			change("otbor_new", valI)
 		}
+	case typeS == "RECYC":
 		if currentType != "RECYC" {
 			change("work", 10)
+		} else if !currentValue.Eq(newValue) {
+			change("otbor_new", valI)
 		}
-		return
-	}
-	if currentType != "OFF" {
-		change("work", 6)
+	default:
+		if currentValue.ToInt() != 0 {
+			change("otbor_new", 0)
+		} else if currentType != "OFF" {
+			change("work", 6)
+		}
 	}
 }
 

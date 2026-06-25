@@ -30,6 +30,8 @@ var stateFields = st.Fields{
 	st.FieldParams{"error", 's', "error", ""},
 	st.FieldParams{"started", 's', "started", ""},
 	st.FieldParams{"last_mqtt_tx", 's', "last mqtt tx", ""},
+	st.FieldParams{"last_mqtt_rx", 's', "last mqtt rx", ""},
+	st.FieldParams{"last_mqtt_ping", 's', "last mqtt ping", ""},
 }
 
 func (s *state) Init(_ ...any) error {

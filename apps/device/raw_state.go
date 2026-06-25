@@ -39,6 +39,8 @@ var rawStateFields = st.Fields{
 	st.FieldParams{"term_v", 's', "term_v", "?"},
 
 	st.FieldParams{"last_tx", 's', "last tx", ""},
+	st.FieldParams{"last_rx", 's', "last rx", ""},
+	st.FieldParams{"last_ping", 's', "last ping", ""},
 
 	st.FieldParams{"power_m_new", 's', "_", ""},
 	st.FieldParams{"otbor_new", 'i', "_", ""},

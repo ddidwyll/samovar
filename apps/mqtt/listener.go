@@ -25,11 +25,11 @@ func newListener(cfg *config) gen.MetaBehavior {
 
 func (l *listener) Init(process gen.MetaProcess) error {
 	l.MetaProcess = process
+	l.createClient()
 	return nil
 }
 
 func (l *listener) Start() (err error) {
-	l.createClient()
 	if err = l.connect(); err != nil {
 		return err
 	}
@@ -49,7 +49,9 @@ func (l *listener) Start() (err error) {
 			break
 		} else {
 			if err = l.sendTimestamp(); err != nil {
-				return err
+				break
+			} else {
+				time.Sleep(100 * time.Millisecond)
 			}
 		}
 	}
@@ -58,13 +60,21 @@ func (l *listener) Start() (err error) {
 }
 
 func (l *listener) sendTimestamp() error {
-	// time.Sleep(time.Second)
 	sendTs := func(k string, t time.Time) error {
 		ts := t.Format(time.TimeOnly)
 		msg := models.NewMqttMessage([]byte(k), []byte(ts))
 		return l.Send(l.Parent(), msg)
 	}
-	return sendTs("last_tx", l.client.LastTx())
+	// if err := sendTs("last_tx", l.client.LastTx()); err != nil {
+	//  	return err
+	// }
+	// if err := sendTs("last_rx", l.client.LastRx()); err != nil {
+	//  	return err
+	// }
+	if err := sendTs("last_ping", time.Now()); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (l *listener) createClient() {
@@ -127,7 +137,6 @@ func (l *listener) Terminate(reason error) {
 
 func (l *listener) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
 	l.Log().Debug("mqtt.listener.HandleCall.req: %v", req)
-	time.Sleep(time.Second)
 	return l.client, nil
 
 }

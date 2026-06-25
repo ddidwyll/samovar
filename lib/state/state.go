@@ -3,6 +3,7 @@ package state
 import (
 	"samovar/lib/change"
 	"samovar/lib/field"
+	"samovar/lib/i"
 	"samovar/lib/val"
 
 	"encoding/json"
@@ -39,8 +40,6 @@ func BuildState(fields Fields) *State {
 	for _, params := range fields {
 		field := field.New(params.Name, params.Type)
 		field.Unit = params.Unit
-		// STATE BY NAME
-		// keys := [...]string{params.Key, params.Name}
 		keys := [...]string{params.Key}
 
 		for _, key := range keys {
@@ -128,7 +127,11 @@ func (s *State) Set(k string, v any) error {
 
 func (s *State) Change(req request) (rep report, err error) {
 	if field, has := (*s)[req.Key]; has {
-		return field.Change(req)
+		rep, err := field.Change(req)
+		if rep.Changed && i.N(rep.Key, "otbor", "otbor_new", "work", "flag_otb") {
+			fmt.Printf(">>>> [%v] %s = %v => %v\n", rep.From, rep.Key, rep.OldValue, rep.NewValue)
+		}
+		return rep, err
 	} else {
 		err := fmt.Sprintf("field [%s] not found", req.Key)
 		return rep, errors.New(err)

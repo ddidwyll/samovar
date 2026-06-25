@@ -24,7 +24,9 @@ func (c *calc) Init(_ ...any) error {
 	c.WatchAs("device_state.collect", "client_state.collect")
 	c.WatchAs("device_state.press", "client_state.press")
 	// DEVICE_RAW_STATE
+	c.WatchAs("device_raw_state.last_rx", "client_state.last_mqtt_rx")
 	c.WatchAs("device_raw_state.last_tx", "client_state.last_mqtt_tx")
+	c.WatchAs("device_raw_state.last_ping", "client_state.last_mqtt_ping")
 	// SESSION_STATE
 	c.WatchAs("session_state.error", "client_state.error")
 	c.WatchAs("session_state.started", "client_state.started")

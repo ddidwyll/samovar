@@ -2,6 +2,7 @@ package mqtt
 
 import (
 	"samovar/common/models"
+	"samovar/lib/i"
 	"samovar/lib/inter"
 
 	"ergo.services/ergo/act"
@@ -53,7 +54,10 @@ func (c *client) createListener() error {
 }
 
 func (c *client) HandleMessage(_ gen.PID, msg any) error {
-	c.Log().Debug("mqtt.client.HandleMessage.msg: %v", msg)
+	m, ok := msg.(models.MqttMessage)
+	if ok && i.N(m.Topic, "otbor", "otbor_new", "work", "flag_otb") {
+		c.Log().Debug("mqtt.client.HandleMessage.msg: %v", msg)
+	}
 	return inter.Send(c, msg, "message", "mqtt_producer")
 }
 
@@ -75,7 +79,7 @@ func (c *client) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
 }
 
 func (c *client) publish(client *natiu.Client, msg models.MqttMessage) error {
-	c.Log().Debug("mqtt.client.publish.msg: %v", msg)
+	c.Log().Info("mqtt.client.publish.msg: %v", msg)
 	pid := c.packetId + 1
 	c.packetId = pid
 	topic := fmt.Sprintf("/samovar/%s", msg.Topic)
