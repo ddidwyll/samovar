@@ -17,7 +17,7 @@ func newCalc() gen.ProcessBehavior {
 func (c *calc) Init(args ...any) error {
 	c.InitCalc("{session.calc}")
 
-	c.Watch(
+	c.WatchFields(
 		recordCollection,
 		"device_state.collect_value",
 		"device_state.collect_type",
@@ -60,7 +60,7 @@ func (c *calc) prepareDevices(args ...any) error {
 		}
 	}
 
-	c.Watch(changeDevice, "client_desired_state.device_id")
+	c.WatchFields(changeDevice, "client_desired_state.device_id")
 
 	return nil
 }

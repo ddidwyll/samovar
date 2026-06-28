@@ -22,13 +22,13 @@ func (c *calc) Init(_ ...any) error {
 
 	c.SetApplyFn(c.publish)
 
-	c.Watch(
+	c.WatchFields(
 		changePower,
 		"device_desired_state.power",
 		"device_raw_state.power_m",
 	)
 
-	c.Watch(
+	c.WatchFields(
 		changeCollect,
 		"device_raw_state.last_ping",
 		"device_raw_state.otbor",

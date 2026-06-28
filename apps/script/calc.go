@@ -26,12 +26,12 @@ func newCalc() gen.ProcessBehavior {
 func (c *calc) Init(_ ...any) error {
 	c.InitCalc("{script.calc}")
 
-	c.Watch(
+	c.WatchFields(
 		selectScript,
 		"client_desired_state.script_mode",
 	)
 
-	c.Watch(
+	c.WatchFields(
 		performScript,
 		"script_state.script_mode",
 	)

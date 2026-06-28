@@ -4,6 +4,7 @@ import (
 	"samovar/lib/change"
 	"samovar/lib/inter"
 	"samovar/lib/state"
+	"samovar/lib/val"
 
 	"ergo.services/ergo/act"
 
@@ -27,42 +28,52 @@ type Args = state.KeyVals
 type Results = map[string]Value
 
 type changes map[string]Results
-
-type ApplyFn func(string, Value)
-type calcFn func(Args, ApplyFn)
-
 type fields map[string]map[string]bool
 
-type watcher struct {
+type ApplyFn func(string, Value)
+type FetchFn func(string, string) val.Val
+
+type fieldsCalcFn func(Args, ApplyFn)
+type reportCalcFn func(report, FetchFn, ApplyFn)
+
+type fieldsWatcher struct {
 	fields fields
-	calc   calcFn
+	calc   fieldsCalcFn
+}
+
+type reportWatcher struct {
+	stateKey string
+	fieldKey string
+	calc     reportCalcFn
 }
 
 type CalcActor struct {
 	act.Actor
-	watchers []watcher
-	applyFn  ApplyFn
+	fieldsWatchers []fieldsWatcher
+	reportWatchers []reportWatcher
+	applyFn        ApplyFn
 }
 
 func (ca *CalcActor) InitCalc(name string) {
 	inter.RegisterActor(ca, name)
-	ca.watchers = make([]watcher, 0)
+	ca.reportWatchers = make([]reportWatcher, 0)
+	ca.fieldsWatchers = make([]fieldsWatcher, 0)
 }
 
 func (ca *CalcActor) SetApplyFn(fn ApplyFn) {
 	ca.applyFn = fn
 }
 
-func (ca *CalcActor) WatchAs(field, asField string) {
+func (ca *CalcActor) WatchFieldAs(field, asField string) {
 	fn := func(args Args, apply ApplyFn) {
 		for _, value := range args {
 			apply(asField, value)
 		}
 	}
-	ca.Watch(fn, []string{field}...)
+	ca.WatchFields(fn, []string{field}...)
 }
 
-func (ca *CalcActor) Watch(fn calcFn, fieldStrings ...string) {
+func (ca *CalcActor) WatchFields(fn fieldsCalcFn, fieldStrings ...string) {
 	fields := make(fields)
 
 	for _, fieldIdStr := range fieldStrings {
@@ -73,9 +84,9 @@ func (ca *CalcActor) Watch(fn calcFn, fieldStrings ...string) {
 		fields[fid.stateKey][fid.fieldKey] = true
 	}
 
-	watcher := watcher{fields, fn}
+	watcher := fieldsWatcher{fields, fn}
 
-	ca.watchers = append(ca.watchers, watcher)
+	ca.fieldsWatchers = append(ca.fieldsWatchers, watcher)
 }
 
 func (ca *CalcActor) HandleChangeReports(msg any) error {
@@ -137,31 +148,19 @@ func (ca *CalcActor) BuildRequest(fieldKey string, value Value, ts int64) change
 	return change.NewRequest(fieldKey, value, from, ts)
 }
 
+func (ca *CalcActor) mustFetchField(stateKey, fieldKey string) val.Val {
+	if v, err := inter.Call(ca, fieldKey, "field", stateKey); err == nil {
+		return v.(val.Val)
+	} else {
+		panic(err)
+	}
+}
+
 func (ca *CalcActor) performWatchers(r report) (changes, error) {
 	allResults := make(changes)
 	stateKey := r.LastFrom()
 
-	for _, watcher := range ca.watchers {
-		if !watcher.match(stateKey, r.Key) {
-			continue
-		}
-
-		args, err := ca.buildArgs(watcher)
-		if err != nil {
-			return allResults, err
-		}
-
-		results := make(Results)
-
-		if ca.applyFn != nil {
-			watcher.calc(args, ca.applyFn)
-		} else {
-			applyFn := func(field string, value Value) {
-				results[field] = value
-			}
-			watcher.calc(args, applyFn)
-		}
-
+	compileResults := func(results Results) {
 		for fieldIdStr, value := range results {
 			target := fid(fieldIdStr)
 			sk := target.stateKey
@@ -173,10 +172,60 @@ func (ca *CalcActor) performWatchers(r report) (changes, error) {
 		}
 	}
 
+	withResults := func(cb func(ApplyFn)) {
+		results := make(Results)
+
+		applyFn := func(field string, value Value) {
+			results[field] = value
+		}
+
+		cb(applyFn)
+
+		compileResults(results)
+	}
+
+	for _, watcher := range ca.fieldsWatchers {
+		if !watcher.match(stateKey, r.Key) {
+			continue
+		}
+
+		args, err := ca.buildArgs(watcher)
+		if err != nil {
+			return allResults, err
+		}
+
+		if ca.applyFn != nil {
+			watcher.calc(args, ca.applyFn)
+		} else {
+			results := make(Results)
+
+			applyFn := func(field string, value Value) {
+				results[field] = value
+			}
+			watcher.calc(args, applyFn)
+
+			compileResults(results)
+		}
+	}
+
+	for _, watcher := range ca.reportWatchers {
+		if !watcher.match(stateKey, r.Key) {
+			continue
+		}
+
+		if ca.applyFn != nil {
+			watcher.calc(r, ca.mustFetchField, ca.applyFn)
+		} else {
+			withResults(func(applyFn ApplyFn) {
+				watcher.calc(r, ca.mustFetchField, applyFn)
+			})
+		}
+	}
+
 	return allResults, nil
 }
 
-func (ca *CalcActor) buildArgs(w watcher) (Args, error) {
+func (ca *CalcActor) buildArgs(w fieldsWatcher) (Args, error) {
 	args := make(Args)
 
 	for stateKey, fieldKeyMap := range w.fields {
@@ -201,8 +250,12 @@ func (ca *CalcActor) buildArgs(w watcher) (Args, error) {
 	return args, nil
 }
 
-func (w watcher) match(stateKey, fieldKey string) bool {
+func (w fieldsWatcher) match(stateKey, fieldKey string) bool {
 	return w.fields[stateKey][fieldKey]
+}
+
+func (w reportWatcher) match(stateKey, fieldKey string) bool {
+	return w.stateKey == stateKey && w.fieldKey == fieldKey
 }
 
 func fid(str string) fieldId {
