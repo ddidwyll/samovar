@@ -29,7 +29,7 @@ func (c *calc) Init(_ ...any) error {
 	c.WatchAs("device_raw_state.last_ping", "client_state.last_mqtt_ping")
 	// SESSION_STATE
 	c.WatchAs("session_state.error", "client_state.error")
-	c.WatchAs("session_state.started", "client_state.started")
+	c.WatchAs("session_state.ready", "client_state.ready")
 	c.WatchAs("session_state.device_id", "client_state.device_id")
 	c.WatchAs("session_state.devices", "client_state.devices")
 	// SCRIPT_STATE

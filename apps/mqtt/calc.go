@@ -84,29 +84,24 @@ func changeCollect(args clc.Args, change clc.ApplyFn) {
 		return
 	}
 
-	typeS := newType.String()
-	valI := newValue.ToInt()
-	// if valI <= 0 || valI >= 100 {
-	// 	typeS = "OFF"
-	// }
-	switch {
-	case typeS == "BODY":
+	switch newType.String() {
+	case "BODY":
 		if currentType != "BODY" {
 			change("work", 8)
 		} else if !currentValue.Eq(newValue) {
-			change("otbor_new", valI)
+			change("otbor_new", newValue)
 		}
-	case typeS == "HEAD":
+	case "HEAD":
 		if currentType != "HEAD" {
 			change("work", 9)
 		} else if !currentValue.Eq(newValue) {
-			change("otbor_new", valI)
+			change("otbor_new", newValue)
 		}
-	case typeS == "RECYC":
+	case "RECYC":
 		if currentType != "RECYC" {
 			change("work", 10)
 		} else if !currentValue.Eq(newValue) {
-			change("otbor_new", valI)
+			change("otbor_new", newValue)
 		}
 	default:
 		if currentValue.ToInt() != 0 {

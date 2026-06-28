@@ -17,6 +17,12 @@ func newCalc() gen.ProcessBehavior {
 func (c *calc) Init(args ...any) error {
 	c.InitCalc("{session.calc}")
 
+	c.Watch(
+  	recordCollection,
+  	"device_state.collect_value",
+  	"device_state.collect_type",
+	)
+
 	return c.prepareDevices(args...)
 }
 
@@ -31,7 +37,7 @@ func (c *calc) prepareDevices(args ...any) error {
 		devices = append(devices, device.Id)
 	}
 
-	changes := map[string]any{"devices": devices, "started": "no"}
+	changes := map[string]any{"devices": devices, "ready": "false"}
 	err := c.SendRequests("session_state", changes)
 	if err != nil {
 		return err
@@ -41,11 +47,12 @@ func (c *calc) prepareDevices(args ...any) error {
 		dId := args.MustGet("client_desired_state.device_id").String()
 		if device, err := cfg.findById(dId); err != nil {
 			apply("session_state.device_id", "")
-			apply("session_state.started", "no")
+			apply("session_state.ready", "false")
 			apply("session_state.error", "invalid device id")
+			apply("session_state.has_error", "true")
 		} else {
 			apply("session_state.device_id", dId)
-			apply("session_state.started", "yes")
+			apply("session_state.ready", "true")
 			apply("session_state.heat_loss", device.HeatLoss)
 			apply("session_state.max_power", device.MaxPower)
 			apply("session_state.max_collect", device.MaxCollect)

@@ -15,11 +15,13 @@ func newState() gen.ProcessBehavior {
 var stateFields = st.Fields{
 	st.FieldParams{"device_id", 's', "device id", ""},
 	st.FieldParams{"devices", 'a', "devices", ""},
-	st.FieldParams{"started", 's', "started", ""},
+	st.FieldParams{"ready", 's', "ready", ""},
 	st.FieldParams{"error", 's', "error", ""},
+	st.FieldParams{"has_error", 's', "error", ""},
 	st.FieldParams{"heat_loss", 'i', "heat loss", "%"},
 	st.FieldParams{"max_power", 'i', "max power", "W"},
-	st.FieldParams{"max_collect", 'i', "max collect", "ml/h"},
+	st.FieldParams{"max_collect", 'i', "max collect", "mg/h"},
+	st.FieldParams{"body_collect_value", 'i', "body collected", "mg"},
 }
 
 func (s *state) Init(_ ...any) error {

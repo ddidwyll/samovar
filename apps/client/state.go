@@ -28,7 +28,7 @@ var stateFields = st.Fields{
 	st.FieldParams{"scripts", 'a', "scripts", ""},
 	st.FieldParams{"script_mode", 's', "script mode", ""},
 	st.FieldParams{"error", 's', "error", ""},
-	st.FieldParams{"started", 's', "started", ""},
+	st.FieldParams{"ready", 's', "ready", ""},
 	st.FieldParams{"last_mqtt_tx", 's', "last mqtt tx", ""},
 	st.FieldParams{"last_mqtt_rx", 's', "last mqtt rx", ""},
 	st.FieldParams{"last_mqtt_ping", 's', "last mqtt ping", ""},
