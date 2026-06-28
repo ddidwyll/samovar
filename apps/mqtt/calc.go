@@ -55,9 +55,15 @@ func (c *calc) publish(key string, value any) {
 		err := fmt.Sprintf("Unexpected mqtt calc value (%T)", value)
 		panic(err)
 	}
-	msg := models.NewMqttMessage([]byte(key), []byte(strVal))
-	if err := inter.Send(c, msg, "message", "mqtt_publisher"); err != nil {
-		panic(err)
+	if clc.IsFid(key) {
+		if err := c.SendRequest(key, value); err != nil {
+			panic(err)
+		}
+	} else {
+		msg := models.NewMqttMessage([]byte(key), []byte(strVal))
+		if err := inter.Send(c, msg, "message", "mqtt_publisher"); err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -87,27 +93,45 @@ func changeCollect(args clc.Args, change clc.ApplyFn) {
 	switch newType.String() {
 	case "BODY":
 		if currentType != "BODY" {
+			change("device_raw_state.collect_synced", "false")
+			change("otbor_t", newValue)
 			change("work", 8)
 		} else if !currentValue.Eq(newValue) {
+			change("device_raw_state.collect_synced", "false")
 			change("otbor_new", newValue)
+		} else {
+			change("device_raw_state.collect_synced", "true")
 		}
 	case "HEAD":
 		if currentType != "HEAD" {
+			change("device_raw_state.collect_synced", "false")
+			change("otbor_g_1", newValue)
 			change("work", 9)
 		} else if !currentValue.Eq(newValue) {
+			change("device_raw_state.collect_synced", "false")
 			change("otbor_new", newValue)
+		} else {
+			change("device_raw_state.collect_synced", "true")
 		}
 	case "RECYC":
 		if currentType != "RECYC" {
+			change("otbor_g_2", newValue)
 			change("work", 10)
 		} else if !currentValue.Eq(newValue) {
+			change("device_raw_state.collect_synced", "false")
 			change("otbor_new", newValue)
+		} else {
+			change("device_raw_state.collect_synced", "true")
 		}
 	default:
-		if currentValue.ToInt() != 0 {
-			change("otbor_new", 0)
-		} else if currentType != "OFF" {
+		// if currentValue.ToInt() != 0 {
+		// 		change("device_raw_state.collect_synced", "false")
+		// 	change("otbor_new", 0)
+		if currentType != "OFF" {
+			change("device_raw_state.collect_synced", "false")
 			change("work", 6)
+		} else {
+			change("device_raw_state.collect_synced", "true")
 		}
 	}
 }

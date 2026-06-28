@@ -21,7 +21,7 @@ var stateFields = st.Fields{
 	st.FieldParams{"heat_loss", 'i', "heat loss", "%"},
 	st.FieldParams{"max_power", 'i', "max power", "W"},
 	st.FieldParams{"max_collect", 'i', "max collect", "mg/h"},
-	st.FieldParams{"body_collect_value", 'i', "body collected", "mg"},
+	st.FieldParams{"body_collected_value", 'i', "body collected", "mg"},
 }
 
 func (s *state) Init(_ ...any) error {

@@ -2,6 +2,7 @@ package calc
 
 import (
 	"samovar/lib/change"
+	"samovar/lib/field"
 	"samovar/lib/inter"
 	"samovar/lib/state"
 	"samovar/lib/val"
@@ -16,7 +17,7 @@ import (
 	"time"
 )
 
-type report = change.Report
+type Report = change.Report
 type Value = any
 
 type fieldId struct {
@@ -31,10 +32,10 @@ type changes map[string]Results
 type fields map[string]map[string]bool
 
 type ApplyFn func(string, Value)
-type FetchFn func(string, string) val.Val
+type FetchFn func(string) val.Val
 
 type fieldsCalcFn func(Args, ApplyFn)
-type reportCalcFn func(report, FetchFn, ApplyFn)
+type reportCalcFn func(Report, FetchFn, ApplyFn)
 
 type fieldsWatcher struct {
 	fields fields
@@ -77,7 +78,7 @@ func (ca *CalcActor) WatchFields(fn fieldsCalcFn, fieldStrings ...string) {
 	fields := make(fields)
 
 	for _, fieldIdStr := range fieldStrings {
-		fid := fid(fieldIdStr)
+		fid := Fid(fieldIdStr)
 		if fields[fid.stateKey] == nil {
 			fields[fid.stateKey] = make(map[string]bool)
 		}
@@ -89,8 +90,14 @@ func (ca *CalcActor) WatchFields(fn fieldsCalcFn, fieldStrings ...string) {
 	ca.fieldsWatchers = append(ca.fieldsWatchers, watcher)
 }
 
+func (ca *CalcActor) WatchReport(fn reportCalcFn, fieldIdStr string) {
+	target := Fid(fieldIdStr)
+	watcher := reportWatcher{target.stateKey, target.fieldKey, fn}
+	ca.reportWatchers = append(ca.reportWatchers, watcher)
+}
+
 func (ca *CalcActor) HandleChangeReports(msg any) error {
-	r, ok := msg.(report)
+	r, ok := msg.(Report)
 	if !ok {
 		err := fmt.Sprintf("Invalid change report: %v", msg)
 		return errors.New(err)
@@ -110,10 +117,14 @@ func (ca *CalcActor) HandleChangeReports(msg any) error {
 	return nil
 }
 
-func (ca *CalcActor) SendRequest(stateKey, fieldKey string, value Value) error {
+func (ca *CalcActor) SendRequest(fieldIdStr string, value Value) error {
+	if !IsFid(fieldIdStr) {
+		return errors.New("Invalid calc SendRequest args")
+	}
+	target := Fid(fieldIdStr)
 	results := make(Results, 1)
-	results[fieldKey] = value
-	return ca.SendRequests(stateKey, results)
+	results[target.fieldKey] = value
+	return ca.SendRequests(target.stateKey, results)
 }
 
 func (ca *CalcActor) SendRequests(stateKey string, results Results) error {
@@ -128,7 +139,7 @@ func (ca *CalcActor) SendRequests(stateKey string, results Results) error {
 	return inter.Send(ca, requests, "requests", stateKey)
 }
 
-func (ca *CalcActor) sendRequestsWithReport(stateKey string, results Results, r report) error {
+func (ca *CalcActor) sendRequestsWithReport(stateKey string, results Results, r Report) error {
 	requests := make([]change.Request, 0, len(results))
 
 	for fieldKey, value := range results {
@@ -138,7 +149,7 @@ func (ca *CalcActor) sendRequestsWithReport(stateKey string, results Results, r 
 	return inter.Send(ca, requests, "requests", stateKey)
 }
 
-func (ca *CalcActor) buildRequestFromReport(fieldKey string, value Value, r report) change.Request {
+func (ca *CalcActor) buildRequestFromReport(fieldKey string, value Value, r Report) change.Request {
 	from := string(ca.Name())
 	return r.NewRequest(from, fieldKey, value)
 }
@@ -148,21 +159,23 @@ func (ca *CalcActor) BuildRequest(fieldKey string, value Value, ts int64) change
 	return change.NewRequest(fieldKey, value, from, ts)
 }
 
-func (ca *CalcActor) mustFetchField(stateKey, fieldKey string) val.Val {
-	if v, err := inter.Call(ca, fieldKey, "field", stateKey); err == nil {
-		return v.(val.Val)
+func (ca *CalcActor) mustFetchField(fieldIdStr string) val.Val {
+	target := Fid(fieldIdStr)
+	v, err := inter.Call(ca, target.fieldKey, "field", target.stateKey)
+	if err == nil {
+		return v.(*field.Field).Get()
 	} else {
 		panic(err)
 	}
 }
 
-func (ca *CalcActor) performWatchers(r report) (changes, error) {
+func (ca *CalcActor) performWatchers(r Report) (changes, error) {
 	allResults := make(changes)
 	stateKey := r.LastFrom()
 
 	compileResults := func(results Results) {
 		for fieldIdStr, value := range results {
-			target := fid(fieldIdStr)
+			target := Fid(fieldIdStr)
 			sk := target.stateKey
 			fk := target.fieldKey
 			if allResults[sk] == nil {
@@ -258,9 +271,13 @@ func (w reportWatcher) match(stateKey, fieldKey string) bool {
 	return w.stateKey == stateKey && w.fieldKey == fieldKey
 }
 
-func fid(str string) fieldId {
+func Fid(str string) fieldId {
 	pair := strings.Split(str, ".")
 	return fieldId{pair[0], pair[1]}
+}
+
+func IsFid(str string) bool {
+	return strings.Count(str, ".") == 1
 }
 
 func (fid fieldId) String() string {

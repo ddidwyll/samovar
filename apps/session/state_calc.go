@@ -4,6 +4,8 @@ import (
 	clc "samovar/lib/calc"
 )
 
-func recordCollection(args clc.Args, apply clc.ApplyFn) {
-
+func testRecordCollectionByType(r clc.Report, _ clc.FetchFn, apply clc.ApplyFn) {
+	if r.OldValue.IsNil() {
+		return
+	}
 }

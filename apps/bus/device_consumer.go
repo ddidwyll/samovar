@@ -20,6 +20,10 @@ func (dc *deviceConsumer) Init(_ ...any) error {
 	dc.SubscribeToEvent("mqtt_new_message")
 
 	dc.AddReportRoute(
+		"device_state_changed",
+		"device_calc",
+	)
+	dc.AddReportRoute(
 		"device_raw_state_changed",
 		"device_calc",
 	)
@@ -31,10 +35,10 @@ func (dc *deviceConsumer) Init(_ ...any) error {
 		"script_state_changed",
 		"device_calc",
 	)
-	dc.AddReportRoute(
-		"device_state_changed",
-		"device_change_log",
-	)
+	// dc.AddReportRoute(
+	// 	"device_state_changed",
+	// 	"device_change_log",
+	// )
 
 	return nil
 }

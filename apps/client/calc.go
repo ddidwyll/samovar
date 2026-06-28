@@ -23,10 +23,12 @@ func (c *calc) Init(_ ...any) error {
 	c.WatchFieldAs("device_state.power_diff", "client_state.power_diff")
 	c.WatchFieldAs("device_state.collect", "client_state.collect")
 	c.WatchFieldAs("device_state.press", "client_state.press")
+	c.WatchFieldAs("device_state.collect_last_type", "client_state.collect_last_type")
 	// DEVICE_RAW_STATE
 	c.WatchFieldAs("device_raw_state.last_rx", "client_state.last_mqtt_rx")
 	c.WatchFieldAs("device_raw_state.last_tx", "client_state.last_mqtt_tx")
 	c.WatchFieldAs("device_raw_state.last_ping", "client_state.last_mqtt_ping")
+	c.WatchFieldAs("device_raw_state.collect_synced", "client_state.collect_synced")
 	// SESSION_STATE
 	c.WatchFieldAs("session_state.error", "client_state.error")
 	c.WatchFieldAs("session_state.ready", "client_state.ready")

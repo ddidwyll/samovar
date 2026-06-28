@@ -42,7 +42,7 @@ func (c *calc) Init(_ ...any) error {
 func (c *calc) calcScripts() error {
 	modes := slices.Collect(maps.Keys(scripts))
 	c.Log().Debug("script.calc.calcScripts.modes: %v", modes)
-	return c.SendRequest("script_state", "scripts", modes)
+	return c.SendRequest("script_state.scripts", modes)
 }
 
 func selectScript(args args, apply applyFn) {

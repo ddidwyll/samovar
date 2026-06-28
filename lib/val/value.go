@@ -105,6 +105,12 @@ func (a Str) Eq(b Val) bool { return Eq(a, b) }
 func (a Arr) Eq(b Val) bool { return Eq(a, b) }
 func (a Nil) Eq(b Val) bool { return Eq(a, b) }
 
+func (v Int) EqStr(s string) bool { return v.String() == s }
+func (v Flt) EqStr(s string) bool { return v.String() == s }
+func (v Str) EqStr(s string) bool { return v.String() == s }
+func (v Arr) EqStr(s string) bool { return v.String() == s }
+func (v Nil) EqStr(s string) bool { return v.String() == s }
+
 func FltAsFlt(f float64) Val {
 	i := int64(math.Round(f * 100))
 	s := fmt.Sprintf("%f", float64(i)/100.0)

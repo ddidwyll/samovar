@@ -27,7 +27,6 @@ func (c *calc) Init(_ ...any) error {
 		"device_raw_state.power_m",
 		"device_raw_state.power",
 	)
-
 	c.WatchFields(
 		calcCollect,
 		"device_raw_state.otbor",
@@ -50,6 +49,12 @@ func (c *calc) Init(_ ...any) error {
 	c.WatchFieldAs(
 		"script_state.collect_value",
 		"device_desired_state.collect_value",
+	)
+
+	// DEVICE_STATE
+	c.WatchReport(
+		logCollectType,
+		"device_state.collect_type",
 	)
 
 	return nil
