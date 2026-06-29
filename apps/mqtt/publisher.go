@@ -28,6 +28,15 @@ type publisher struct {
 	debounce debounce
 }
 
+var publishOrder = []string{
+  "otbor_t_new",
+  "otbor_g_1_new",
+  "otbor_g_2_new",
+  "power_m_new",
+  "work",
+  "otbor_new",
+}
+
 func newPublisher() gen.ProcessBehavior {
 	return &publisher{}
 }
@@ -49,8 +58,7 @@ func (p *publisher) HandleMessage(_ gen.PID, msg any) error {
 }
 
 func (p *publisher) publishAll() error {
-	order := []string{"work", "otbor_new", "power_m_new"}
-	for _, key := range order {
+	for _, key := range publishOrder {
 		entry, exists := p.queue[key]
 		if !exists || p.skipDebounce(entry) {
 			continue

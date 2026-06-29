@@ -94,7 +94,7 @@ func changeCollect(args clc.Args, change clc.ApplyFn) {
 	case "BODY":
 		if currentType != "BODY" {
 			change("device_raw_state.collect_synced", "false")
-			change("otbor_t", newValue)
+			change("otbor_t_new", newValue)
 			change("work", 8)
 		} else if !currentValue.Eq(newValue) {
 			change("device_raw_state.collect_synced", "false")
@@ -105,7 +105,7 @@ func changeCollect(args clc.Args, change clc.ApplyFn) {
 	case "HEAD":
 		if currentType != "HEAD" {
 			change("device_raw_state.collect_synced", "false")
-			change("otbor_g_1", newValue)
+			change("otbor_g_1_new", newValue)
 			change("work", 9)
 		} else if !currentValue.Eq(newValue) {
 			change("device_raw_state.collect_synced", "false")
@@ -115,7 +115,8 @@ func changeCollect(args clc.Args, change clc.ApplyFn) {
 		}
 	case "RECYC":
 		if currentType != "RECYC" {
-			change("otbor_g_2", newValue)
+			change("device_raw_state.collect_synced", "false")
+			change("otbor_g_2_new", newValue)
 			change("work", 10)
 		} else if !currentValue.Eq(newValue) {
 			change("device_raw_state.collect_synced", "false")
