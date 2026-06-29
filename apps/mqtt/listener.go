@@ -41,9 +41,6 @@ func (l *listener) Start() (err error) {
 		l.Start()
 	}
 	for {
-		// err = l.withTimeout(func(ctx context.Context) error {
-		// 	return l.client.Ping(ctx)
-		// })
 		err = l.client.HandleNext()
 		if err != nil {
 			break
@@ -51,7 +48,7 @@ func (l *listener) Start() (err error) {
 			if err = l.sendTimestamp(); err != nil {
 				break
 			} else {
-				time.Sleep(100 * time.Millisecond)
+				time.Sleep(250 * time.Millisecond)
 			}
 		}
 	}
@@ -76,19 +73,18 @@ func (l *listener) sendTimestamp() error {
 	}
 	return nil
 }
+func (l *listener) onPub(_ natiu.Header, vpub natiu.VariablesPublish, r io.Reader) error {
+	if text, err := io.ReadAll(r); err == nil {
+		msg := models.NewMqttMessage(vpub.TopicName, text)
+		l.Log().Debug("mqtt.listener.onPub.msg: %v", msg)
+		return l.Send(l.Parent(), msg)
+	} else {
+		return err
+	}
+}
 
 func (l *listener) createClient() {
-	onPub := func(_ natiu.Header, vpub natiu.VariablesPublish, r io.Reader) error {
-		if text, err := io.ReadAll(r); err == nil {
-			msg := models.NewMqttMessage(vpub.TopicName, text)
-			l.Log().Debug("mqtt.listener.onPub.msg: %v", msg)
-			return l.Send(l.Parent(), msg)
-		} else {
-			return err
-		}
-	}
-
-	cfg := natiu.ClientConfig{OnPub: onPub}
+	cfg := natiu.ClientConfig{OnPub: l.onPub}
 	l.client = natiu.NewClient(cfg)
 }
 

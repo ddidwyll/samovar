@@ -3,7 +3,6 @@ package state
 import (
 	"samovar/lib/change"
 	"samovar/lib/field"
-	"samovar/lib/i"
 	"samovar/lib/val"
 
 	"encoding/json"
@@ -127,11 +126,7 @@ func (s *State) Set(k string, v any) error {
 
 func (s *State) Change(req request) (rep report, err error) {
 	if field, has := (*s)[req.Key]; has {
-		rep, err := field.Change(req)
-		if rep.Changed && i.N(rep.Key, "otbor", "otbor_new", "work", "flag_otb") {
-			fmt.Printf(">>>> [%v] %s = %v => %v\n", rep.From, rep.Key, rep.OldValue, rep.NewValue)
-		}
-		return rep, err
+		return field.Change(req)
 	} else {
 		err := fmt.Sprintf("field [%s] not found", req.Key)
 		return rep, errors.New(err)

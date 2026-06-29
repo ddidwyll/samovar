@@ -125,9 +125,6 @@ func changeCollect(args clc.Args, change clc.ApplyFn) {
 			change("device_raw_state.collect_synced", "true")
 		}
 	default:
-		// if currentValue.ToInt() != 0 {
-		// 		change("device_raw_state.collect_synced", "false")
-		// 	change("otbor_new", 0)
 		if currentType != "OFF" {
 			change("device_raw_state.collect_synced", "false")
 			change("work", 6)

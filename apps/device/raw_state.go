@@ -65,5 +65,10 @@ func (rs *rawState) HandleMessage(_ gen.PID, req any) error {
 }
 
 func (rs *rawState) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
-	return rs.HandleDataRequest(req)
+  if kv, ok := req.(map[string]string); ok {
+    rs.Log().Debug("device.rawState.HandleCall.req: %v", req)
+    return "ok", rs.BulkChangeFromMap(kv, "mqtt_client", "device_producer")
+  } else {
+  	return rs.HandleDataRequest(req)
+  }
 }

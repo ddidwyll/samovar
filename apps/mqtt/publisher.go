@@ -7,7 +7,6 @@ import (
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
 
-	"fmt"
 	"time"
 )
 
@@ -93,10 +92,10 @@ func (p *publisher) checkDebounce(qe queueEntry) {
 	now := time.Now().Unix()
 	de, exists := p.debounce[qe.Topic]
 	if !exists || de.value != qe.Text {
-		fmt.Printf("##### mqtt.publisher.debounce.check: %s, 0, %s\n", qe.Topic, qe.Text)
+		// fmt.Printf("##### mqtt.publisher.debounce.check: %s, 0, %s\n", qe.Topic, qe.Text)
 		p.debounce[qe.Topic] = debounceEntry{1, qe.Text, now}
 	} else {
+		// fmt.Printf("##### mqtt.publisher.debounce.check: %s, %d, %s\n", qe.Topic, de.count+1, qe.Text)
 		p.debounce[qe.Topic] = debounceEntry{de.count + 1, de.value, now}
-		fmt.Printf("##### mqtt.publisher.debounce.check: %s, %d, %s\n", qe.Topic, de.count+1, qe.Text)
 	}
 }

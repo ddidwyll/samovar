@@ -30,7 +30,7 @@ func (ds *desiredState) HandleMessage(_ gen.PID, msg any) error {
 func (ds *desiredState) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
 	if kv, ok := req.(map[string]string); ok {
 		ds.Log().Debug("client.desiredState.HandleCall.req: %v", req)
-		return "", ds.BulkChangeFromMap(kv, "client_store", "client_producer")
+		return "ok", ds.BulkChangeFromMap(kv, "client_store", "client_producer")
 	} else {
 		return ds.HandleDataRequest(req)
 	}

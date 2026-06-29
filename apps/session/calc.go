@@ -18,6 +18,11 @@ func (c *calc) Init(args ...any) error {
 	c.InitCalc("{session.calc}")
 
 	c.WatchReport(
+		testRecordCollectionByValue,
+		"device_state.collect_value",
+	)
+
+	c.WatchReport(
 		testRecordCollectionByType,
 		"device_state.collect_type",
 	)

@@ -34,6 +34,7 @@ type Val interface {
 	json.Marshaler
 	T() rune
 	Eq(Val) bool
+	EqStr(string) bool
 	String() string
 	IsNil() bool
 	IsNum() bool
