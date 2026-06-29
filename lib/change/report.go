@@ -40,7 +40,7 @@ func (r Report) NewRequest(from, key string, val any) (req Request) {
 }
 
 func (r Report) FormatTime() string {
-	return time.UnixMicro(r.NewTimestamp).Format(time.TimeOnly)
+	return time.UnixMilli(r.NewTimestamp).Format(time.TimeOnly)
 }
 
 func (r Report) FormatValue() string {

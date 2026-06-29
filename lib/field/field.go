@@ -56,7 +56,7 @@ func (f *Field) Set(a any) error {
 
 	if err == nil {
 		f.val = v
-		f.ts = time.Now().UnixMicro()
+		f.ts = time.Now().UnixMilli()
 	}
 
 	return err
@@ -70,7 +70,13 @@ func (f *Field) Change(req change.Request) (rep change.Report, err error) {
 	}
 
 	rep = req.BuildReport(f.ts, f.val, newVal, f.Name, f.Unit)
-	f.val, f.ts = newVal, req.Timestamp
+
+	if newVal.Eq(f.val) {
+  	rep.NewTimestamp = f.ts
+	} else {
+  	f.val = newVal
+  	f.ts = req.Timestamp  	
+	}
 
 	return rep, err
 }

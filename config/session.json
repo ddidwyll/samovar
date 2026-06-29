@@ -3,19 +3,19 @@
     {
       "id": "test",
       "max_power": 80,
-      "max_collect": 6300,
+      "max_collect": 5100,
       "heat_loss": 20
     },
     {
       "id": "turbo_gun",
       "max_power": 70,
-      "max_collect": 6300,
+      "max_collect": 5100,
       "heat_loss": 20
     },
     {
       "id": "bool_bool",
       "max_power": 60,
-      "max_collect": 6300,
+      "max_collect": 5100,
       "heat_loss": 20
     }
   ]

@@ -128,7 +128,7 @@ func (ca *CalcActor) SendRequest(fieldIdStr string, value Value) error {
 }
 
 func (ca *CalcActor) SendRequests(stateKey string, results Results) error {
-	ts := time.Now().UnixMicro()
+	ts := time.Now().UnixMilli()
 
 	requests := make([]change.Request, 0, len(results))
 

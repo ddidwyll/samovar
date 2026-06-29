@@ -22,7 +22,7 @@ var stateFields = st.Fields{
 	st.FieldParams{"power", 'i', "power", "W"},
 	st.FieldParams{"power_diff", 'i', "power diff", "%"},
 	st.FieldParams{"collect", 's', "collect", "%"},
-	st.FieldParams{"collect_last_type", 's', "collect last type", ""},
+	st.FieldParams{"collection_speed", 's', "collection speed", "g/h"},
 	st.FieldParams{"collect_synced", 's', "is collect synced", ""},
 	st.FieldParams{"press", 'f', "press", "mm"},
 	st.FieldParams{"devices", 'a', "devices", ""},

@@ -39,7 +39,7 @@ func (sa *StateActor) BulkChange(reqs []request) ([]report, error) {
 }
 
 func (sa *StateActor) BulkChangeFromMap(kv map[string]string, from, producer string) error {
-	ts := time.Now().UnixMicro()
+	ts := time.Now().UnixMilli()
 	reqs := make([]request, 0, len(kv))
 	for k, v := range kv {
 		req := change.NewRequest(k, v, from, ts)

@@ -22,6 +22,11 @@ func (c *calc) Init(args ...any) error {
 		"device_state.collect_value",
 	)
 
+	c.WatchReport(
+		calcCollecionSpeed,
+		"device_state.collect_value",
+	)
+
 	return c.prepareDevices(args...)
 }
 

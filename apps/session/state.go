@@ -20,9 +20,10 @@ var stateFields = st.Fields{
 	st.FieldParams{"has_error", 's', "error", ""},
 	st.FieldParams{"heat_loss", 'i', "heat loss", "%"},
 	st.FieldParams{"max_power", 'i', "max power", "W"},
-	st.FieldParams{"max_collect", 'i', "max collect", "mg/h"},
+	st.FieldParams{"max_collect", 'i', "max collect", "g/h"},
 	st.FieldParams{"body_collected_value", 'i', "body collected", "mg"},
 	st.FieldParams{"collect_last_type", 's', "collect last type", ""},
+	st.FieldParams{"collection_speed", 'i', "collection speed", "g/h"},
 }
 
 func (s *state) Init(_ ...any) error {
