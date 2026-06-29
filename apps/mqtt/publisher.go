@@ -29,12 +29,12 @@ type publisher struct {
 }
 
 var publishOrder = []string{
-  "otbor_t_new",
-  "otbor_g_1_new",
-  "otbor_g_2_new",
-  "power_m_new",
-  "work",
-  "otbor_new",
+	"otbor_t_new",
+	"otbor_g_1_new",
+	"otbor_g_2_new",
+	"power_m_new",
+	"work",
+	"otbor_new",
 }
 
 func newPublisher() gen.ProcessBehavior {

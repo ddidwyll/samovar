@@ -13,10 +13,10 @@ import (
 type calc struct{ clc.CalcActor }
 
 var scripts = scriptMap{
-	"idle":               performIdle,
-	"collect_body_emu":   performCollectBodyEmu,
-	"collect_body_emu_x": performCollectBodyEmuX,
-	"collect_body_emu_y": performCollectBodyEmuY,
+	"idle":            performIdle,
+	"collect_body_10": performCollectBody10,
+	"collect_body_50": performCollectBody50,
+	"collect_head_30": performCollectHead30,
 }
 
 func newCalc() gen.ProcessBehavior {
