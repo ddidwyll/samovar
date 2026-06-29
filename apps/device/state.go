@@ -17,7 +17,6 @@ var stateFields = st.Fields{
 	st.FieldParams{"collect", 's', "collect", "%"},
 	st.FieldParams{"collect_value", 'i', "collect value", "%"},
 	st.FieldParams{"collect_type", 's', "collect type", ""},
-	st.FieldParams{"collect_last_type", 's', "collect last type", ""},
 	st.FieldParams{"press", 'f', "press", "mm"},
 }
 

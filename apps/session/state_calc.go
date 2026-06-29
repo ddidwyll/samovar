@@ -1,16 +1,26 @@
 package session
 
 import (
-	"fmt"
 	clc "samovar/lib/calc"
+
+	"fmt"
 )
 
-func testRecordCollectionByType(r clc.Report, mustFetch clc.FetchFn, apply clc.ApplyFn) {
-	isSynced := mustFetch("device_raw_state.collect_synced")
-	fmt.Printf("### collect_type[%s]: %s => %s\n", isSynced, r.OldValue, r.NewValue)
-}
+func recordCollectedValue(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {
+  oldValue := r.OldValue
+  newValue := r.NewValue
+  if !oldValue.IsInt() || !newValue.IsInt() {
+    return
+  }
 
-func testRecordCollectionByValue(r clc.Report, mustFetch clc.FetchFn, apply clc.ApplyFn) {
-	isSynced := mustFetch("device_raw_state.collect_synced")
-	fmt.Printf("### collect_value[%s]: %s => %s\n", isSynced, r.OldValue, r.NewValue)
+	if oldValue.EqStr("0") {
+  	currentType := fetch("device_state.collect_type")
+  	if !currentType.EqStr("OFF") {
+    	apply("session_state.collect_last_type", currentType)
+  	}
+  	return
+	}
+
+  currentType := fetch("session_state.collect_last_type")
+	fmt.Printf("### recordCollectedValue.Report: (%v) %v\n", currentType, r)
 }

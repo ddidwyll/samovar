@@ -76,10 +76,10 @@ func changePower(args clc.Args, change clc.ApplyFn) {
 }
 
 func changeCollect(args clc.Args, change clc.ApplyFn) {
-	newType := args.MustGet("device_desired_state.collect_type")
+	newType := args.MustGet("device_desired_state.collect_type").String()
 	newValue := args.MustGet("device_desired_state.collect_value")
 
-	if newType.IsNil() || !newValue.IsInt() {
+	if newType == "" || !newValue.IsInt() {
 		return
 	}
 
@@ -90,7 +90,11 @@ func changeCollect(args clc.Args, change clc.ApplyFn) {
 		return
 	}
 
-	switch newType.String() {
+	if newType != currentType && newType != "OFF" && currentType != "OFF" {
+  	newType = "TEMP_OFF"
+	}
+
+	switch newType {
 	case "BODY":
 		if currentType != "BODY" {
 			change("device_raw_state.collect_synced", "false")

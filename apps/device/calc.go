@@ -52,10 +52,7 @@ func (c *calc) Init(_ ...any) error {
 	)
 
 	// DEVICE_STATE
-	c.WatchReport(
-		logCollectType,
-		"device_state.collect_type",
-	)
+	// 
 
 	return nil
 }

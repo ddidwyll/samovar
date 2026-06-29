@@ -18,20 +18,9 @@ func (c *calc) Init(args ...any) error {
 	c.InitCalc("{session.calc}")
 
 	c.WatchReport(
-		testRecordCollectionByValue,
+		recordCollectedValue,
 		"device_state.collect_value",
 	)
-
-	c.WatchReport(
-		testRecordCollectionByType,
-		"device_state.collect_type",
-	)
-
-	// c.WatchFields(
-	// 	recordCollection,
-	// 	"device_state.collect_value",
-	// 	"device_state.collect_type",
-	// )
 
 	return c.prepareDevices(args...)
 }

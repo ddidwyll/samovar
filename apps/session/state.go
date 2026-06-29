@@ -22,6 +22,7 @@ var stateFields = st.Fields{
 	st.FieldParams{"max_power", 'i', "max power", "W"},
 	st.FieldParams{"max_collect", 'i', "max collect", "mg/h"},
 	st.FieldParams{"body_collected_value", 'i', "body collected", "mg"},
+	st.FieldParams{"collect_last_type", 's', "collect last type", ""},
 }
 
 func (s *state) Init(_ ...any) error {

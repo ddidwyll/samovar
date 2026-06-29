@@ -61,9 +61,3 @@ func calcCollect(args clc.Args, apply clc.ApplyFn) {
 	apply("device_state.collect_type", collectType)
 	apply("device_state.collect", collect)
 }
-
-func logCollectType(r clc.Report, _ clc.FetchFn, apply clc.ApplyFn) {
-	if !r.OldValue.IsNil() {
-		apply("device_state.collect_last_type", r.OldValue)
-	}
-}
