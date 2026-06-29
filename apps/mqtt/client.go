@@ -2,8 +2,8 @@ package mqtt
 
 import (
 	"samovar/common/models"
-	"samovar/lib/inter"
 	"samovar/lib/i"
+	"samovar/lib/inter"
 
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
@@ -18,40 +18,10 @@ type buffer = map[string]string
 
 type client struct {
 	act.Actor
-	config   *config
+	config        *config
 	listenerAlias gen.Alias
-	packetId uint16
-	inputBuffer buffer
-}
-
-var topics = []string{
-  "term_d",
-  "term_c",
-  "term_k",
-  "power",
-  "term_v",
-  "press_a",
-  "term_c_max",
-  "term_c_min",
-  "term_k_m",
-  "term_d_m",
-  "term_nasos",
-  "power_m",
-  "term_vent",
-  "flag_otb",
-  "otbor",
-  "min_otb",
-  "sek_otb",
-  "time_stop",
-  "otbor_minus",
-  "otbor_g_1",
-  "otbor_g_2",
-  "otbor_t",
-  "delta_t",
-  "count_vent",
-  "num_error",
-  "kontaktor",
-  "last_ping",
+	packetId      uint16
+	topicBuffer   buffer
 }
 
 func newClient() gen.ProcessBehavior { return &client{} }
@@ -77,8 +47,10 @@ func (c *client) initConfig(args ...any) error {
 	}
 }
 
+var bufferedTopics = []string{"flag_otb", "otbor"}
+
 func (c *client) resetBuffer() {
-  c.inputBuffer = make(buffer, len(topics))
+	c.topicBuffer = make(buffer, len(bufferedTopics))
 }
 
 func (c *client) createListener() error {
@@ -94,29 +66,24 @@ func (c *client) createListener() error {
 
 func (c *client) HandleMessage(_ gen.PID, msg any) error {
 	m, ok := msg.(models.MqttMessage)
-	c.Log().Info("mqtt.client.HandleMessage.msg.Topic: %v", m.Topic)
 	if !ok {
-  	return errors.New("Unexpected mqtt message")
+		return errors.New("Unexpected mqtt message")
 	}
-  if !i.N(m.Topic, topics...) {
-    if i.N(m.Topic, "last_ping") {
-    	return inter.Send(c, m, "message", "mqtt_producer")
-    } else {
-      return nil
-    }
-  }
-  c.inputBuffer[m.Topic] = m.Text
-  if len(c.inputBuffer) != len(topics) {
-    return nil
-  }
-  _, err := inter.Call(c, c.inputBuffer, "changes", "device_raw_state")
-	if err == nil {
-  	c.Log().Info("mqtt.client.HandleMessage: send package")
-    c.resetBuffer()
-    return nil
-	} else {
-  	return err
+	c.Log().Debug("mqtt.client.HandleMessage.msg.Topic: %v", m.Topic)
+	if i.N(m.Topic, bufferedTopics...) {
+		c.topicBuffer[m.Topic] = m.Text
+		if len(c.topicBuffer) != len(bufferedTopics) {
+			return nil
+		}
+		_, err := inter.Call(c, c.topicBuffer, "changes", "device_raw_state")
+		if err == nil {
+			c.resetBuffer()
+			return nil
+		} else {
+			return err
+		}
 	}
+	return inter.Send(c, m, "message", "mqtt_producer")
 }
 
 func (c *client) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {

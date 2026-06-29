@@ -41,7 +41,10 @@ func (l *listener) Start() (err error) {
 		l.Start()
 	}
 	for {
-		err = l.client.HandleNext()
+		err = l.withTimeout(func(ctx context.Context) error {
+			return l.client.Ping(ctx)
+		})
+		// err = l.client.HandleNext()
 		if err != nil {
 			break
 		} else {
