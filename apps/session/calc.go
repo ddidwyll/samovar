@@ -27,6 +27,11 @@ func (c *calc) Init(args ...any) error {
 		"device_state.collect_value",
 	)
 
+	c.WatchReport(
+		calcStableMidTemp,
+		"device_raw_state.last_ping",
+	)
+
 	return c.prepareDevices(args...)
 }
 
@@ -60,6 +65,7 @@ func (c *calc) prepareDevices(args ...any) error {
 			apply("session_state.heat_loss", device.HeatLoss)
 			apply("session_state.max_power", device.MaxPower)
 			apply("session_state.max_collect", device.MaxCollect)
+			apply("session_state.min_stability_period", device.MinStabilityPeriod)
 			apply("session_desired_state.power", device.MaxPower)
 		}
 	}

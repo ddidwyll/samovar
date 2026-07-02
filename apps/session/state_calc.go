@@ -3,9 +3,30 @@ package session
 import (
 	clc "samovar/lib/calc"
 	"samovar/lib/val"
-
-	"fmt"
+	// "fmt"
 )
+
+func calcStableMidTemp(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {
+	currentTime := r.NewTimestamp
+	currentTemp := fetch("device_state.t_mid")
+	minPeriod := fetch("session_state.min_stability_period")
+	if !minPeriod.IsInt() || !currentTemp.IsFlt() {
+		apply("session_state.is_mid_stable", "false")
+		return
+	}
+	stableTemp := fetch("session_state.mid_stable_temp")
+	stableFrom := fetch("session_state.mid_stable_from")
+	if !stableTemp.IsFlt() || !stableFrom.IsInt() || !stableTemp.Eq(currentTemp) {
+		apply("session_state.is_mid_stable", "false")
+		apply("session_state.mid_stable_temp", currentTemp)
+		apply("session_state.mid_stable_from", currentTime)
+		return
+	}
+	stableDuration := currentTime - stableFrom.ToInt()
+	if stableDuration >= minPeriod.ToInt()*60*1000 {
+		apply("session_state.is_mid_stable", "true")
+	}
+}
 
 func recordCollectedValue(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {
 	oldValue := r.OldValue
@@ -32,28 +53,37 @@ func recordCollectedValue(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {
 		return
 	}
 	fullCollectMgMs := fullCollectGH.ToFlt() / 3600.0
-	passedMs := float64(r.NewTimestamp - r.OldTimestamp)
-	collectedMg := int64(fullCollectMgMs * oldValue.ToFlt() / 100.0 * passedMs)
+	durationMs := r.NewTimestamp - r.OldTimestamp
+	collectedMg := int64(fullCollectMgMs * oldValue.ToFlt() / 100.0 * float64(durationMs))
 
-	fmt.Printf("### recordCollectedValue.passedS: %fs\n", passedMs/1000.0)
-	fmt.Printf("### recordCollectedValue.collectedG: %dg (%v)\n", collectedMg/1000.0, currentType)
+	// fmt.Printf("### recordCollectedValue.durationS: %fs\n", durationMs/1000.0)
+	// fmt.Printf("### recordCollectedValue.collectedG: %dg (%v)\n", collectedMg/1000.0, currentType)
 
 	var collectAcc string
+	var durationAcc string
 	switch currentType.String() {
 	case "BODY":
 		collectAcc = "session_state.body_collected_value"
+		durationAcc = "session_state.body_collect_duration"
 	case "HEAD":
 		collectAcc = "session_state.head_collected_value"
+		durationAcc = "session_state.head_collect_duration"
 	case "RECYC":
 		collectAcc = "session_state.recyc_collected_value"
+		durationAcc = "session_state.recyc_collect_duration"
 	}
 
 	currentCollected := fetch(collectAcc)
 	if currentCollected.IsNil() {
 		currentCollected = val.IntAsInt(0)
 	}
+	currentDuration := fetch(durationAcc)
+	if currentDuration.IsNil() {
+		currentDuration = val.IntAsInt(0)
+	}
 
 	apply(collectAcc, currentCollected.ToInt()+collectedMg)
+	apply(durationAcc, currentDuration.ToInt()+durationMs)
 }
 
 func calcCollecionSpeed(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {

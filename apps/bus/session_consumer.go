@@ -20,6 +20,10 @@ func (sc *sessionConsumer) Init(_ ...any) error {
 		"session_calc",
 	)
 	sc.AddReportRoute(
+		"device_raw_state_changed",
+		"session_calc",
+	)
+	sc.AddReportRoute(
 		"session_state_changed",
 		"session_calc",
 	)

@@ -21,11 +21,18 @@ var stateFields = st.Fields{
 	st.FieldParams{"heat_loss", 'i', "heat loss", "%"},
 	st.FieldParams{"max_power", 'i', "max power", "W"},
 	st.FieldParams{"max_collect", 'i', "max collect", "g/h"},
+	st.FieldParams{"min_stability_period", 'i', "min stability period", "m"},
 	st.FieldParams{"body_collected_value", 'i', "body collected", "mg"},
 	st.FieldParams{"head_collected_value", 'i', "head collected", "mg"},
 	st.FieldParams{"recyc_collected_value", 'i', "recyc collected", "mg"},
+	st.FieldParams{"body_collect_duration", 'i', "body collect duration", "ms"},
+	st.FieldParams{"head_collect_duration", 'i', "head collect duration", "ms"},
+	st.FieldParams{"recyc_collect_duration", 'i', "recyc collect duration", "ms"},
 	st.FieldParams{"collect_last_type", 's', "collect last type", ""},
 	st.FieldParams{"collection_speed", 'i', "collection speed", "g/h"},
+	st.FieldParams{"mid_stable_temp", 'f', "middle stable temp", "°C"},
+	st.FieldParams{"mid_stable_from", 'i', "middle stable from", "°C"},
+	st.FieldParams{"is_mid_stable", 's', "is middle temp stable", ""},
 }
 
 func (s *state) Init(_ ...any) error {
