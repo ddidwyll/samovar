@@ -4,6 +4,8 @@ import (
 	clc "samovar/lib/calc"
 
 	"ergo.services/ergo/gen"
+
+	"fmt"
 )
 
 type calc struct{ clc.CalcActor }
@@ -24,8 +26,8 @@ func (c *calc) Init(_ ...any) error {
 	c.WatchFieldAs("device_state.collect", "client_state.collect")
 	c.WatchFieldAs("device_state.press", "client_state.press")
 	// DEVICE_RAW_STATE
-	c.WatchFieldAs("device_raw_state.last_rx", "client_state.last_mqtt_rx")
-	c.WatchFieldAs("device_raw_state.last_tx", "client_state.last_mqtt_tx")
+	// c.WatchFieldAs("device_raw_state.last_rx", "client_state.last_mqtt_rx")
+	// c.WatchFieldAs("device_raw_state.last_tx", "client_state.last_mqtt_tx")
 	c.WatchFieldAs("device_raw_state.last_ping", "client_state.last_mqtt_ping")
 	c.WatchFieldAs("device_raw_state.collect_synced", "client_state.collect_synced")
 	// SESSION_STATE
@@ -34,11 +36,34 @@ func (c *calc) Init(_ ...any) error {
 	c.WatchFieldAs("session_state.device_id", "client_state.device_id")
 	c.WatchFieldAs("session_state.devices", "client_state.devices")
 	c.WatchFieldAs("session_state.collection_speed", "client_state.collection_speed")
+	c.WatchFields(
+		calcCollectedGram,
+		"session_state.body_collected_value",
+		"session_state.head_collected_value",
+		"session_state.recyc_collected_value",
+	)
 	// SCRIPT_STATE
 	c.WatchFieldAs("script_state.scripts", "client_state.scripts")
 	c.WatchFieldAs("script_state.script_mode", "client_state.script_mode")
 
 	return nil
+}
+
+func calcCollectedGram(args clc.Args, apply clc.ApplyFn) {
+	collectAccs := []string{"body_collected", "head_collected", "recyc_collected"}
+
+	for _, acc := range collectAccs {
+		collectedMg := args.MustGet("session_state." + acc + "_value")
+		acc := "client_state." + acc
+		if !collectedMg.IsInt() {
+			apply(acc, 0)
+		} else {
+			g := collectedMg.ToInt() / 1000
+			ml := collectedMg.ToInt() / 789
+
+			apply(acc, fmt.Sprintf("%dg/%dml", g, ml))
+		}
+	}
 }
 
 func (c *calc) HandleMessage(_ gen.PID, msg any) error {

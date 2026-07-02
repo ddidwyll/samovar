@@ -52,7 +52,7 @@ func (c *calc) Init(_ ...any) error {
 	)
 
 	// DEVICE_STATE
-	// 
+	//
 
 	return nil
 }

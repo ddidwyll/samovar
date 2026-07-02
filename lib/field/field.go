@@ -72,10 +72,10 @@ func (f *Field) Change(req change.Request) (rep change.Report, err error) {
 	rep = req.BuildReport(f.ts, f.val, newVal, f.Name, f.Unit)
 
 	if newVal.Eq(f.val) {
-  	rep.NewTimestamp = f.ts
+		rep.NewTimestamp = f.ts
 	} else {
-  	f.val = newVal
-  	f.ts = req.Timestamp  	
+		f.val = newVal
+		f.ts = req.Timestamp
 	}
 
 	return rep, err

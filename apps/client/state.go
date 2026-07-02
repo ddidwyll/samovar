@@ -24,6 +24,9 @@ var stateFields = st.Fields{
 	st.FieldParams{"collect", 's', "collect", "%"},
 	st.FieldParams{"collection_speed", 's', "collection speed", "g/h"},
 	st.FieldParams{"collect_synced", 's', "is collect synced", ""},
+	st.FieldParams{"body_collected", 's', "collected body", ""},
+	st.FieldParams{"head_collected", 's', "collected head", ""},
+	st.FieldParams{"recyc_collected", 's', "collected recyc", ""},
 	st.FieldParams{"press", 'f', "press", "mm"},
 	st.FieldParams{"devices", 'a', "devices", ""},
 	st.FieldParams{"device_id", 's', "device id", ""},
@@ -31,8 +34,8 @@ var stateFields = st.Fields{
 	st.FieldParams{"script_mode", 's', "script mode", ""},
 	st.FieldParams{"error", 's', "error", ""},
 	st.FieldParams{"ready", 's', "ready", ""},
-	st.FieldParams{"last_mqtt_tx", 's', "last mqtt tx", ""},
-	st.FieldParams{"last_mqtt_rx", 's', "last mqtt rx", ""},
+	// st.FieldParams{"last_mqtt_tx", 's', "last mqtt tx", ""},
+	// st.FieldParams{"last_mqtt_rx", 's', "last mqtt rx", ""},
 	st.FieldParams{"last_mqtt_ping", 's', "last mqtt ping", ""},
 }
 

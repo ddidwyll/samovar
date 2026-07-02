@@ -22,6 +22,8 @@ var stateFields = st.Fields{
 	st.FieldParams{"max_power", 'i', "max power", "W"},
 	st.FieldParams{"max_collect", 'i', "max collect", "g/h"},
 	st.FieldParams{"body_collected_value", 'i', "body collected", "mg"},
+	st.FieldParams{"head_collected_value", 'i', "head collected", "mg"},
+	st.FieldParams{"recyc_collected_value", 'i', "recyc collected", "mg"},
 	st.FieldParams{"collect_last_type", 's', "collect last type", ""},
 	st.FieldParams{"collection_speed", 'i', "collection speed", "g/h"},
 }

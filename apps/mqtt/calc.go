@@ -91,7 +91,7 @@ func changeCollect(args clc.Args, change clc.ApplyFn) {
 	}
 
 	if newType != currentType && newType != "OFF" && currentType != "OFF" {
-  	newType = "TEMP_OFF"
+		newType = "TEMP_OFF"
 	}
 
 	switch newType {
