@@ -2,6 +2,7 @@ package script
 
 import (
 	clc "samovar/lib/calc"
+	ss "samovar/lib/scripts"
 
 	"ergo.services/ergo/gen"
 
@@ -13,10 +14,10 @@ import (
 type calc struct{ clc.CalcActor }
 
 var scripts = scriptMap{
-	"idle":            performIdle,
-	"collect_body_10": performCollectBody10,
-	"collect_body_50": performCollectBody50,
-	"collect_head_30": performCollectHead30,
+	"idle":               performIdle,
+	"collect_head_min":   ss.PerformCollectHeadMin,
+	"collect_recyc_fast": ss.PerformCollectRecycFast,
+	"collect_recyc_slow": ss.PerformCollectRecycSlow,
 }
 
 func newCalc() gen.ProcessBehavior {

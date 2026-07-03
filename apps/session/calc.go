@@ -27,6 +27,18 @@ func (c *calc) Init(args ...any) error {
 		"device_state.collect_value",
 	)
 
+	c.WatchFields(
+		calcNetPower,
+		"device_state.power",
+		"session_state.heat_loss",
+	)
+
+	c.WatchFields(
+		calcRefluxRatio,
+		"session_state.net_power",
+		"session_state.collection_speed",
+	)
+
 	c.WatchReport(
 		calcStableMidTemp,
 		"device_raw_state.last_ping",

@@ -3,7 +3,8 @@ package session
 import (
 	clc "samovar/lib/calc"
 	"samovar/lib/val"
-	// "fmt"
+
+	"fmt"
 )
 
 func calcStableMidTemp(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {
@@ -83,7 +84,36 @@ func recordCollectedValue(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {
 	}
 
 	apply(collectAcc, currentCollected.ToInt()+collectedMg)
+	fmt.Printf("recordCollectedValue.duration[%s]: %d + %d = %d\n", durationAcc, currentDuration.ToInt(), durationMs, currentDuration.ToInt()+durationMs)
 	apply(durationAcc, currentDuration.ToInt()+durationMs)
+}
+
+func calcNetPower(args clc.Args, apply clc.ApplyFn) {
+	loss := args.MustGet("session_state.heat_loss")
+	power := args.MustGet("device_state.power")
+	if !loss.IsInt() || !power.IsInt() {
+		return
+	}
+	_ = power.ToInt() * loss.ToInt() / 100
+	// fmt.Printf("calcNetPower.diff: %d", diff)
+	apply("session_state.net_power", 1700)
+}
+
+func calcRefluxRatio(args clc.Args, apply clc.ApplyFn) {
+	power := args.MustGet("session_state.net_power")
+	collect := args.MustGet("session_state.collection_speed")
+	if !power.IsInt() || !collect.IsInt() {
+		return
+	}
+	if collect.EqStr("0") {
+		apply("session_state.reflux_ratio", 999)
+		return
+	}
+	speedVGH := power.ToFlt() * 3600.0 / 925.0
+	returnVGH := speedVGH - collect.ToFlt()
+	ratio := returnVGH / collect.ToFlt()
+	// fmt.Printf("calcRefluxRatio.ratio: %f / %f = %f", returnVGH, collect.ToFlt(), ratio)
+	apply("session_state.reflux_ratio", ratio)
 }
 
 func calcCollecionSpeed(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {

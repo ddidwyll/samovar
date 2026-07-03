@@ -38,8 +38,10 @@ func (c *calc) Init(_ ...any) error {
 	c.WatchFieldAs("session_state.collection_speed", "client_state.collection_speed")
 	c.WatchFieldAs("session_state.is_mid_stable", "client_state.is_mid_stable")
 	c.WatchFieldAs("session_state.mid_stable_temp", "client_state.mid_stable_temp")
+	c.WatchFieldAs("session_state.net_power", "client_state.net_power")
+	c.WatchFieldAs("session_state.reflux_ratio", "client_state.reflux_ratio")
 	c.WatchFields(
-		calcCollectedGram,
+		calcCollected,
 		"session_state.body_collected_value",
 		"session_state.head_collected_value",
 		"session_state.recyc_collected_value",
@@ -66,10 +68,11 @@ func calcAverageCollectSpeed(args clc.Args, apply clc.ApplyFn) {
 	for _, prefix := range accPrefixes {
 		durationMs := args.MustGet("session_state." + prefix + "_collect_duration")
 		collectedMg := args.MustGet("session_state." + prefix + "_collected_value")
+		fmt.Printf(">>> calcAverageCollectSpeed[%s]: dur=%v, col=%v\n", prefix, durationMs, collectedMg)
 		acc := "client_state." + prefix + "_average_speed"
 		if !durationMs.IsInt() || !collectedMg.IsInt() {
 			apply(acc, 0)
-			return
+			continue
 		}
 		speedGH := collectedMg.ToInt() * 3600 / durationMs.ToInt()
 		fmt.Printf("calcAverageCollectSpeed.speed[%s]: %dg/h\n", prefix, speedGH)
@@ -77,7 +80,7 @@ func calcAverageCollectSpeed(args clc.Args, apply clc.ApplyFn) {
 	}
 }
 
-func calcCollectedGram(args clc.Args, apply clc.ApplyFn) {
+func calcCollected(args clc.Args, apply clc.ApplyFn) {
 	collectAccs := []string{"body_collected", "head_collected", "recyc_collected"}
 
 	for _, acc := range collectAccs {
