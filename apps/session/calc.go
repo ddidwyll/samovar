@@ -78,6 +78,7 @@ func (c *calc) prepareDevices(args ...any) error {
 			apply("session_state.max_power", device.MaxPower)
 			apply("session_state.max_collect", device.MaxCollect)
 			apply("session_state.min_stability_period", device.MinStabilityPeriod)
+			apply("session_state.min_reflux_ratio", device.MinRefluxRatio)
 			apply("session_desired_state.power", device.MaxPower)
 		}
 	}

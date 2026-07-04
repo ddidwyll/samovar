@@ -3,21 +3,33 @@ package session
 import (
 	clc "samovar/lib/calc"
 	"samovar/lib/val"
-
-	"fmt"
+	// "fmt"
 )
 
 func calcStableMidTemp(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {
+	recordMidStableDiff := func(currentTemp val.Val, fetch clc.FetchFn, apply clc.ApplyFn) val.Val {
+		firstStable := fetch("session_state.mid_stable_first")
+		if !firstStable.IsInt() {
+			return val.Nil{}
+		}
+		diff := fetch("session_state.mid_stable_diff")
+		newDiff := currentTemp.ToInt() - firstStable.ToInt()
+		if !diff.EqStr(string(newDiff)) {
+			apply("session_state.mid_stable_diff", newDiff)
+		}
+		return firstStable
+	}
 	currentTime := r.NewTimestamp
 	currentTemp := fetch("device_state.t_mid")
 	minPeriod := fetch("session_state.min_stability_period")
-	if !minPeriod.IsInt() || !currentTemp.IsFlt() {
+	if !minPeriod.IsInt() || !currentTemp.IsInt() {
 		apply("session_state.is_mid_stable", "false")
 		return
 	}
+	firstStable := recordMidStableDiff(currentTemp, fetch, apply)
 	stableTemp := fetch("session_state.mid_stable_temp")
 	stableFrom := fetch("session_state.mid_stable_from")
-	if !stableTemp.IsFlt() || !stableFrom.IsInt() || !stableTemp.Eq(currentTemp) {
+	if !stableTemp.IsInt() || !stableFrom.IsInt() || !stableTemp.Eq(currentTemp) {
 		apply("session_state.is_mid_stable", "false")
 		apply("session_state.mid_stable_temp", currentTemp)
 		apply("session_state.mid_stable_from", currentTime)
@@ -26,6 +38,9 @@ func calcStableMidTemp(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {
 	stableDuration := currentTime - stableFrom.ToInt()
 	if stableDuration >= minPeriod.ToInt()*60*1000 {
 		apply("session_state.is_mid_stable", "true")
+		if firstStable.IsNil() {
+			apply("session_state.mid_stable_first", currentTemp)
+		}
 	}
 }
 
@@ -84,7 +99,7 @@ func recordCollectedValue(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {
 	}
 
 	apply(collectAcc, currentCollected.ToInt()+collectedMg)
-	fmt.Printf("recordCollectedValue.duration[%s]: %d + %d = %d\n", durationAcc, currentDuration.ToInt(), durationMs, currentDuration.ToInt()+durationMs)
+	// fmt.Printf("recordCollectedValue.duration[%s]: %d + %d = %d\n", durationAcc, currentDuration.ToInt(), durationMs, currentDuration.ToInt()+durationMs)
 	apply(durationAcc, currentDuration.ToInt()+durationMs)
 }
 
@@ -94,9 +109,9 @@ func calcNetPower(args clc.Args, apply clc.ApplyFn) {
 	if !loss.IsInt() || !power.IsInt() {
 		return
 	}
-	_ = power.ToInt() * loss.ToInt() / 100
+	diff := power.ToInt() * loss.ToInt() / 100
 	// fmt.Printf("calcNetPower.diff: %d", diff)
-	apply("session_state.net_power", 1700)
+	apply("session_state.net_power", power.ToInt()-diff)
 }
 
 func calcRefluxRatio(args clc.Args, apply clc.ApplyFn) {
@@ -109,7 +124,7 @@ func calcRefluxRatio(args clc.Args, apply clc.ApplyFn) {
 		apply("session_state.reflux_ratio", 999)
 		return
 	}
-	speedVGH := power.ToFlt() * 3600.0 / 925.0
+	speedVGH := power.ToFlt() * 3600.0 / 900.0
 	returnVGH := speedVGH - collect.ToFlt()
 	ratio := returnVGH / collect.ToFlt()
 	// fmt.Printf("calcRefluxRatio.ratio: %f / %f = %f", returnVGH, collect.ToFlt(), ratio)

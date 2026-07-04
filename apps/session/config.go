@@ -8,11 +8,12 @@ import (
 )
 
 type device struct {
-	Id                 string `json:"id"`
-	HeatLoss           int64  `json:"heat_loss"`
-	MaxPower           int64  `json:"max_power"`
-	MaxCollect         int64  `json:"max_collect"`
-	MinStabilityPeriod int64  `json:"min_stability_period"`
+	Id                 string  `json:"id"`
+	HeatLoss           int64   `json:"heat_loss"`
+	MaxPower           int64   `json:"max_power"`
+	MaxCollect         int64   `json:"max_collect"`
+	MinStabilityPeriod int64   `json:"min_stability_period"`
+	MinRefluxRatio     float64 `json:"min_reflux_ratio"`
 }
 
 type config struct {
@@ -45,7 +46,7 @@ func (d device) validate() error {
 	switch {
 	case d.Id == "":
 		err = "id is required"
-	case d.HeatLoss <= 0:
+	case d.HeatLoss == 0:
 		err = "heat_loss is required"
 	case d.MaxPower <= 0:
 		err = "max_power is required"
@@ -53,6 +54,8 @@ func (d device) validate() error {
 		err = "max_collect is required"
 	case d.MinStabilityPeriod <= 0:
 		err = "min_stability_period is required"
+	case d.MinRefluxRatio <= 0.0:
+		err = "min_reflux_ratio is required"
 	default:
 		return nil
 	}

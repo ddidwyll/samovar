@@ -6,6 +6,7 @@ import (
 	"ergo.services/ergo/gen"
 
 	"fmt"
+	// "math"
 )
 
 type calc struct{ clc.CalcActor }
@@ -18,9 +19,9 @@ func (c *calc) Init(_ ...any) error {
 	c.InitCalc("{client.calc}")
 
 	// DEVICE_STATE
-	c.WatchFieldAs("device_state.t_top", "client_state.t_top")
-	c.WatchFieldAs("device_state.t_mid", "client_state.t_mid")
-	c.WatchFieldAs("device_state.t_btm", "client_state.t_btm")
+	c.WatchFields(calcDegree, "device_state.t_top")
+	c.WatchFields(calcDegree, "device_state.t_mid")
+	c.WatchFields(calcDegree, "device_state.t_btm")
 	c.WatchFieldAs("device_state.power", "client_state.power")
 	c.WatchFieldAs("device_state.power_diff", "client_state.power_diff")
 	c.WatchFieldAs("device_state.collect", "client_state.collect")
@@ -37,7 +38,8 @@ func (c *calc) Init(_ ...any) error {
 	c.WatchFieldAs("session_state.devices", "client_state.devices")
 	c.WatchFieldAs("session_state.collection_speed", "client_state.collection_speed")
 	c.WatchFieldAs("session_state.is_mid_stable", "client_state.is_mid_stable")
-	c.WatchFieldAs("session_state.mid_stable_temp", "client_state.mid_stable_temp")
+	c.WatchFields(calcDegree, "session_state.mid_stable_temp")
+	c.WatchFields(calcDegree, "session_state.mid_stable_diff")
 	c.WatchFieldAs("session_state.net_power", "client_state.net_power")
 	c.WatchFieldAs("session_state.reflux_ratio", "client_state.reflux_ratio")
 	c.WatchFields(
@@ -62,20 +64,31 @@ func (c *calc) Init(_ ...any) error {
 	return nil
 }
 
+func calcDegree(args clc.Args, apply clc.ApplyFn) {
+	for key, val := range args {
+		if !val.IsInt() {
+			continue
+		}
+		target := clc.Fid(key)
+		targetKey := "client_state." + target.FieldKey
+		apply(targetKey, val.ToFlt()/10.0)
+	}
+}
+
 func calcAverageCollectSpeed(args clc.Args, apply clc.ApplyFn) {
 	accPrefixes := []string{"body", "head", "recyc"}
 
 	for _, prefix := range accPrefixes {
 		durationMs := args.MustGet("session_state." + prefix + "_collect_duration")
 		collectedMg := args.MustGet("session_state." + prefix + "_collected_value")
-		fmt.Printf(">>> calcAverageCollectSpeed[%s]: dur=%v, col=%v\n", prefix, durationMs, collectedMg)
+		// fmt.Printf(">>> calcAverageCollectSpeed[%s]: dur=%v, col=%v\n", prefix, durationMs, collectedMg)
 		acc := "client_state." + prefix + "_average_speed"
 		if !durationMs.IsInt() || !collectedMg.IsInt() {
 			apply(acc, 0)
 			continue
 		}
 		speedGH := collectedMg.ToInt() * 3600 / durationMs.ToInt()
-		fmt.Printf("calcAverageCollectSpeed.speed[%s]: %dg/h\n", prefix, speedGH)
+		// fmt.Printf("calcAverageCollectSpeed.speed[%s]: %dg/h\n", prefix, speedGH)
 		apply(acc, speedGH)
 	}
 }

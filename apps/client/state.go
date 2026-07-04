@@ -16,10 +16,11 @@ func newState() gen.ProcessBehavior {
 }
 
 var stateFields = st.Fields{
-	st.FieldParams{"t_top", 'f', "t top", "°C"},
-	st.FieldParams{"t_mid", 'f', "t middle", "°C"},
-	st.FieldParams{"t_btm", 'f', "t bottom", "°C"},
+	st.FieldParams{"t_top", 'f', "temp top", "°C"},
+	st.FieldParams{"t_mid", 'f', "temp middle", "°C"},
+	st.FieldParams{"t_btm", 'f', "temp bottom", "°C"},
 	st.FieldParams{"mid_stable_temp", 'f', "middle stable temp", "°C"},
+	st.FieldParams{"mid_stable_diff", 'f', "middle first stable temp diff", "°C"},
 	st.FieldParams{"is_mid_stable", 's', "is middle temp stable", ""},
 	st.FieldParams{"power", 'i', "power", "W"},
 	st.FieldParams{"net_power", 'i', "net power", "W"},

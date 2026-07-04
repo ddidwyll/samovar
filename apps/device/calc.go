@@ -16,9 +16,9 @@ func (c *calc) Init(_ ...any) error {
 	c.InitCalc("{device.calc}")
 
 	// DEVICE_RAW_STATE
-	c.WatchFieldAs("device_raw_state.term_d", "device_state.t_top")
-	c.WatchFieldAs("device_raw_state.term_c", "device_state.t_mid")
-	c.WatchFieldAs("device_raw_state.term_k", "device_state.t_btm")
+	c.WatchFields(calcDecigrad, "device_raw_state.term_d")
+	c.WatchFields(calcDecigrad, "device_raw_state.term_c")
+	c.WatchFields(calcDecigrad, "device_raw_state.term_k")
 	c.WatchFieldAs("device_raw_state.press_a", "device_state.press")
 	c.WatchFieldAs("device_raw_state.power_m", "device_state.power")
 

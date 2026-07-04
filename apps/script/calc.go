@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"maps"
 	"slices"
+	"strings"
 )
 
 type calc struct{ clc.CalcActor }
@@ -35,6 +36,10 @@ func (c *calc) Init(_ ...any) error {
 	c.WatchFields(
 		performScript,
 		"script_state.script_mode",
+		"session_state.min_reflux_ratio",
+		"session_state.net_power",
+		"session_state.max_collect",
+		"session_state.mid_stable_diff",
 	)
 
 	return c.calcScripts()
@@ -59,8 +64,11 @@ func performScript(args args, apply applyFn) {
 	for scriptName, scriptFn := range scripts {
 		if scriptName == scriptMode {
 			patchedApply := func(key string, value any) {
+				if !strings.Contains(key, ".") {
+					key = "script_state." + key
+				}
 				fmt.Printf(">>> script.calc.performScript.patchedApply: %v, %v\n", key, value)
-				apply("script_state."+key, value)
+				apply(key, value)
 			}
 			scriptFn(args, patchedApply)
 		}

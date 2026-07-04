@@ -59,7 +59,7 @@ func (v Arr) ToInt() int64 { panic("Val.arr_to_int") }
 func (v Flt) AsInt() int64 { return v.i }
 
 func (v Int) ToFlt() float64 { return float64(v.i) }
-func (v Flt) ToFlt() float64 { return float64(v.i / 100) }
+func (v Flt) ToFlt() float64 { return float64(v.i) / 100.0 }
 func (v Arr) ToFlt() float64 { panic("Val.arr_to_flt") }
 func (v Str) ToFlt() float64 { panic("Val.str_to_flt") }
 func (v Nil) ToFlt() float64 { panic("Val.nil_to_flt") }

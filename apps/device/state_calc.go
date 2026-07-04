@@ -7,6 +7,24 @@ import (
 	"fmt"
 )
 
+func calcDecigrad(args clc.Args, apply clc.ApplyFn) {
+	mapper := map[string]string{
+		"term_d": "t_top",
+		"term_c": "t_mid",
+		"term_k": "t_btm",
+	}
+
+	for key, val := range args {
+		target := clc.Fid(key)
+		targetField, exists := mapper[target.FieldKey]
+		if !val.IsFlt() || !exists {
+			continue
+		}
+		targetKey := "device_state." + targetField
+		apply(targetKey, int64(val.ToFlt()*10.0))
+	}
+}
+
 func calcPowerDiff(args clc.Args, apply clc.ApplyFn) {
 	power_fact := args.MustGet("device_raw_state.power")
 	power_plan := args.MustGet("device_raw_state.power_m")

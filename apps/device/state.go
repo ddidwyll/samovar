@@ -9,9 +9,9 @@ import (
 type state struct{ st.StateActor }
 
 var stateFields = st.Fields{
-	st.FieldParams{"t_top", 'f', "t top", "°C"},
-	st.FieldParams{"t_mid", 'f', "t middle", "°C"},
-	st.FieldParams{"t_btm", 'f', "t bottom", "°C"},
+	st.FieldParams{"t_top", 'i', "t top", "d°C"},
+	st.FieldParams{"t_mid", 'i', "t middle", "d°C"},
+	st.FieldParams{"t_btm", 'i', "t bottom", "d°C"},
 	st.FieldParams{"power", 'i', "power", "W"},
 	st.FieldParams{"power_diff", 'i', "power diff", "%"},
 	st.FieldParams{"collect", 's', "collect", "%"},

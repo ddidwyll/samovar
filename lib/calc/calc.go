@@ -22,7 +22,7 @@ type Value = any
 
 type fieldId struct {
 	stateKey string
-	fieldKey string
+	FieldKey string
 }
 
 type Args = state.KeyVals
@@ -82,7 +82,7 @@ func (ca *CalcActor) WatchFields(fn fieldsCalcFn, fieldStrings ...string) {
 		if fields[fid.stateKey] == nil {
 			fields[fid.stateKey] = make(map[string]bool)
 		}
-		fields[fid.stateKey][fid.fieldKey] = true
+		fields[fid.stateKey][fid.FieldKey] = true
 	}
 
 	watcher := fieldsWatcher{fields, fn}
@@ -92,7 +92,7 @@ func (ca *CalcActor) WatchFields(fn fieldsCalcFn, fieldStrings ...string) {
 
 func (ca *CalcActor) WatchReport(fn reportCalcFn, fieldIdStr string) {
 	target := Fid(fieldIdStr)
-	watcher := reportWatcher{target.stateKey, target.fieldKey, fn}
+	watcher := reportWatcher{target.stateKey, target.FieldKey, fn}
 	ca.reportWatchers = append(ca.reportWatchers, watcher)
 }
 
@@ -123,7 +123,7 @@ func (ca *CalcActor) SendRequest(fieldIdStr string, value Value) error {
 	}
 	target := Fid(fieldIdStr)
 	results := make(Results, 1)
-	results[target.fieldKey] = value
+	results[target.FieldKey] = value
 	return ca.SendRequests(target.stateKey, results)
 }
 
@@ -161,7 +161,7 @@ func (ca *CalcActor) BuildRequest(fieldKey string, value Value, ts int64) change
 
 func (ca *CalcActor) mustFetchField(fieldIdStr string) val.Val {
 	target := Fid(fieldIdStr)
-	v, err := inter.Call(ca, target.fieldKey, "field", target.stateKey)
+	v, err := inter.Call(ca, target.FieldKey, "field", target.stateKey)
 	if err == nil {
 		return v.(*field.Field).Get()
 	} else {
@@ -177,7 +177,7 @@ func (ca *CalcActor) performWatchers(r Report) (changes, error) {
 		for fieldIdStr, value := range results {
 			target := Fid(fieldIdStr)
 			sk := target.stateKey
-			fk := target.fieldKey
+			fk := target.FieldKey
 			if allResults[sk] == nil {
 				allResults[sk] = make(Results)
 			}
@@ -281,7 +281,7 @@ func IsFid(str string) bool {
 }
 
 func (fid fieldId) String() string {
-	return fmt.Sprintf("%s.%s", fid.stateKey, fid.fieldKey)
+	return fmt.Sprintf("%s.%s", fid.stateKey, fid.FieldKey)
 }
 
 func fidFrom(stateKey, fieldKey string) fieldId {

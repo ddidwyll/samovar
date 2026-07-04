@@ -13,8 +13,8 @@ func newState() gen.ProcessBehavior {
 }
 
 var stateFields = st.Fields{
-	st.FieldParams{"scripts", 'a', "scripts", ""},
 	st.FieldParams{"script_mode", 's', "script mode", ""},
+	st.FieldParams{"scripts", 'a', "scripts", ""},
 	st.FieldParams{"collect_type", 's', "collect type", ""},
 	st.FieldParams{"collect_value", 'i', "collect value", ""},
 }
