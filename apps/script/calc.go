@@ -15,10 +15,10 @@ import (
 type calc struct{ clc.CalcActor }
 
 var scripts = scriptMap{
-	"idle":               performIdle,
-	"collect_head_min":   ss.PerformCollectHeadMin,
-	"collect_recyc_fast": ss.PerformCollectRecycFast,
-	"collect_recyc_slow": ss.PerformCollectRecycSlow,
+	"idle":             performIdle,
+	"collect_head_min": ss.PerformCollectHeadMin,
+	"collect_waste":    ss.PerformCollectWaste,
+	"collect_recyc":    ss.PerformCollectRecyc,
 }
 
 func newCalc() gen.ProcessBehavior {

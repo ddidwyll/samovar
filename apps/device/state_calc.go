@@ -63,7 +63,11 @@ func calcCollect(args clc.Args, apply clc.ApplyFn) {
 	case "Golov":
 		f, s = otbor.ToFlt(), "HEAD"
 	case "Podgol":
-		f, s = otbor.ToFlt(), "RECYC"
+		t := "RECYC"
+		if otbor.ToInt() >= 50 {
+			t = "WASTE"
+		}
+		f, s = otbor.ToFlt(), t
 	case "Gol.P":
 		f, s = calcPeriod(), "SALVO"
 	case "Telo":

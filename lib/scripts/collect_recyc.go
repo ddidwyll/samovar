@@ -1,6 +1,6 @@
 package scripts
 
-func PerformCollectRecycSlow(args args, apply applyFn) {
+func PerformCollectRecyc(args args, apply applyFn) {
 	refluxRatio := args.MustGet("session_state.min_reflux_ratio")
 	maxCollect := args.MustGet("session_state.max_collect")
 	netPower := args.MustGet("session_state.net_power")

@@ -32,6 +32,7 @@ var stateFields = st.Fields{
 	st.FieldParams{"body_collected", 's', "collected body", ""},
 	st.FieldParams{"head_collected", 's', "collected head", ""},
 	st.FieldParams{"recyc_collected", 's', "collected recyc", ""},
+	st.FieldParams{"waste_collected", 's', "collected waste", ""},
 	st.FieldParams{"body_average_speed", 'i', "body average speed", "g/h"},
 	st.FieldParams{"head_average_speed", 'i', "head average speed", "g/h"},
 	st.FieldParams{"recyc_average_speed", 'i', "recyc average speed", "g/h"},

@@ -77,6 +77,7 @@ func recordCollectedValue(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {
 
 	var collectAcc string
 	var durationAcc string
+	withDuration := true
 	switch currentType.String() {
 	case "BODY":
 		collectAcc = "session_state.body_collected_value"
@@ -87,20 +88,24 @@ func recordCollectedValue(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {
 	case "RECYC":
 		collectAcc = "session_state.recyc_collected_value"
 		durationAcc = "session_state.recyc_collect_duration"
+	case "WASTE":
+		collectAcc = "session_state.waste_collected_value"
+		withDuration = false
 	}
 
 	currentCollected := fetch(collectAcc)
 	if currentCollected.IsNil() {
 		currentCollected = val.IntAsInt(0)
 	}
-	currentDuration := fetch(durationAcc)
-	if currentDuration.IsNil() {
-		currentDuration = val.IntAsInt(0)
-	}
-
 	apply(collectAcc, currentCollected.ToInt()+collectedMg)
-	// fmt.Printf("recordCollectedValue.duration[%s]: %d + %d = %d\n", durationAcc, currentDuration.ToInt(), durationMs, currentDuration.ToInt()+durationMs)
-	apply(durationAcc, currentDuration.ToInt()+durationMs)
+
+	if withDuration {
+		currentDuration := fetch(durationAcc)
+		if currentDuration.IsNil() {
+			currentDuration = val.IntAsInt(0)
+		}
+		apply(durationAcc, currentDuration.ToInt()+durationMs)
+	}
 }
 
 func calcNetPower(args clc.Args, apply clc.ApplyFn) {

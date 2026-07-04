@@ -3,6 +3,7 @@ package mqtt
 import (
 	"samovar/common/models"
 	clc "samovar/lib/calc"
+	"samovar/lib/i"
 	"samovar/lib/inter"
 	"samovar/lib/val"
 
@@ -94,8 +95,8 @@ func changeCollect(args clc.Args, change clc.ApplyFn) {
 		newType = "TEMP_OFF"
 	}
 
-	switch newType {
-	case "BODY":
+	switch {
+	case newType == "BODY":
 		if currentType != "BODY" {
 			change("device_raw_state.collect_synced", "false")
 			change("otbor_t_new", newValue)
@@ -106,7 +107,7 @@ func changeCollect(args clc.Args, change clc.ApplyFn) {
 		} else {
 			change("device_raw_state.collect_synced", "true")
 		}
-	case "HEAD":
+	case newType == "HEAD":
 		if currentType != "HEAD" {
 			change("device_raw_state.collect_synced", "false")
 			change("otbor_g_1_new", newValue)
@@ -117,8 +118,8 @@ func changeCollect(args clc.Args, change clc.ApplyFn) {
 		} else {
 			change("device_raw_state.collect_synced", "true")
 		}
-	case "RECYC":
-		if currentType != "RECYC" {
+	case i.N(newType, "RECYC", "WASTE"):
+		if !i.N(currentType, "RECYC", "WASTE") {
 			change("device_raw_state.collect_synced", "false")
 			change("otbor_g_2_new", newValue)
 			change("work", 10)

@@ -27,6 +27,7 @@ var stateFields = st.Fields{
 	st.FieldParams{"body_collected_value", 'i', "body collected", "mg"},
 	st.FieldParams{"head_collected_value", 'i', "head collected", "mg"},
 	st.FieldParams{"recyc_collected_value", 'i', "recyc collected", "mg"},
+	st.FieldParams{"waste_collected_value", 'i', "waste collected", "mg"},
 	st.FieldParams{"body_collect_duration", 'i', "body collect duration", "ms"},
 	st.FieldParams{"head_collect_duration", 'i', "head collect duration", "ms"},
 	st.FieldParams{"recyc_collect_duration", 'i', "recyc collect duration", "ms"},

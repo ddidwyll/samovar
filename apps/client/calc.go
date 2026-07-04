@@ -47,6 +47,7 @@ func (c *calc) Init(_ ...any) error {
 		"session_state.body_collected_value",
 		"session_state.head_collected_value",
 		"session_state.recyc_collected_value",
+		"session_state.waste_collected_value",
 	)
 	c.WatchFields(
 		calcAverageCollectSpeed,
@@ -94,7 +95,7 @@ func calcAverageCollectSpeed(args clc.Args, apply clc.ApplyFn) {
 }
 
 func calcCollected(args clc.Args, apply clc.ApplyFn) {
-	collectAccs := []string{"body_collected", "head_collected", "recyc_collected"}
+	collectAccs := []string{"body_collected", "head_collected", "recyc_collected", "waste_collected"}
 
 	for _, acc := range collectAccs {
 		collectedMg := args.MustGet("session_state." + acc + "_value")
