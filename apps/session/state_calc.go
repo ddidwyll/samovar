@@ -70,6 +70,9 @@ func recordCollectedValue(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {
 	}
 	fullCollectMgMs := fullCollectGH.ToFlt() / 3600.0
 	durationMs := r.NewTimestamp - r.OldTimestamp
+	if durationMs < 0 {
+		return
+	}
 	collectedMg := int64(fullCollectMgMs * oldValue.ToFlt() / 100.0 * float64(durationMs))
 
 	// fmt.Printf("### recordCollectedValue.durationS: %fs\n", durationMs/1000.0)

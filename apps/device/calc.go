@@ -4,6 +4,8 @@ import (
 	clc "samovar/lib/calc"
 
 	"ergo.services/ergo/gen"
+
+	"time"
 )
 
 type calc struct{ clc.CalcActor }
@@ -16,6 +18,8 @@ func (c *calc) Init(_ ...any) error {
 	c.InitCalc("{device.calc}")
 
 	// DEVICE_RAW_STATE
+	c.WatchReport(tick, "device_raw_state.last_ping")
+
 	c.WatchFields(calcDecigrad, "device_raw_state.term_d")
 	c.WatchFields(calcDecigrad, "device_raw_state.term_c")
 	c.WatchFields(calcDecigrad, "device_raw_state.term_k")
@@ -33,7 +37,7 @@ func (c *calc) Init(_ ...any) error {
 		"device_raw_state.flag_otb",
 		"device_raw_state.sek_otb",
 		"device_raw_state.min_otb",
-		"device_raw_state.last_ping",
+		"device_raw_state.tick",
 	)
 
 	// SESSION_DESIRED_STATE
@@ -56,6 +60,14 @@ func (c *calc) Init(_ ...any) error {
 	//
 
 	return nil
+}
+
+func tick(r clc.Report, _ clc.FetchFn, apply clc.ApplyFn) {
+	secA := time.UnixMilli(r.OldTimestamp).Second()
+	secB := time.UnixMilli(r.NewTimestamp).Second()
+	if secA != secB {
+		apply("device_raw_state.tick", r.NewTimestamp)
+	}
 }
 
 func (c *calc) HandleMessage(_ gen.PID, msg any) error {

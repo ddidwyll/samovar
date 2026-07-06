@@ -49,7 +49,7 @@ func calcCollect(args clc.Args, apply clc.ApplyFn) {
 		return
 	}
 
-	randDecimal := float64(time.Now().Second() / 6) / 100
+	randDecimal := float64(time.Now().Second()/6) / 100
 	otborRand := otbor.ToFlt() + randDecimal
 
 	calcPeriod := func() float64 {

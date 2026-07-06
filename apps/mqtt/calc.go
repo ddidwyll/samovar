@@ -31,7 +31,7 @@ func (c *calc) Init(_ ...any) error {
 
 	c.WatchFields(
 		changeCollect,
-		"device_raw_state.last_ping",
+		"device_raw_state.tick",
 		"device_raw_state.otbor",
 		"device_state.collect_type",
 		"device_desired_state.collect_type",

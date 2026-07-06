@@ -41,7 +41,7 @@ func (c *calc) Init(args ...any) error {
 
 	c.WatchReport(
 		calcStableMidTemp,
-		"device_raw_state.last_ping",
+		"device_raw_state.tick",
 	)
 
 	return c.prepareDevices(args...)
