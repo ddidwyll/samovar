@@ -5,6 +5,7 @@ import (
 	"samovar/lib/val"
 
 	"fmt"
+	"time"
 )
 
 func calcDecigrad(args clc.Args, apply clc.ApplyFn) {
@@ -48,6 +49,9 @@ func calcCollect(args clc.Args, apply clc.ApplyFn) {
 		return
 	}
 
+	randDecimal := float64(time.Now().Second() / 6) / 100
+	otborRand := otbor.ToFlt() + randDecimal
+
 	calcPeriod := func() float64 {
 		sec := args.MustGet("device_raw_state.sek_otb")
 		min := args.MustGet("device_raw_state.min_otb")
@@ -61,22 +65,22 @@ func calcCollect(args clc.Args, apply clc.ApplyFn) {
 
 	switch args.MustGet("device_raw_state.flag_otb").String() {
 	case "Golov":
-		f, s = otbor.ToFlt(), "HEAD"
+		f, s = otborRand, "HEAD"
 	case "Podgol":
 		t := "RECYC"
 		if otbor.ToInt() >= 50 {
 			t = "WASTE"
 		}
-		f, s = otbor.ToFlt(), t
+		f, s = otborRand, t
 	case "Gol.P":
 		f, s = calcPeriod(), "SALVO"
 	case "Telo":
-		f, s = otbor.ToFlt(), "BODY"
+		f, s = otborRand, "BODY"
 	}
 
 	collectValue := val.FltAsFlt(f)
 	collectType, _ := val.StrAsStr(s)
-	collectStr := fmt.Sprintf("%s_%s", collectType, collectValue)
+	collectStr := fmt.Sprintf("%s_%d", collectType, collectValue.ToInt())
 	collect, _ := val.StrAsStr(collectStr)
 
 	apply("device_state.collect_value", collectValue)

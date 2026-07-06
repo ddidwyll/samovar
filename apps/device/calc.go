@@ -33,6 +33,7 @@ func (c *calc) Init(_ ...any) error {
 		"device_raw_state.flag_otb",
 		"device_raw_state.sek_otb",
 		"device_raw_state.min_otb",
+		"device_raw_state.last_ping",
 	)
 
 	// SESSION_DESIRED_STATE

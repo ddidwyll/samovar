@@ -47,11 +47,11 @@ func calcStableMidTemp(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {
 func recordCollectedValue(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {
 	oldValue := r.OldValue
 	newValue := r.NewValue
-	if !oldValue.IsInt() || !newValue.IsInt() {
+	if !oldValue.IsFlt() || !newValue.IsFlt() {
 		return
 	}
 
-	if oldValue.EqStr("0") {
+	if oldValue.ToInt() == 0 {
 		currentType := fetch("device_state.collect_type")
 		if !currentType.EqStr("OFF") {
 			apply("session_state.collect_last_type", currentType)
@@ -129,7 +129,7 @@ func calcRefluxRatio(args clc.Args, apply clc.ApplyFn) {
 		apply("session_state.reflux_ratio", 999)
 		return
 	}
-	speedVGH := power.ToFlt() * 3600.0 / 900.0
+	speedVGH := power.ToFlt() * 3600.0 / 911.0
 	returnVGH := speedVGH - collect.ToFlt()
 	ratio := returnVGH / collect.ToFlt()
 	// fmt.Printf("calcRefluxRatio.ratio: %f / %f = %f", returnVGH, collect.ToFlt(), ratio)
@@ -142,7 +142,7 @@ func calcCollecionSpeed(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {
 		return
 	}
 	collectValue := fetch("device_state.collect_value")
-	if !collectValue.IsInt() || collectValue.EqStr("0") {
+	if !collectValue.IsFlt() || collectValue.ToInt() == 0 {
 		apply("session_state.collection_speed", 0)
 		return
 	}

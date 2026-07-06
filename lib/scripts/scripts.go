@@ -24,7 +24,7 @@ func debug(some any, title string) {
 }
 
 func calcCollectGHByRefluxRatio(power, refluxRatio float64) int64 {
-	return int64(power * 4 / (refluxRatio + 1))
+	return int64(power * 3600 / ((refluxRatio + 1) * 911))
 }
 
 func calcCollectPercByCollectGH(collect, maxCollect int64) int64 {
