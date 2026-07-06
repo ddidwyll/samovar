@@ -14,6 +14,7 @@ type device struct {
 	MaxCollect         int64   `json:"max_collect"`
 	MinStabilityPeriod int64   `json:"min_stability_period"`
 	MinRefluxRatio     float64 `json:"min_reflux_ratio"`
+	MaxStableTempDiff  int64   `json:"max_stable_temp_diff"`
 }
 
 type config struct {
@@ -56,6 +57,8 @@ func (d device) validate() error {
 		err = "min_stability_period is required"
 	case d.MinRefluxRatio <= 0.0:
 		err = "min_reflux_ratio is required"
+	case d.MaxStableTempDiff <= 0:
+		err = "max_stable_temp_diff is required"
 	default:
 		return nil
 	}

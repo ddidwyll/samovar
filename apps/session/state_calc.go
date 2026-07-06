@@ -3,6 +3,7 @@ package session
 import (
 	clc "samovar/lib/calc"
 	"samovar/lib/val"
+
 	// "fmt"
 )
 
@@ -14,7 +15,7 @@ func calcStableMidTemp(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {
 		}
 		diff := fetch("session_state.mid_stable_diff")
 		newDiff := currentTemp.ToInt() - firstStable.ToInt()
-		if !diff.EqStr(string(newDiff)) {
+		if !diff.IsInt() || diff.ToInt() != newDiff {
 			apply("session_state.mid_stable_diff", newDiff)
 		}
 		return firstStable

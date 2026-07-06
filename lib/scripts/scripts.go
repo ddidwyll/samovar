@@ -28,5 +28,5 @@ func calcCollectGHByRefluxRatio(power, refluxRatio float64) int64 {
 }
 
 func calcCollectPercByCollectGH(collect, maxCollect int64) int64 {
-	return int64(math.Ceil(float64(collect) / float64(maxCollect) * 100.0))
+	return int64(math.Floor(float64(collect) / float64(maxCollect) * 100.0))
 }

@@ -6,7 +6,8 @@
       "max_collect": 5100,
       "heat_loss": -2222,
       "min_stability_period": 1,
-      "min_reflux_ratio": 5
+      "min_reflux_ratio": 4,
+      "max_stable_temp_diff": 2
     },
     {
       "id": "turbo_gun",
@@ -14,7 +15,8 @@
       "max_collect": 5100,
       "heat_loss": 20,
       "min_stability_period": 10,
-      "min_reflux_ratio": 4
+      "min_reflux_ratio": 4,
+      "max_stable_temp_diff": 2
     },
     {
       "id": "bool_bool",
@@ -22,7 +24,8 @@
       "max_collect": 5100,
       "heat_loss": 20,
       "min_stability_period": 10,
-      "min_reflux_ratio": 4
+      "min_reflux_ratio": 4,
+      "max_stable_temp_diff": 2
     }
   ]
 }

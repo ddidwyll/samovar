@@ -24,6 +24,7 @@ var stateFields = st.Fields{
 	st.FieldParams{"net_power", 'i', "net power", "W"},
 	st.FieldParams{"min_stability_period", 'i', "min stability period", "m"},
 	st.FieldParams{"min_reflux_ratio", 'f', "min reflux ratio", ""},
+	st.FieldParams{"max_stable_temp_diff", 'i', "max stable temp diff", ""},
 	st.FieldParams{"body_collected_value", 'i', "body collected", "mg"},
 	st.FieldParams{"head_collected_value", 'i', "head collected", "mg"},
 	st.FieldParams{"recyc_collected_value", 'i', "recyc collected", "mg"},

@@ -19,6 +19,7 @@ var scripts = scriptMap{
 	"collect_head_min": ss.PerformCollectHeadMin,
 	"collect_waste":    ss.PerformCollectWaste,
 	"collect_recyc":    ss.PerformCollectRecyc,
+	"collect_body":     ss.PerformCollectBody,
 }
 
 func newCalc() gen.ProcessBehavior {
@@ -36,10 +37,14 @@ func (c *calc) Init(_ ...any) error {
 	c.WatchFields(
 		performScript,
 		"script_state.script_mode",
+		"device_state.t_btm",
 		"session_state.min_reflux_ratio",
 		"session_state.net_power",
 		"session_state.max_collect",
+		"session_state.max_stable_temp_diff",
 		"session_state.mid_stable_diff",
+		"session_state.mid_stable_temp",
+		"session_state.is_mid_stable",
 	)
 
 	return c.calcScripts()
