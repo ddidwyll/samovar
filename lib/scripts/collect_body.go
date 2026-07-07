@@ -14,7 +14,7 @@ func PerformCollectBody(args args, apply applyFn) {
 		return
 	}
 	refluxRatio := args.MustGet("session_state.min_reflux_ratio")
-	if !refluxRatio.IsFlt() {
+	if !refluxRatio.IsFlt() || refluxRatio.ToInt() <= 0 {
 		debug(refluxRatio.String(), "session_state.min_reflux_ratio")
 		return
 	}

@@ -38,7 +38,7 @@ func calcPowerDiff(args clc.Args, apply clc.ApplyFn) {
 	fact := power_fact.ToInt()
 	diff := (plan - fact) * 100 / plan
 
-	apply("device_state.power_diff", val.IntAsInt(diff))
+	apply("device_state.power_diff", diff)
 }
 
 func calcCollect(args clc.Args, apply clc.ApplyFn) {
@@ -56,7 +56,7 @@ func calcCollect(args clc.Args, apply clc.ApplyFn) {
 		sec := args.MustGet("device_raw_state.sek_otb")
 		min := args.MustGet("device_raw_state.min_otb")
 
-		if !sec.IsInt() || !min.IsInt() {
+		if !sec.IsInt() || !min.IsInt() || min.ToInt() <= 0 {
 			return -1.0
 		}
 

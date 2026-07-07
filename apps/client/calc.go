@@ -84,7 +84,7 @@ func calcAverageCollectSpeed(args clc.Args, apply clc.ApplyFn) {
 		collectedMg := args.MustGet("session_state." + prefix + "_collected_value")
 		// fmt.Printf(">>> calcAverageCollectSpeed[%s]: dur=%v, col=%v\n", prefix, durationMs, collectedMg)
 		acc := "client_state." + prefix + "_average_speed"
-		if !durationMs.IsInt() || !collectedMg.IsInt() {
+		if !durationMs.IsInt() || !collectedMg.IsInt() || durationMs.ToInt() <= 0 {
 			apply(acc, 0)
 			continue
 		}

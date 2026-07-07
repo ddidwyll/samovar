@@ -128,7 +128,7 @@ func calcRefluxRatio(args clc.Args, apply clc.ApplyFn) {
 	if !power.IsInt() || !collect.IsInt() {
 		return
 	}
-	if collect.EqStr("0") {
+	if collect.ToInt() <= 0 {
 		apply("session_state.reflux_ratio", 999)
 		return
 	}
