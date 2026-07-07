@@ -48,7 +48,13 @@ func (s *state) Init(_ ...any) error {
 }
 
 func (s *state) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
-	return s.HandleDataRequest(req)
+	if kv, ok := req.(map[string]string); ok {
+  	s.Log().Info("session.state.HandleCall.req: %#v", req)
+		return "ok", s.BulkChangeFromMap(kv, "session_repo", "session_producer")
+	} else {
+		return s.HandleDataRequest(req)
+	}
+	// return s.HandleDataRequest(req)
 }
 
 func (s *state) HandleMessage(_ gen.PID, req any) error {

@@ -26,6 +26,7 @@ func (sc *sessionConsumer) Init(_ ...any) error {
 	sc.AddReportRoute(
 		"session_state_changed",
 		"session_calc",
+		"session_repo",
 	)
 	sc.AddReportRoute(
 		"client_desired_state_changed",

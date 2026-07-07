@@ -78,6 +78,7 @@ func (sa *StateActor) HandleDataRequest(req any) (any, error) {
 	case nil:
 		return sa.data.Entries(), nil
 	default:
-		return nil, errors.New("Unexpected state data request")
+		err := fmt.Sprintf("Unexpected state data request: %#v", req)
+		return nil, errors.New(err)
 	}
 }

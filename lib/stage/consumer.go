@@ -10,7 +10,7 @@ import (
 	"errors"
 )
 
-type consumerRoutes map[gen.Atom]string
+type consumerRoutes map[gen.Atom][]string
 
 type Consumer struct {
 	act.Actor
@@ -22,9 +22,9 @@ func (c *Consumer) InitConsumer(name string) {
 	c.routes = make(consumerRoutes)
 }
 
-func (c *Consumer) AddReportRoute(event gen.Atom, recipient string) {
+func (c *Consumer) AddReportRoute(event gen.Atom, recipients ...string) {
 	if err := c.SubscribeToEvent(event); err == nil {
-		c.routes[event] = recipient
+		c.routes[event] = recipients
 	} else {
 		panic(err)
 	}
@@ -51,12 +51,14 @@ func (c *Consumer) HandleChangeReports(e gen.MessageEvent) error {
 
 func (c *Consumer) routeReports(event gen.Atom, reports ...change.Report) error {
 	for _, report := range reports {
-		if recipient, exists := c.routes[event]; !exists {
+		if recipients, exists := c.routes[event]; !exists {
 			return errors.New("Unexpected consumer event")
 		} else {
 			inter.Trigger(c, event)
-			if err := inter.Send(c, report, "report", recipient); err != nil {
-				return err
+			for _, recipient := range recipients {
+  			if err := inter.Send(c, report, "report", recipient); err != nil {
+  				return err
+  			}
 			}
 		}
 	}
