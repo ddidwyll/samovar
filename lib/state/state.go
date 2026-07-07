@@ -33,6 +33,14 @@ type report = change.Report
 
 type reporter func(...report) error
 
+func DefField(k string, t field.Type, n string) FieldParams {
+	return FieldParams{k, t, n, ""}
+}
+
+func DefFieldUnit(k string, t field.Type, n, u string) FieldParams {
+	return FieldParams{k, t, n, u}
+}
+
 func BuildState(fields Fields) *State {
 	newState := make(State)
 

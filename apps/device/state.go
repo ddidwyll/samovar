@@ -9,15 +9,15 @@ import (
 type state struct{ st.StateActor }
 
 var stateFields = st.Fields{
-	st.FieldParams{"t_top", 'i', "t top", "d°C"},
-	st.FieldParams{"t_mid", 'i', "t middle", "d°C"},
-	st.FieldParams{"t_btm", 'i', "t bottom", "d°C"},
-	st.FieldParams{"power", 'i', "power", "W"},
-	st.FieldParams{"power_diff", 'i', "power diff", "%"},
-	st.FieldParams{"collect", 's', "collect", "%"},
-	st.FieldParams{"collect_value", 'f', "collect value", "%"},
-	st.FieldParams{"collect_type", 's', "collect type", ""},
-	st.FieldParams{"press", 'f', "press", "mm"},
+	st.DefFieldUnit("t_top", 'i', "t top", "d°C"),
+	st.DefFieldUnit("t_mid", 'i', "t middle", "d°C"),
+	st.DefFieldUnit("t_btm", 'i', "t bottom", "d°C"),
+	st.DefFieldUnit("power", 'i', "power", "W"),
+	st.DefFieldUnit("power_diff", 'i', "power diff", "%"),
+	st.DefFieldUnit("press", 'f', "press", "mm"),
+	st.DefFieldUnit("collect", 's', "collect", "%"),
+	st.DefFieldUnit("collect_value", 'f', "collect value", "%"),
+	st.DefField("collect_type", 's', "collect type"),
 }
 
 func newState() gen.ProcessBehavior {
