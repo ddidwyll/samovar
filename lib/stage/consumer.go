@@ -56,9 +56,9 @@ func (c *Consumer) routeReports(event gen.Atom, reports ...change.Report) error 
 		} else {
 			inter.Trigger(c, event)
 			for _, recipient := range recipients {
-  			if err := inter.Send(c, report, "report", recipient); err != nil {
-  				return err
-  			}
+				if err := inter.Send(c, report, "report", recipient); err != nil {
+					return err
+				}
 			}
 		}
 	}

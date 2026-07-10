@@ -25,7 +25,7 @@ type DbActor struct {
 }
 
 func (da *DbActor) InitDb(prefix, schema string) {
-  inter.RegisterActor(da, schema)
+	inter.RegisterActor(da, schema)
 	da.buffer = make(data)
 	da.prefix = prefix
 	da.schedule()
@@ -113,7 +113,7 @@ func (da *DbActor) schedule() error {
 }
 
 func (da *DbActor) HandleMessage(_ gen.PID, msg any) error {
-  da.Log().Debug("DbActor.HandleMessage.msg: %#v", msg)
+	da.Log().Debug("DbActor.HandleMessage.msg: %#v", msg)
 	switch d := msg.(type) {
 	case data:
 		for key, val := range d {
@@ -133,7 +133,7 @@ func (da *DbActor) HandleMessage(_ gen.PID, msg any) error {
 }
 
 func (da *DbActor) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
-  da.Log().Debug("DbActor.HandleCall.req: %#v", req)
+	da.Log().Debug("DbActor.HandleCall.req: %#v", req)
 	keys, ok := req.([]string)
 	if !ok {
 		return nil, errors.New("Unexpected db request")
