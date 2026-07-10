@@ -11,8 +11,8 @@
     },
     {
       "id": "turbo_gun",
-      "max_power": 70,
-      "max_collect": 5100,
+      "max_power": 3180,
+      "max_collect": 6150,
       "heat_loss": 20,
       "min_stability_period": 10,
       "min_reflux_ratio": 4,

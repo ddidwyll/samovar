@@ -22,7 +22,7 @@ func calcStableMidTemp(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {
 	currentTime := r.NewTimestamp
 	currentTemp := fetch("device_state.t_mid")
 	minPeriod := fetch("session_state.min_stability_period")
-	if !minPeriod.IsInt() || !currentTemp.IsInt() {
+	if !minPeriod.IsInt() || !currentTemp.IsInt() || currentTemp.ToInt() < 70 {
 		apply("session_state.is_mid_stable", "false")
 		return
 	}

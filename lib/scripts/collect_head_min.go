@@ -1,6 +1,6 @@
 package scripts
 
 func PerformCollectHeadMin(args args, apply applyFn) {
-	apply("collect_type", "HEAD")
-	apply("collect_value", 1)
+	apply("collect_type", "RECYC")
+	apply("collect_value", 5)
 }
