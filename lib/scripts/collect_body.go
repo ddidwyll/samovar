@@ -51,12 +51,12 @@ func PerformCollectBody(args args, apply applyFn) {
 	btmTempFlt := bottomTemp.ToFlt()
 	if btmTempFlt < 800.0 {
 		btmTempFlt = 800.0
-		btmTempFlt = btmTempFlt / 10.0
 	}
+	btmTempFlt = btmTempFlt / 10.0
 	collectGH := 0.174 * (100.0 - btmTempFlt) * netPower.ToFlt() / (refluxRatio.ToFlt() + 1.0)
-	debug(collectGH, "collectGH")
+	// debug(collectGH, "collectGH")
 	collectPerc := calcCollectPercByCollectGH(int64(collectGH), maxCollect.ToInt())
-	debug(collectPerc, "collectPerc")
+	// debug(collectPerc, "collectPerc")
 	apply("collect_type", "BODY")
 	apply("collect_value", collectPerc)
 }

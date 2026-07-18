@@ -7,6 +7,16 @@ import (
 )
 
 func calcStableMidTemp(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {
+	equalApprox := func(currentTemp, stableTemp val.Val) bool {
+		if !stableTemp.IsInt() {
+			return false
+		}
+		diff := currentTemp.ToInt() - stableTemp.ToInt()
+		if diff > 1 || diff < -1 {
+			return false
+		}
+		return true
+	}
 	recordMidStableDiff := func(currentTemp val.Val, fetch clc.FetchFn, apply clc.ApplyFn) val.Val {
 		firstStable := fetch("session_state.mid_stable_first")
 		if !firstStable.IsInt() {
@@ -29,7 +39,7 @@ func calcStableMidTemp(r clc.Report, fetch clc.FetchFn, apply clc.ApplyFn) {
 	firstStable := recordMidStableDiff(currentTemp, fetch, apply)
 	stableTemp := fetch("session_state.mid_stable_temp")
 	stableFrom := fetch("session_state.mid_stable_from")
-	if !stableTemp.IsInt() || !stableFrom.IsInt() || !stableTemp.Eq(currentTemp) {
+	if !stableFrom.IsInt() || !equalApprox(currentTemp, stableTemp) {
 		apply("session_state.is_mid_stable", "false")
 		apply("session_state.mid_stable_temp", currentTemp)
 		apply("session_state.mid_stable_from", currentTime)

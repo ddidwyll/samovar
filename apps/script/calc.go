@@ -18,7 +18,8 @@ var scripts = scriptMap{
 	"idle":             performIdle,
 	"collect_head_min": ss.PerformCollectHeadMin,
 	"collect_waste":    ss.PerformCollectWaste,
-	"collect_recyc":    ss.PerformCollectRecyc,
+	"collect_recyc_slow":    ss.PerformCollectRecycSlow,
+	"collect_recyc_fast":    ss.PerformCollectRecycFast,
 	"collect_body":     ss.PerformCollectBody,
 }
 
