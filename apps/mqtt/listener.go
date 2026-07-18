@@ -25,11 +25,11 @@ func newListener(cfg *config) gen.MetaBehavior {
 
 func (l *listener) Init(process gen.MetaProcess) error {
 	l.MetaProcess = process
-	l.createClient()
 	return nil
 }
 
 func (l *listener) Start() (err error) {
+	l.createClient()
 	if err = l.connect(); err != nil {
 		return err
 	}
