@@ -29,7 +29,7 @@ func PerformCollectRecycSlow(args args, apply applyFn) {
 	if !refluxRatio.IsFlt() || !maxCollect.IsInt() || !netPower.IsInt() {
 		return
 	}
-	collectGH := calcCollectGHByRefluxRatio(netPower.ToFlt(), refluxRatio.ToFlt() * 2.0)
+	collectGH := calcCollectGHByRefluxRatio(netPower.ToFlt(), refluxRatio.ToFlt()*2.0)
 	collectPerc := calcCollectPercByCollectGH(collectGH, maxCollect.ToInt())
 	if collectPerc > 0 && collectPerc < 50 {
 		apply("collect_type", "RECYC")

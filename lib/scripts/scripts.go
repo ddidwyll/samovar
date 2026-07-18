@@ -34,5 +34,5 @@ func calcCollectPercByCollectGH(collect, maxCollect int64) int64 {
 // func calcTempByPress(press, temp float64) float64 {
 //   r := 8.314
 //   deltaHVap := 38560
-  
+
 // }

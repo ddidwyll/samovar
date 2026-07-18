@@ -15,12 +15,13 @@ import (
 type calc struct{ clc.CalcActor }
 
 var scripts = scriptMap{
-	"idle":             performIdle,
-	"collect_head_min": ss.PerformCollectHeadMin,
-	"collect_waste":    ss.PerformCollectWaste,
+	"idle":                  performIdle,
+	"collect_head_min":      ss.PerformCollectHeadMin,
+	"collect_waste":         ss.PerformCollectWaste,
 	"collect_recyc_slow":    ss.PerformCollectRecycSlow,
 	"collect_recyc_fast":    ss.PerformCollectRecycFast,
-	"collect_body":     ss.PerformCollectBody,
+	"collect_body":          ss.PerformCollectBody,
+	"collect_pre_treatment": ss.PerformCollectPreTreatment,
 }
 
 func newCalc() gen.ProcessBehavior {
