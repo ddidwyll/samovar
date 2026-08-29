@@ -1,7 +1,7 @@
 {
-  "host": "192.168.111.1",
+  "host": "192.168.111.2",
   "port": 1883,
   "client_id": "samovar_client",
   "topic": "/samovar/#",
-  "timeout": 30
+  "timeout": 60
 }

@@ -1,20 +1,55 @@
 package device
 
 import (
-	"samovar/lib/change"
-	"samovar/lib/i"
-	"samovar/lib/state"
+	st "samovar/lib/state"
 
-	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
-
-	"errors"
-	"fmt"
 )
 
-type rawState struct {
-	act.Actor
-	state *state.State
+type rawState struct{ st.StateActor }
+
+var rawStateFields = st.Fields{
+	st.DefFieldUnit("term_d", 'f', "t_top", "°C"),
+	st.DefFieldUnit("term_c", 'f', "t_mid", "°C"),
+	st.DefFieldUnit("term_k", 'f', "t_btm", "°C"),
+	st.DefFieldUnit("power", 'i', "power_fact", "W"),
+	st.DefFieldUnit("power_m", 'i', "power_plan", "W"),
+	st.DefFieldUnit("press_a", 'f', "press_atm", "mm"),
+	st.DefField("flag_otb", 's', "collect_mode"),
+	st.DefField("work", 's', "work_mode"),
+	st.DefFieldUnit("otbor", 'i', "collect_fact", "%"),
+	st.DefFieldUnit("otbor_g_1", 'i', "cllct_head", "%"),
+	st.DefFieldUnit("otbor_g_2", 'i', "cllct_ahead", "%"),
+	st.DefFieldUnit("otbor_t", 'i', "cllct_body", "%"),
+	st.DefFieldUnit("delta_t", 'i', "delta_body", "°C"),
+	st.DefFieldUnit("time_stop", 'i', "max_stop", "s"),
+	st.DefFieldUnit("otbor_minus", 'i', "decrement", "%"),
+	st.DefFieldUnit("min_otb", 'i', "period_full", "m"),
+	st.DefFieldUnit("sek_otb", 'i', "period_cllct", "s"),
+	st.DefFieldUnit("term_d_m", 'f', "t_top_max", "°C"),
+	st.DefFieldUnit("term_c_max", 'f', "t_mid_max", "°C"),
+	st.DefFieldUnit("term_c_min", 'f', "t_mid_min", "°C"),
+	st.DefFieldUnit("term_k_max", 'f', "t_btm_max", "°C"),
+	st.DefFieldUnit("term_nasos", 'f', "water_on_t", "°C"),
+	st.DefFieldUnit("term_k_m", 'f', "full_pwr_t", "°C"),
+	st.DefField("kontaktor", 's', "kontaktor"),
+	st.DefField("num_error", 's', "err_number"),
+	st.DefFieldUnit("count_vent", 's', "count_vent", "?"),
+	st.DefFieldUnit("term_vent", 'f', "term_vent", "?"),
+	st.DefFieldUnit("term_v", 's', "term_v", "?"),
+
+	// st.DefField("last_tx", 's', "last tx"),
+	// st.DefField("last_rx", 's', "last rx"),
+	st.DefField("last_ping", 's', "last ping"),
+	st.DefField("tick", 'i', "tick"),
+
+	st.DefField("collect_synced", 's', "is collect synced"),
+
+	st.DefField("power_m_new", 's', "_"),
+	st.DefField("otbor_new", 'i', "_"),
+	st.DefField("otbor_t_new", 'i', "_"),
+	st.DefField("otbor_g_1_new", 'i', "_"),
+	st.DefField("otbor_g_2_new", 'i', "_"),
 }
 
 func newRawState() gen.ProcessBehavior {
@@ -22,82 +57,19 @@ func newRawState() gen.ProcessBehavior {
 }
 
 func (rs *rawState) Init(_ ...any) error {
-	rs.state = state.New(state.Fields{
-		state.FieldParams{"term_d", 'f', "t_top", "°C"},
-		state.FieldParams{"term_c", 'f', "t_mid", "°C"},
-		state.FieldParams{"term_k", 'f', "t_btm", "°C"},
-		state.FieldParams{"power", 'i', "power_fact", "W"},
-		state.FieldParams{"power_m", 'i', "power_plan", "W"},
-		state.FieldParams{"press_a", 'f', "press_atm", "mm"},
-		state.FieldParams{"flag_otb", 's', "collect_mode", ""},
-		state.FieldParams{"work", 's', "work_mode", ""},
-		state.FieldParams{"otbor", 'i', "collect_fact", "%"},
-		state.FieldParams{"otbor_g_1", 'i', "cllct_head", "%"},
-		state.FieldParams{"otbor_g_2", 'i', "cllct_ahead", "%"},
-		state.FieldParams{"otbor_t", 'i', "cllct_body", "%"},
-		state.FieldParams{"delta_t", 'i', "delta_body", "°C"},
-		state.FieldParams{"time_stop", 'i', "max_stop", "s"},
-		state.FieldParams{"otbor_minus", 'i', "decrement", "%"},
-		state.FieldParams{"min_otb", 'i', "period_full", "m"},
-		state.FieldParams{"sek_otb", 'i', "period_cllct", "s"},
-		state.FieldParams{"term_d_m", 'f', "t_top_max", "°C"},
-		state.FieldParams{"term_c_max", 'f', "t_mid_max", "°C"},
-		state.FieldParams{"term_c_min", 'f', "t_mid_min", "°C"},
-		state.FieldParams{"term_k_max", 'f', "t_btm_max", "°C"},
-		state.FieldParams{"term_nasos", 'f', "water_on_t", "°C"},
-		state.FieldParams{"tern_k_m", 'f', "full_power_t", "°C"},
-		state.FieldParams{"kontaktor", 's', "kontaktor", ""},
-		state.FieldParams{"num_error", 's', "err_number", ""},
-		state.FieldParams{"count_vent", 's', "count_vent", "?"},
-		state.FieldParams{"term_vent", 's', "term_vent", "?"},
-		state.FieldParams{"term_v", 's', "term_v", "?"},
-	})
-
-	rs.Log().Debug("device.rawState started (%s)", rs.Name())
+	rs.InitState("[(device.raw_state)]", rawStateFields)
 	return nil
 }
 
-func (rs *rawState) HandleMessage(_ gen.PID, msg any) error {
-	rs.Log().Debug("device.rawState receive message: %#v", msg)
-
-	switch v := msg.(type) {
-	case change.Request:
-		return rs.updateState(v)
-	default:
-		err := fmt.Sprintf("device.rawState unexpected message: %#v", msg)
-		return errors.New(err)
-	}
+func (rs *rawState) HandleMessage(_ gen.PID, req any) error {
+	return rs.HandleChangeRequests(req, "device_producer")
 }
 
-func (rs *rawState) updateState(req change.Request) error {
-	rs.Log().Debug("device.rawState change req: %#v", req)
-	report, err := rs.state.Change(req)
-
-	if err == nil && report.Changed {
-		report = report.AddFrom("raw_state")
-		if err = rs.Send("device_producer", report); err != nil {
-			return err
-		}
-
-		if report.IsNew {
-			rs.Log().Info("device.rawState [%s\t]:\t%s", report.FormatField(), report.NewValue)
-		} else {
-			if !i.N(req.Key, "press_a", "power") {
-				rs.Log().Info(
-					"device.rawState [%s\t]:\t%s -> %s\t\t%s\t%s",
-					report.FormatField(),
-					report.OldValue,
-					report.NewValue,
-					report.FormatTime(),
-					report.LastFrom(),
-				)
-			}
-		}
+func (rs *rawState) HandleCall(_ gen.PID, _ gen.Ref, req any) (any, error) {
+	if kv, ok := req.(map[string]string); ok {
+		rs.Log().Debug("device.rawState.HandleCall.req: %v", req)
+		return "ok", rs.BulkChangeFromMap(kv, "mqtt_client", "device_producer")
+	} else {
+		return rs.HandleDataRequest(req)
 	}
-
-	// if err != nil {
-	//  	rs.Log().Error("device.rawState state error: %s", err)
-	// }
-
-	return nil
 }

@@ -4,12 +4,15 @@ import (
 	"flag"
 	"time"
 
-	"samovar/apps/api"
 	"samovar/apps/bus"
+	"samovar/apps/client"
 	"samovar/apps/device"
 	"samovar/apps/mqtt"
+	"samovar/apps/script"
+	"samovar/apps/session"
+	"samovar/apps/telemetry"
 
-	"ergo.services/application/observer"
+	// "ergo.services/application/observer"
 	"ergo.services/ergo"
 	"ergo.services/ergo/gen"
 	"ergo.services/ergo/lib"
@@ -22,7 +25,7 @@ var (
 )
 
 func init() {
-	flag.StringVar(&OptionNodeName, "name", "Samovar@localhost", "node name")
+	flag.StringVar(&OptionNodeName, "name", "samovar@localhost", "node name")
 	flag.StringVar(&OptionNodeCookie, "cookie", lib.RandomString(16), "a secret cookie for the network messaging")
 }
 
@@ -32,11 +35,13 @@ func main() {
 	flag.Parse()
 
 	options.Applications = []gen.ApplicationBehavior{
-		observer.CreateApp(observer.Options{}),
-		bus.CreateBusApp(),
-		api.CreateApiApp(),
-		mqtt.CreateMqttApp(),
-		device.CreateDeviceApp(),
+		telemetry.CreateApp(),
+		bus.CreateApp(),
+		device.CreateApp(),
+		client.CreateApp(),
+		script.CreateApp(),
+		session.CreateApp(),
+		mqtt.CreateApp(),
 	}
 
 	// disable default logger to get rid of multiple logging to the os.Stdout

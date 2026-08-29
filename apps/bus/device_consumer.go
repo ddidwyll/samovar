@@ -3,33 +3,53 @@ package bus
 import (
 	"samovar/common/models"
 	"samovar/lib/change"
+	"samovar/lib/inter"
 	"samovar/lib/stage"
 
 	"ergo.services/ergo/gen"
-	"errors"
-	"fmt"
 )
 
 type deviceConsumer struct{ stage.Consumer }
 
-func newDeviceConsumer() gen.ProcessBehavior { return &deviceConsumer{} }
-
-func (c *deviceConsumer) Init(_ ...any) error {
-	c.Log().Debug("bus.deviceConsumer started (%s)", c.Name())
-	return c.LinkEvents("mqtt_new_message", "device_raw_state_changed")
+func newDeviceConsumer() gen.ProcessBehavior {
+	return &deviceConsumer{}
 }
 
-func (c *deviceConsumer) HandleEvent(event gen.MessageEvent) error {
-	switch m := event.Message.(type) {
-	case models.MqttMessage:
+func (dc *deviceConsumer) Init(_ ...any) error {
+	dc.InitConsumer("([bus.device.consumer])")
+	dc.SubscribeToEvent("mqtt_new_message")
+
+	dc.AddReportRoute(
+		"device_state_changed",
+		"device_calc",
+	)
+	dc.AddReportRoute(
+		"device_raw_state_changed",
+		"device_calc",
+	)
+	dc.AddReportRoute(
+		"session_desired_state_changed",
+		"device_calc",
+	)
+	dc.AddReportRoute(
+		"script_state_changed",
+		"device_calc",
+	)
+	// dc.AddReportRoute(
+	// 	"device_state_changed",
+	// 	"device_change_log",
+	// )
+
+	return nil
+}
+
+func (dc *deviceConsumer) HandleEvent(event gen.MessageEvent) error {
+	if m, ok := event.Message.(models.MqttMessage); ok {
+		inter.Trigger(dc, event.Event.Name)
 		request := change.NewRequest(m.Topic, m.Text, "mqtt_message", m.Timestamp)
-		c.Log().Debug("bus.deviceConsumer new change.Request: %+v", request)
-		return c.Send("device_raw_state", request)
-  case change.Report:
-		c.Log().Debug("bus.deviceConsumer receive change.Report: %+v", m)
-		return c.Send("device_change_log", m)
-	default:
-		err := fmt.Sprintf("bus.mqttProducer receive unexpected event: %#v", event)
-		return errors.New(err)
+		dc.Log().Debug("bus.deviceConsumer new change.Request: %+v", request)
+		return inter.Send(dc, request, "request", "device_raw_state")
+	} else {
+		return dc.HandleChangeReports(event)
 	}
 }

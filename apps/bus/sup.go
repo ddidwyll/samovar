@@ -25,8 +25,36 @@ func (s *sup) Init(_ ...any) (spec act.SupervisorSpec, err error) {
 			Factory: newDeviceProducer,
 		},
 		{
+			Name:    "client_producer",
+			Factory: newClientProducer,
+		},
+		{
+			Name:    "session_producer",
+			Factory: newSessionProducer,
+		},
+		{
+			Name:    "script_producer",
+			Factory: newScriptProducer,
+		},
+		{
+			Name:    "mqtt_consumer",
+			Factory: newMqttConsumer,
+		},
+		{
 			Name:    "device_consumer",
 			Factory: newDeviceConsumer,
+		},
+		{
+			Name:    "client_consumer",
+			Factory: newClientConsumer,
+		},
+		{
+			Name:    "session_consumer",
+			Factory: newSessionConsumer,
+		},
+		{
+			Name:    "script_consumer",
+			Factory: newScriptConsumer,
 		},
 	}
 

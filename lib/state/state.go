@@ -5,28 +5,49 @@ import (
 	"samovar/lib/field"
 	"samovar/lib/val"
 
+	"encoding/json"
 	"errors"
 	"fmt"
 )
 
 type State map[string]*field.Field
+type KeyVals map[string]val.Val
+
+type Entry struct {
+	Key   string  `json:"key"`
+	Value val.Val `json:"value"`
+}
+type Entries []Entry
 
 type FieldParams struct {
-	Key  string
-	Type field.Type
-	Name string
-	Unit string
+	Key  string     `json:"key"`
+	Type field.Type `json:"-"`
+	Name string     `json:"name"`
+	Unit string     `json:"unit"`
 }
 
 type Fields []FieldParams
 
-func New(fields Fields) *State {
+type request = change.Request
+type report = change.Report
+
+type reporter func(...report) error
+
+func DefField(key string, t field.Type, name string) FieldParams {
+	return FieldParams{key, t, name, ""}
+}
+
+func DefFieldUnit(key string, t field.Type, name, unit string) FieldParams {
+	return FieldParams{key, t, name, unit}
+}
+
+func BuildState(fields Fields) *State {
 	newState := make(State)
 
 	for _, params := range fields {
 		field := field.New(params.Name, params.Type)
 		field.Unit = params.Unit
-		keys := [2]string{params.Key, params.Name}
+		keys := [...]string{params.Key}
 
 		for _, key := range keys {
 			if key == "" {
@@ -46,7 +67,41 @@ func New(fields Fields) *State {
 	return &newState
 }
 
-func (s *State) Fetch(k string) (f *field.Field, err error) {
+func (s *State) AllKeyVals() KeyVals {
+	kv := make(KeyVals, len(*s))
+	for key, field := range *s {
+		kv[key] = field.Get()
+	}
+	return kv
+}
+
+func (s *State) KeyVals(keys ...string) (KeyVals, error) {
+	kv := make(KeyVals, len(keys))
+	for _, key := range keys {
+		if f, err := s.FetchField(key); err != nil {
+			return nil, err
+		} else {
+			kv[key] = f.Get()
+		}
+	}
+	return kv, nil
+}
+
+func (s *State) Entries() Entries {
+	entries := make(Entries, 0, len(*s))
+	for key, field := range *s {
+		entry := Entry{key, field.Get()}
+		entries = append(entries, entry)
+	}
+	return entries
+}
+
+func (s *State) HasField(key string) bool {
+	_, has := (*s)[key]
+	return has
+}
+
+func (s *State) FetchField(k string) (f *field.Field, err error) {
 	if field, has := (*s)[k]; has {
 		return field, err
 	} else {
@@ -77,11 +132,42 @@ func (s *State) Set(k string, v any) error {
 	}
 }
 
-func (s *State) Change(req change.Request) (rep change.Report, err error) {
+func (s *State) Change(req request) (rep report, err error) {
 	if field, has := (*s)[req.Key]; has {
 		return field.Change(req)
 	} else {
 		err := fmt.Sprintf("field [%s] not found", req.Key)
 		return rep, errors.New(err)
 	}
+}
+
+func (kv *KeyVals) Fetch(k string) (val.Val, bool) {
+	if v, exists := (*kv)[k]; exists {
+		return v, true
+	} else {
+		return val.Nil{}, false
+	}
+}
+
+func (kv *KeyVals) MustGet(k string) val.Val {
+	if v, exists := kv.Fetch(k); exists {
+		return v
+	} else {
+		panic("state key [" + k + "] not found")
+	}
+}
+
+func (kv *KeyVals) ToJson() []byte {
+	json, _ := json.Marshal(kv)
+	return json
+}
+
+func (entries *Entries) ToJson() []byte {
+	json, _ := json.Marshal(entries)
+	return json
+}
+
+func (fields *Fields) ToJson() []byte {
+	json, _ := json.Marshal(fields)
+	return json
 }

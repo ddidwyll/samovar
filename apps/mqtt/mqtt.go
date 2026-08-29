@@ -4,7 +4,7 @@ import "ergo.services/ergo/gen"
 
 type mqtt struct{}
 
-func CreateMqttApp() gen.ApplicationBehavior {
+func CreateApp() gen.ApplicationBehavior {
 	return &mqtt{}
 }
 

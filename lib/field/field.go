@@ -41,6 +41,8 @@ func (f *Field) Cast(a any) (v val.Val, err error) {
 		v, err = f.castFlt(a)
 	case 's':
 		v, err = f.castStr(a)
+	case 'a':
+		v, err = f.castArr(a)
 	default:
 		v = val.Nil{}
 		err = errors.New("invalid field type")
@@ -54,7 +56,7 @@ func (f *Field) Set(a any) error {
 
 	if err == nil {
 		f.val = v
-		f.ts = time.Now().UnixMicro()
+		f.ts = time.Now().UnixMilli()
 	}
 
 	return err
@@ -68,7 +70,13 @@ func (f *Field) Change(req change.Request) (rep change.Report, err error) {
 	}
 
 	rep = req.BuildReport(f.ts, f.val, newVal, f.Name, f.Unit)
-	f.val, f.ts = newVal, req.Timestamp
+
+	if newVal.Eq(f.val) {
+		rep.NewTimestamp = f.ts
+	} else {
+		f.val = newVal
+		f.ts = req.Timestamp
+	}
 
 	return rep, err
 }
@@ -87,6 +95,12 @@ func (f *Field) castInt(a any) (v val.Val, err error) {
 		v = val.FltAsInt(c)
 	case string:
 		v, err = val.StrAsInt(c)
+	case val.Int:
+		v = c
+	case val.Flt:
+		v = val.IntAsInt(c.ToInt())
+	case val.Str:
+		v, err = val.StrAsInt(c.String())
 	default:
 		v = val.Nil{}
 		err = errors.New("failed to cast field")
@@ -105,6 +119,12 @@ func (f *Field) castFlt(a any) (v val.Val, err error) {
 		v = val.FltAsFlt(c)
 	case string:
 		v, err = val.StrAsFlt(c)
+	case val.Int:
+		v = val.IntAsFlt(c.ToInt())
+	case val.Flt:
+		v = c
+	case val.Str:
+		v, err = val.StrAsFlt(c.String())
 	default:
 		v = val.Nil{}
 		err = errors.New("failed to cast field")
@@ -123,6 +143,44 @@ func (f *Field) castStr(a any) (v val.Val, err error) {
 		v = val.FltAsStr(c)
 	case string:
 		v, err = val.StrAsStr(c)
+	case []string:
+		v, err = val.ArrAsStr(c)
+	case val.Int:
+		v, err = val.StrAsStr(c.String())
+	case val.Flt:
+		v, err = val.StrAsStr(c.String())
+	case val.Str:
+		v = c
+	case val.Arr:
+		v, err = val.StrAsStr(c.String())
+	default:
+		v = val.Nil{}
+		err = errors.New("failed to cast field")
+	}
+
+	return v, err
+}
+
+func (f *Field) castArr(a any) (v val.Val, err error) {
+	switch c := a.(type) {
+	case int:
+		v = val.IntAsArr(int64(c))
+	case int64:
+		v = val.IntAsArr(c)
+	case float64:
+		v = val.FltAsArr(c)
+	case string:
+		v, err = val.StrAsArr(c)
+	case []string:
+		v, err = val.ArrAsArr(c)
+	case val.Int:
+		v, err = val.StrAsArr(c.String())
+	case val.Flt:
+		v, err = val.StrAsArr(c.String())
+	case val.Str:
+		v, err = val.StrAsArr(c.String())
+	case val.Arr:
+		v = c
 	default:
 		v = val.Nil{}
 		err = errors.New("failed to cast field")
